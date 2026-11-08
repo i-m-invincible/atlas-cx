@@ -33,12 +33,15 @@ export function Overview() {
           <span className="status-label">Foundation preview</span>
           <h2 id="foundation-title">The workspace foundation is in place.</h2>
           <p>
-            Customer records, support requests, and follow-ups will share this
-            work surface. These workflows are not available yet.
+            Customer records and contacts are available after sign-in. Support
+            requests and follow-ups will follow in later milestones.
           </p>
           <p>
             No customer data or operational metrics are shown in this preview.
           </p>
+          <a className="button" href="/app/customers">
+            Open customers
+          </a>
         </div>
         <div className="service-row">
           <div>

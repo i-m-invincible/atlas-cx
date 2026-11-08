@@ -1,4 +1,24 @@
-# Step 3 verification
+# Verification evidence
+
+## M1 identity and customer core
+
+Date: 8 November 2026. Same Windows toolchain as the foundation record below.
+All required source files were read before coding; the authoritative source
+documents remain byte-identical.
+
+- Backend: 21 unit/HTTP tests passed; 27 integration cases are separately selected.
+- Frontend: 15 unit tests passed; production build and strict TypeScript passed.
+- Ruff lint and strict mypy passed. The complete final quality run is in progress.
+- Browser interaction/reflow checks are in progress at 1440, 1024, 700, and 390 px.
+- Docker and PostgreSQL are unavailable on this host. The new migration, real-role
+  integration tests, container health checks, and real-stack browser flow await CI.
+  Unexecuted checks are not counted as passes.
+
+No case authorization, release load/restore test, screen-reader certification,
+deployment, or production-readiness claim is made. M2 adds the real case vertical
+slice and its same-customer/contact case-access tests.
+
+## M0 foundation
 
 Verification date: 8 November 2026. Host: Windows, Node 24.17.0, npm 11.13.0,
 managed CPython 3.12.13, uv 0.11.2. No application was deployed.

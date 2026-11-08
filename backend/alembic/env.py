@@ -3,7 +3,7 @@ import os
 from sqlalchemy import create_engine, pool
 
 from alembic import context
-from app.modules.workspace.models import Workspace  # noqa: F401
+from app.platform import models  # noqa: F401
 from app.platform.database import Base
 
 target_metadata = Base.metadata

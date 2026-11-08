@@ -46,7 +46,7 @@ def test_ready_success_contract(client: TestClient, monkeypatch: MonkeyPatch) ->
 
 
 def test_missing_route_has_problem_envelope(client: TestClient) -> None:
-    response = client.get("/api/v1/customers")
+    response = client.get("/api/v1/does-not-exist")
     assert response.status_code == 404
     assert response.json()["code"] == "not_found"
     assert response.json()["request_id"] == response.headers["x-request-id"]

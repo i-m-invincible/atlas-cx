@@ -1,17 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
+import { useSession } from '../features/identity/session';
 
-const plannedSections = [
-  'Customers',
-  'Support',
-  'Analytics',
-  'Knowledge',
-  'Follow-ups',
-  'Settings',
-];
+const plannedSections = ['Support', 'Analytics', 'Knowledge', 'Follow-ups'];
 
 function Navigation({ onNavigate }: { onNavigate?: () => void }) {
+  const { identity } = useSession();
   return (
     <nav aria-label="Primary navigation">
       <ul className="navigation">
@@ -20,6 +15,20 @@ function Navigation({ onNavigate }: { onNavigate?: () => void }) {
             Overview
           </NavLink>
         </li>
+        {identity?.audience === 'staff' && (
+          <li>
+            <NavLink to="/app/customers" onClick={onNavigate}>
+              Customers
+            </NavLink>
+          </li>
+        )}
+        {identity?.role === 'admin' && (
+          <li>
+            <NavLink to="/app/settings/workspace" onClick={onNavigate}>
+              Settings
+            </NavLink>
+          </li>
+        )}
         {plannedSections.map((section) => (
           <li className="planned-link" key={section}>
             <span>{section}</span>
@@ -32,8 +41,13 @@ function Navigation({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const { identity } = useSession();
+  const location = useLocation();
   const drawer = useRef<HTMLDialogElement>(null);
   const menuButton = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    document.getElementById('page-heading')?.focus();
+  }, [location.pathname]);
 
   function closeDrawer() {
     drawer.current?.close();
@@ -67,12 +81,23 @@ export function AppShell({ children }: { children: ReactNode }) {
           </button>
           <span className="brand">Atlas CX</span>
         </div>
-        <span className="preview-label">Application preview</span>
+        <div className="header-account">
+          {identity ? (
+            <>
+              <span className="workspace-name">{identity.workspace_name}</span>
+              <Link to="/app/account">Account</Link>
+            </>
+          ) : (
+            <Link to="/sign-in">Sign in</Link>
+          )}
+        </div>
       </header>
       <aside className="sidebar" aria-label="Application navigation">
         <p className="sidebar-label">Customer operations</p>
         <Navigation />
-        <p className="sidebar-note">No workspace connected</p>
+        <p className="sidebar-note">
+          {identity ? identity.workspace_name : 'No workspace connected'}
+        </p>
       </aside>
       <dialog
         id="navigation-drawer"
@@ -102,7 +127,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             Close
           </button>
         </div>
-        <p className="small-reading">No workspace connected</p>
+        <p className="small-reading">
+          {identity ? identity.workspace_name : 'No workspace connected'}
+        </p>
         <Navigation
           onNavigate={() => {
             drawer.current?.close();
@@ -113,7 +140,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         />
       </dialog>
       <main id="main-content" className="main-content" tabIndex={-1}>
-        {children}
+        <Suspense fallback={<p role="status">Loading page�</p>}>
+          {children}
+        </Suspense>
       </main>
     </div>
   );

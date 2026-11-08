@@ -3,7 +3,7 @@ from typing import Literal
 from urllib.parse import urlsplit
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from pydantic import SecretStr, field_validator
+from pydantic import SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -17,6 +17,22 @@ class Settings(BaseSettings):
     )
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     default_timezone: str = "Asia/Kolkata"
+    session_signing_key: SecretStr = SecretStr(
+        "local-development-session-key-change-before-hosting"
+    )
+    cursor_signing_key: SecretStr = SecretStr("local-development-cursor-key-change-before-hosting")
+
+    @model_validator(mode="after")
+    def secure_configuration(self) -> "Settings":
+        for key in (self.session_signing_key, self.cursor_signing_key):
+            value = key.get_secret_value()
+            if len(value) < 32:
+                raise ValueError("Signing keys must contain at least 32 characters")
+            if self.app_env == "production" and value.startswith("local-development-"):
+                raise ValueError("Production requires independently generated signing keys")
+        if self.app_env == "production" and not self.public_origin.startswith("https://"):
+            raise ValueError("Production requires an HTTPS origin")
+        return self
 
     @field_validator("database_url")
     @classmethod

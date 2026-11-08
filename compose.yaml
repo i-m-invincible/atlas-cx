@@ -34,6 +34,7 @@ services:
     command: ['.venv/bin/alembic', 'upgrade', 'head']
     environment:
       MIGRATION_DATABASE_URL: postgresql+psycopg://atlas_migrator:${MIGRATION_DB_PASSWORD:-local-migration-only}@db:5432/${POSTGRES_DB:-atlas_cx}
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost:8080}
     depends_on:
       db:
         condition: service_healthy
@@ -52,6 +53,8 @@ services:
       DATABASE_URL: postgresql+psycopg://atlas_app:${APP_DB_PASSWORD:-local-app-only}@db:5432/${POSTGRES_DB:-atlas_cx}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       DEFAULT_TIMEZONE: ${DEFAULT_TIMEZONE:-Asia/Kolkata}
+      SESSION_SIGNING_KEY: ${SESSION_SIGNING_KEY:-local-development-session-key-change-before-hosting}
+      CURSOR_SIGNING_KEY: ${CURSOR_SIGNING_KEY:-local-development-cursor-key-change-before-hosting}
     ports:
       - '127.0.0.1:${API_PORT:-8000}:8000'
     depends_on:

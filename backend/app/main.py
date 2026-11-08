@@ -7,13 +7,18 @@ from uuid import uuid4
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from starlette.exceptions import HTTPException
 from starlette.responses import Response
 
+from app.modules.customers.router import router as customers_router
+from app.modules.identity.router import router as identity_router
+from app.modules.workspace.router import router as workspace_router
 from app.platform.config import get_settings
 from app.platform.database import build_engine
 from app.platform.errors import FieldError, problem_response
 from app.platform.health import router as health_router
+from app.platform.protocol import Fault
 
 logger = logging.getLogger("atlas.requests")
 
@@ -30,7 +35,7 @@ def create_app() -> FastAPI:
     application = FastAPI(
         title="Atlas CX API",
         version="0.1.0",
-        description="Foundation health API. Customer workflows are not implemented yet.",
+        description="Atlas CX identity, workspace, and customer core API.",
         lifespan=lifespan,
         docs_url="/api/docs" if settings.app_env != "production" else None,
         redoc_url=None,
@@ -82,6 +87,25 @@ def create_app() -> FastAPI:
             headers=dict(exc.headers) if exc.headers else None,
         )
 
+    @application.exception_handler(Fault)
+    async def domain_error(request: Request, exc: Fault) -> Response:
+        return problem_response(request, exc.status, exc.code, exc.detail, headers=exc.headers)
+
+    @application.exception_handler(IntegrityError)
+    async def integrity_error(request: Request, exc: IntegrityError) -> Response:
+        return problem_response(
+            request,
+            409,
+            "record_conflict",
+            "These details conflict with an existing record in this workspace.",
+        )
+
+    @application.exception_handler(SQLAlchemyError)
+    async def database_error(request: Request, exc: SQLAlchemyError) -> Response:
+        return problem_response(
+            request, 503, "dependency_unavailable", "The service is unavailable. Try again shortly."
+        )
+
     @application.exception_handler(RequestValidationError)
     async def validation_error(request: Request, exc: RequestValidationError) -> Response:
         fields = [
@@ -97,6 +121,9 @@ def create_app() -> FastAPI:
         )
 
     application.include_router(health_router, prefix="/api/v1")
+    application.include_router(identity_router, prefix="/api/v1")
+    application.include_router(customers_router, prefix="/api/v1")
+    application.include_router(workspace_router, prefix="/api/v1")
     return application
 
 
