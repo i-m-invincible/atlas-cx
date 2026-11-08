@@ -151,6 +151,7 @@ it('does not display a message as delivered until the server confirms it', async
   expect(
     await screen.findByRole('button', { name: 'Posting...' }),
   ).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Resolve case' })).toBeDisabled();
   expect(
     within(screen.getByRole('list', { name: 'Conversation' })).queryByText(
       'Pending message',
@@ -279,7 +280,7 @@ it('validates the portal form and submits only contact-safe fields', async () =>
   const { server, router } = setup({ portal: true, path: '/portal/new' });
   await screen.findByLabelText('Subject');
   await userEvent.click(screen.getByRole('button', { name: 'Submit request' }));
-  expect(await screen.findByRole('alert')).toHaveFocus();
+  await waitFor(() => expect(screen.getByRole('alert')).toHaveFocus());
   await userEvent.selectOptions(screen.getByLabelText('Category'), 'access');
   await userEvent.type(
     screen.getByLabelText('Subject'),

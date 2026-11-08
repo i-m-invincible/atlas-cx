@@ -94,9 +94,8 @@ export function useHeadingFocus(id: string, ready: boolean) {
     const frame = requestAnimationFrame(() => {
       // Route focus must not interrupt someone who already started typing.
       if (
-        !document.activeElement?.closest(
-          'input, textarea, select, button, a[href], [contenteditable], dialog[open]',
-        )
+        document.activeElement === document.body ||
+        document.activeElement?.matches('h1, h2, h3')
       )
         document.getElementById(id)?.focus();
     });

@@ -12,6 +12,7 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 import { api } from '../../api/client';
+import type { ApiEnvelope } from '../../api/client';
 import { ErrorMessage, Loading } from '../../components/Feedback';
 import { ValidationSummary } from '../../components/FormSafety';
 import { useSession } from '../identity/session';
@@ -244,8 +245,14 @@ function CaseWork({ row, origin }: { row: CaseDetail; origin: string }) {
     ]);
   };
   const openAction = (value: Action) => {
+    const confirmed = client.getQueryData<ApiEnvelope<CaseDetail>>([
+      identity?.workspace_id,
+      'staff',
+      'case',
+      row.id,
+    ]);
     setAction(value);
-    setActionVersion(row.version);
+    setActionVersion(confirmed?.data.version ?? row.version);
     setActionError(null);
     setActionValidation([]);
     setActionAttempts(0);
@@ -349,6 +356,7 @@ function CaseWork({ row, origin }: { row: CaseDetail; origin: string }) {
           {canWrite && row.state === 'open' && (
             <button
               className="button secondary"
+              disabled={pending}
               onClick={() => openAction('ask_customer')}
             >
               Ask customer
@@ -357,6 +365,7 @@ function CaseWork({ row, origin }: { row: CaseDetail; origin: string }) {
           {canWrite && row.state === 'pending_customer' && (
             <button
               className="button secondary"
+              disabled={pending}
               onClick={() => openAction('resume')}
             >
               Resume case
@@ -366,6 +375,7 @@ function CaseWork({ row, origin }: { row: CaseDetail; origin: string }) {
             ['new', 'open', 'pending_customer'].includes(row.state) && (
               <button
                 className="button secondary"
+                disabled={pending}
                 onClick={() => openAction('resolve')}
               >
                 Resolve case
@@ -374,6 +384,7 @@ function CaseWork({ row, origin }: { row: CaseDetail; origin: string }) {
           {canWrite && row.state === 'resolved' && (
             <button
               className="button secondary"
+              disabled={pending}
               onClick={() => openAction('reopen')}
             >
               Reopen case
@@ -382,6 +393,7 @@ function CaseWork({ row, origin }: { row: CaseDetail; origin: string }) {
           {canClose && row.state === 'resolved' && (
             <button
               className="button secondary"
+              disabled={pending}
               onClick={() => openAction('close')}
             >
               Close case
@@ -630,12 +642,12 @@ function CaseWork({ row, origin }: { row: CaseDetail; origin: string }) {
                           ? response.data.updated_case_version
                           : current.internal,
                     }));
+                    await refresh();
                     setNotice(
                       mode === 'public'
                         ? 'Reply posted to the portal.'
                         : 'Internal note added.',
                     );
-                    await refresh();
                   } catch (cause) {
                     setError(cause as Error);
                   } finally {

@@ -86,6 +86,10 @@ for (const width of [1440, 1024, 700, 390]) {
       expect(bounds!.y).toBe(0);
       expect(bounds!.width).toBe(width);
       expect(bounds!.height).toBe(1000);
+    } else {
+      const bounds = await resolution.boundingBox();
+      expect(bounds!.x).toBe((width - bounds!.width) / 2);
+      expect(bounds!.y).toBeGreaterThan(0);
     }
     await page.screenshot({
       path: `test-results/support-${width}-resolution.png`,
