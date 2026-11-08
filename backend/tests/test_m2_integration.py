@@ -13,6 +13,8 @@ from test_m1_integration import (
     mutate,
     new_customer,
 )  # noqa: F401 -- shared real-role fixtures; pytest registers imported fixtures.
+from test_m1_integration import clients as clients
+from test_m1_integration import core as core
 
 from app.modules.cases import repository as case_repository
 from app.modules.cases import service as case_service
