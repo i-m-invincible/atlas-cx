@@ -48,6 +48,7 @@ dependency locks are included.
 - `docs/ROADMAP.md`
 - `docs/VERIFICATION.md`
 - `docs/architecture/0002-identity-customer-core.md`
+- `docs/architecture/0001-foundation.md`
 - `docs/contracts/openapi.json`
 - `frontend/e2e/customer-fixture.ts`
 - `frontend/e2e/customers.spec.ts`

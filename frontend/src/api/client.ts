@@ -75,6 +75,36 @@ export async function api<T>(
   return response.json();
 }
 
+// Selectors need every eligible member/team; they must not silently stop at
+// the API page limit. Customer/contact workspaces retain explicit Load more.
+export async function apiPages<T>(
+  path: string,
+  signal?: AbortSignal,
+): Promise<ApiEnvelope<T[]>> {
+  const [resource, query] = path.split('?');
+  const parameters = new URLSearchParams(query);
+  parameters.set('limit', '100');
+  const rows: T[] = [];
+  const seen = new Set<string>();
+  let response: ApiEnvelope<T[]>;
+  do {
+    response = await api<T[]>(`${resource}?${parameters}`, { signal });
+    rows.push(...response.data);
+    if (!response.meta.has_more) break;
+    const cursor = response.meta.next_cursor;
+    if (!cursor || seen.has(cursor))
+      throw new ApiError(500, {
+        detail: 'We couldn’t load the complete list. Try again.',
+      });
+    seen.add(cursor);
+    parameters.set('cursor', cursor);
+  } while (response.meta.has_more);
+  return {
+    data: rows,
+    meta: { ...response.meta, has_more: false, next_cursor: null },
+  };
+}
+
 export function queryString(
   values: Record<string, string | number | boolean | undefined | null>,
 ) {

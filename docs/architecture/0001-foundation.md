@@ -2,6 +2,10 @@
 
 Status: implemented for Step 3, the M0 foundation.
 
+Historical snapshot of the initial foundation. M1 extends its database and
+authentication boundary; see [identity and customer core](0002-identity-customer-core.md)
+for the current behavior.
+
 Atlas CX uses one FastAPI application and one PostgreSQL database. Domain code
 lives in `backend/app/modules`; shared transaction and HTTP infrastructure lives
 in `backend/app/platform`. Only the workspace root exists today. There are no

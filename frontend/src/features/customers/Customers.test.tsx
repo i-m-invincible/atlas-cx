@@ -108,6 +108,48 @@ it('shows filtered empty copy and keeps the search text', async () => {
   expect(screen.getByLabelText('Search customers')).toHaveValue('missing');
 });
 
+it('loads owner choices beyond the first API page', async () => {
+  const fetch = network();
+  const original = fetch.getMockImplementation()!;
+  fetch.mockImplementation(async (url: string, options?: RequestInit) => {
+    const parsed = new URL(url, 'http://localhost');
+    if (parsed.pathname === '/api/v1/members')
+      return {
+        ok: true,
+        status: 200,
+        json: async () =>
+          parsed.searchParams.has('cursor')
+            ? envelope([
+                {
+                  ...member,
+                  id: '66666666-6666-4666-8666-666666666666',
+                  display_name: 'Later page owner',
+                },
+              ])
+            : envelope([member], true, 'synthetic-next-cursor'),
+      };
+    return original(url, options);
+  });
+  mount('/app/customers');
+  expect(
+    await screen.findByRole('option', { name: 'Later page owner' }),
+  ).toBeVisible();
+  expect(
+    fetch.mock.calls.some(([url]) =>
+      String(url).includes('cursor=synthetic-next-cursor'),
+    ),
+  ).toBe(true);
+});
+
+it('clears the visible tag filter together with its URL state', async () => {
+  network();
+  const { router } = mount('/app/customers?tag=pilot&sort=created_at');
+  expect(await screen.findByLabelText('Tag')).toHaveValue('pilot');
+  await userEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
+  expect(screen.getByLabelText('Tag')).toHaveValue('');
+  expect(router.state.location.search).toBe('');
+});
+
 it('hides customer mutation actions from a viewer', async () => {
   network();
   mount('/app/customers', 'viewer');
@@ -120,7 +162,10 @@ it('hides customer mutation actions from a viewer', async () => {
 it('shows loading and recoverable network errors', async () => {
   vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
   mount('/app/customers');
-  expect(screen.getByRole('status')).toHaveTextContent('Loading customers');
+  expect(screen.getByText('Loading customers…')).toHaveAttribute(
+    'role',
+    'status',
+  );
   expect(
     await screen.findByRole('button', { name: 'Retry customers' }),
   ).toBeVisible();

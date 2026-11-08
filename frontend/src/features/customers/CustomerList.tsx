@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
-import { api, queryString } from '../../api/client';
+import { api, apiPages, queryString } from '../../api/client';
 import type { Customer, Member } from '../../api/client';
 import { ErrorMessage, Loading } from '../../components/Feedback';
 import { useSession } from '../identity/session';
@@ -27,8 +27,7 @@ export function CustomerList() {
   };
   const members = useQuery({
     queryKey: [identity?.workspace_id, 'staff', 'members'],
-    queryFn: ({ signal }) =>
-      api<Member[]>('/members?active=true&limit=100', { signal }),
+    queryFn: ({ signal }) => apiPages<Member>('/members?active=true', signal),
     enabled: !!identity,
   });
   const customers = useInfiniteQuery({
@@ -108,6 +107,7 @@ export function CustomerList() {
             key={[
               parameters.get('lifecycle'),
               parameters.get('owner_id'),
+              parameters.get('tag'),
               parameters.get('archived'),
               parameters.get('sort'),
             ].join(':')}
@@ -143,6 +143,7 @@ export function CustomerList() {
               <select
                 id="owner-filter"
                 name="owner_id"
+                disabled={members.isPending || !!members.error}
                 defaultValue={parameters.get('owner_id') ?? ''}
               >
                 <option value="">All owners</option>
@@ -192,6 +193,19 @@ export function CustomerList() {
               Clear filters
             </button>
           </form>
+          {members.isPending && <p role="status">Loading owners...</p>}
+          {members.error && (
+            <>
+              <ErrorMessage error={members.error} />
+              <button
+                className="button secondary"
+                type="button"
+                onClick={() => void members.refetch()}
+              >
+                Retry owners
+              </button>
+            </>
+          )}
         </div>
         {customers.isPending || search !== q ? (
           <div className="surface-padding">

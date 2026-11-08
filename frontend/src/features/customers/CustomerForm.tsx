@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Temporal } from '@js-temporal/polyfill';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { api, ApiError } from '../../api/client';
+import { api, apiPages, ApiError } from '../../api/client';
 import type { Customer, Member } from '../../api/client';
 import { ErrorMessage, Loading } from '../../components/Feedback';
 import { useSession } from '../identity/session';
@@ -48,8 +48,7 @@ function CustomerEditor({ customer }: { customer?: Customer }) {
   const timezone = identity?.timezone ?? 'Asia/Kolkata';
   const members = useQuery({
     queryKey: [identity?.workspace_id, 'staff', 'members'],
-    queryFn: ({ signal }) =>
-      api<Member[]>('/members?active=true&limit=100', { signal }),
+    queryFn: ({ signal }) => apiPages<Member>('/members?active=true', signal),
   });
   const form = useForm<Values>({
     shouldFocusError: false,
@@ -252,7 +251,24 @@ function CustomerEditor({ customer }: { customer?: Customer }) {
           <option value="inactive">Inactive</option>
         </select>
         <label htmlFor="owner_member_id">Owner · Optional</label>
-        <select id="owner_member_id" {...register('owner_member_id')}>
+        {members.isPending && <p role="status">Loading owners...</p>}
+        {members.error && (
+          <>
+            <ErrorMessage error={members.error} />
+            <button
+              className="button secondary"
+              type="button"
+              onClick={() => void members.refetch()}
+            >
+              Retry owners
+            </button>
+          </>
+        )}
+        <select
+          id="owner_member_id"
+          {...register('owner_member_id')}
+          disabled={members.isPending || !!members.error}
+        >
           <option value="">Unassigned</option>
           {members.data?.data
             .filter((member) => member.role !== 'viewer')
@@ -310,7 +326,12 @@ function CustomerEditor({ customer }: { customer?: Customer }) {
         <div className="form-actions">
           <button
             className="button"
-            disabled={isSubmitting || !!customer?.archived_at}
+            disabled={
+              isSubmitting ||
+              members.isPending ||
+              !!members.error ||
+              !!customer?.archived_at
+            }
           >
             {isSubmitting
               ? 'Saving…'

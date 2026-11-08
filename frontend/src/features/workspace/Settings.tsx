@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '../../api/client';
+import { api, apiPages } from '../../api/client';
 import type { Member, Team, Workspace } from '../../api/client';
 import { ErrorMessage, Loading } from '../../components/Feedback';
 import { useSession } from '../identity/session';
@@ -18,11 +18,11 @@ export function Settings() {
   });
   const members = useQuery({
     queryKey: [identity?.workspace_id, 'staff', 'settings-members'],
-    queryFn: ({ signal }) => api<Member[]>('/members?limit=100', { signal }),
+    queryFn: ({ signal }) => apiPages<Member>('/members', signal),
   });
   const teams = useQuery({
     queryKey: [identity?.workspace_id, 'staff', 'teams'],
-    queryFn: ({ signal }) => api<Team[]>('/teams?limit=100', { signal }),
+    queryFn: ({ signal }) => apiPages<Team>('/teams', signal),
   });
   if (identity?.role !== 'admin')
     return <p>You don’t have permission to manage this workspace.</p>;

@@ -3,29 +3,42 @@
 ## M1 identity and customer core
 
 Date: 8 November 2026. Same Windows toolchain as the foundation record below.
-All required source files were read before coding; the authoritative source
-documents remain byte-identical.
+AGENTS.md, both specifications, ROADMAP.md, and the wireframe PDF were read before
+coding. All three authoritative source documents remain byte-identical.
 
-- Backend: 21 unit/HTTP tests passed. CI passed 34 PostgreSQL cases including
-  role permissions, ownership transfer, recovery, and concurrent password changes.
-  The additional setup-acceptance migration and regression await the final CI run.
-- Frontend: production build, strict TypeScript, ESLint, and formatting passed.
-  All 16 unit tests passed, including explicit contact conflict review/re-save.
-- Ruff lint, formatting, and strict mypy passed.
-- All 17 browser interaction/reflow checks passed locally at 1440, 1024, 700,
-  and 390 px, plus foundation shell checks at 320 px. Representative list/detail/
-  form screenshots across the required sizes were visually inspected.
-- Docker and PostgreSQL are unavailable on this host. CI passed the M0 data
-  preservation upgrade, rollback/repeat upgrades, real-role isolation suite,
-  container builds, and same-origin health smoke checks.
-- The initial real-stack browser test reached customer/contact persistence and
-  portal setup, then checked permissions before portal login finished because
-  its heading selector also matched the sign-in heading. The selector was made
-  exact. The corrected real-stack flow passed in CI on commit 075dda2.
+| Check                       | Observed result                                                                                                                                                                                                                                                                            |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Dependencies                | Locked frontend/backend dependencies installed; clean installations repeated in CI. npm audit reported zero known vulnerabilities.                                                                                                                                                         |
+| Frontend quality            | Formatting, ESLint, strict TypeScript, Vite production build, and all 18 unit tests passed locally.                                                                                                                                                                                        |
+| Backend quality             | Ruff lint/format, strict mypy, and 21 unit/HTTP tests passed locally and in CI.                                                                                                                                                                                                            |
+| PostgreSQL integration      | 35 cases passed in CI using PostgreSQL 17/pgvector and the real non-owner, non-superuser, non-BYPASSRLS `atlas_app` role.                                                                                                                                                                  |
+| Security and writes         | Verified cookie/session rotation and expiry, CSRF/Origin rejection, role checks, tenant isolation, same-customer contact RLS, setup acceptance/single use, portal revocation, ownership transfer, recovery, concurrent password changes, ETags, audit atomicity, and database constraints. |
+| Migration and containers    | CI passed preservation of an existing M0 workspace during upgrade, empty-schema rollback, repeat upgrades, both container builds, and same-origin health/security-header smoke checks.                                                                                                     |
+| Deterministic browser tests | 17 passed locally and in CI. The real-stack test is explicitly skipped without E2E_BASE_URL; this skip is not counted as a pass.                                                                                                                                                           |
+| Real-stack browser          | 1 passed in CI against Compose: staff login, Secure/HttpOnly/Lax cookie, cross-workspace denial, persisted customer/contact creation, portal setup/login, staff CRM denial, portal navigation, and logout. No API mocks in this test.                                                      |
+| Responsive review           | Customer interactions tested at 1440, 1024, 700, and 390 px; foundation shell also tested at 320 px. Representative list, detail, and form screenshots across the required widths were inspected. Automated axe checks passed for the tested surfaces.                                     |
+| Local Docker/PostgreSQL     | Not available on the Windows host. Database and container results above come from GitHub Actions.                                                                                                                                                                                          |
 
-No case authorization, release load/restore test, screen-reader certification,
-deployment, or production-readiness claim is made. M2 adds the real case vertical
-slice and its same-customer/contact case-access tests.
+The complete security implementation at `905572c2191f3786d3193b1e72beb3ff98a692a0`
+passed [branch CI](https://github.com/i-m-invincible/atlas-cx/actions/runs/42503800856)
+and [pull-request CI](https://github.com/i-m-invincible/atlas-cx/actions/runs/42503804942).
+The final selector pagination and filter-reset regressions passed locally;
+the [pull-request checks](https://github.com/i-m-invincible/atlas-cx/pull/1/checks)
+repeat the entire suite on each push.
+
+Observed failures were fixed: password whitespace was initially trimmed by a
+shared input configuration; session-cache clearing could leave sign-in state
+stale; the real-stack test's portal heading also matched its sign-in heading;
+and pending existing-account access could be activated before setup acceptance.
+Regression coverage now exercises those boundaries. Contact conflicts retain the
+draft and require explicit review and save. Member/team selectors follow all API
+pages, and clearing tag filters also clears the visible field.
+
+No test failure is being left unresolved. These results do not constitute
+case authorization, release load/restore validation, a full screen-reader audit,
+deployment, or production-readiness evidence. Authenticated transactions currently
+serialize within a workspace for correctness; throughput has not been measured.
+M2 adds the actual case vertical slice and its same-customer/contact case tests.
 
 ## M0 foundation
 
