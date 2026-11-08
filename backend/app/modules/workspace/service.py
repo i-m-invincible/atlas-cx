@@ -175,11 +175,24 @@ def update_member(
                 "before changing this access.",
             )
         replacement = eligible_member(uow, payload.replacement_member_id, bool(fallback_changes))
-        uow.session.execute(
+        transferred = uow.session.scalars(
             update(Customer)
             .where(Customer.owner_member_id == row.id)
             .values(owner_member_id=replacement.id, version=Customer.version + 1, updated_at=now())
+            .returning(Customer.id)
         )
+        for customer_id in transferred:
+            record_audit(
+                uow.session,
+                uow.scope.workspace_id,
+                uow.scope.user_id,
+                "customer.owner_reassigned",
+                "customer",
+                customer_id,
+                ["owner_member_id"],
+                request.state.request_id,
+                "Ownership transferred during a membership access change.",
+            )
         if fallback_changes:
             workspace.feedback_manager_member_id = replacement.id
             workspace.version += 1

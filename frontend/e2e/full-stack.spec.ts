@@ -81,7 +81,11 @@ test('M1 full stack persists customers and enforces portal identity', async ({
   await portal.getByLabel('Password', { exact: true }).fill(fixture.password);
   await portal.getByRole('button', { name: 'Sign in', exact: true }).click();
   await expect(
-    portal.getByRole('heading', { level: 1, name: 'Customer portal' }),
+    portal.getByRole('heading', {
+      level: 1,
+      name: 'Customer portal',
+      exact: true,
+    }),
   ).toBeVisible();
   expect(
     await portal.evaluate(

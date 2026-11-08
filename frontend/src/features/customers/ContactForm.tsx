@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { api } from '../../api/client';
+import { api, ApiError } from '../../api/client';
 import type { Contact } from '../../api/client';
 import { ErrorMessage, Loading } from '../../components/Feedback';
 import { useSession } from '../identity/session';
@@ -51,6 +51,8 @@ function ContactEditor({
   const navigate = useNavigate();
   const client = useQueryClient();
   const [error, setError] = useState<Error | null>(null);
+  const [saveVersion, setSaveVersion] = useState(contact?.version);
+  const [latest, setLatest] = useState<Contact | null>(null);
   const {
     register,
     handleSubmit,
@@ -81,7 +83,7 @@ function ContactEditor({
               contact ? `/contacts/${contact.id}` : '/contacts',
               {
                 method: contact ? 'PATCH' : 'POST',
-                version: contact?.version,
+                version: saveVersion,
                 body: {
                   ...values,
                   phone: values.phone || null,
@@ -109,6 +111,61 @@ function ContactEditor({
         noValidate
       >
         <ErrorMessage error={error} />
+        {error instanceof ApiError &&
+          error.problem.code === 'version_conflict' && (
+            <section
+              className="ruled-section"
+              aria-label="Review contact conflict"
+            >
+              <p>
+                Your draft is still here. Review the saved contact before
+                applying it.
+              </p>
+              <button
+                className="button secondary"
+                type="button"
+                onClick={async () => {
+                  try {
+                    setLatest(
+                      (await api<Contact>(`/contacts/${contact!.id}`)).data,
+                    );
+                  } catch (failure) {
+                    setError(failure as Error);
+                  }
+                }}
+              >
+                Review latest contact
+              </button>
+              {latest && (
+                <>
+                  <h2>Latest saved contact: version {latest.version}</h2>
+                  <dl className="record-details">
+                    <dt>Name</dt>
+                    <dd>{latest.name}</dd>
+                    <dt>Email</dt>
+                    <dd>{latest.email}</dd>
+                    <dt>Phone</dt>
+                    <dd>{latest.phone ?? 'Not recorded'}</dd>
+                  </dl>
+                  <button
+                    className="button secondary"
+                    type="button"
+                    onClick={() => {
+                      setSaveVersion(latest.version);
+                      setLatest(null);
+                      setError(null);
+                    }}
+                  >
+                    Keep my draft for version {latest.version}
+                  </button>
+                  <p>
+                    Review your fields, then choose Save contact. This does not
+                    save automatically.
+                  </p>
+                </>
+              )}
+            </section>
+          )}
         <ValidationSummary
           submitCount={submitCount}
           messages={Object.entries(errors).map(([field, value]) => ({

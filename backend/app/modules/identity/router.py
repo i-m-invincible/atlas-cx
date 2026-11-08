@@ -109,6 +109,7 @@ def sign_out(request: Request, uow: Uow) -> Response:
         stored.id,
         [],
         request.state.request_id,
+        actor_kind=uow.scope.audience,
     )
     response = Response(status_code=204)
     response.delete_cookie(SESSION_COOKIE, secure=True, httponly=True, samesite="lax")
@@ -138,6 +139,7 @@ def change_password(
         user.id,
         ["password"],
         request.state.request_id,
+        actor_kind=uow.scope.audience,
     )
     response.delete_cookie(SESSION_COOKIE, secure=True, httponly=True, samesite="lax")
     return result(request, MessageView(message="Password changed. Sign in again."))

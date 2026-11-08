@@ -7,7 +7,13 @@ import { CustomerList } from './CustomerList';
 import { CustomerForm } from './CustomerForm';
 import { ContactForm } from './ContactForm';
 import { SessionContext } from '../identity/session';
-import { customer, envelope, identity, member } from '../../test/fixtures';
+import {
+  contact,
+  customer,
+  envelope,
+  identity,
+  member,
+} from '../../test/fixtures';
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -26,6 +32,10 @@ function mount(path: string, role: 'admin' | 'viewer' = 'admin') {
       { path: '/app/customers/new', element: <CustomerForm /> },
       { path: '/app/customers/:id/edit', element: <CustomerForm /> },
       { path: '/app/customers/:id/contacts/new', element: <ContactForm /> },
+      {
+        path: '/app/customers/:id/contacts/:contactId/edit',
+        element: <ContactForm />,
+      },
       { path: '/app/customers/:id', element: <h1>Customer saved</h1> },
     ],
     { initialEntries: [path] },
@@ -62,6 +72,8 @@ function network(customers: (typeof customer)[] = [customer]) {
       else if (pathname === '/api/v1/customers') data = envelope(customers);
       else if (pathname === `/api/v1/customers/${customer.id}`)
         data = envelope(customer);
+      else if (pathname === `/api/v1/contacts/${contact.id}`)
+        data = envelope(contact);
       return {
         ok: true,
         status: options?.method === 'POST' ? 201 : 200,
@@ -197,6 +209,64 @@ it('requires If-Match for edits and preserves a conflict draft', async () => {
     `/api/v1/customers/${customer.id}`,
     expect.objectContaining({
       headers: expect.objectContaining({ 'If-Match': '"1"' }),
+    }),
+  );
+});
+
+it('requires explicit review and save before applying a contact conflict draft', async () => {
+  const fetch = network();
+  const original = fetch.getMockImplementation()!;
+  let writes = 0;
+  fetch.mockImplementation(async (url: string, options?: RequestInit) => {
+    if (options?.method === 'PATCH') {
+      writes += 1;
+      return writes === 1
+        ? {
+            ok: false,
+            status: 409,
+            json: async () => ({
+              code: 'version_conflict',
+              detail: 'Contact changed.',
+            }),
+          }
+        : {
+            ok: true,
+            status: 200,
+            json: async () => envelope({ ...contact, version: 3 }),
+          };
+    }
+    if (writes && url === `/api/v1/contacts/${contact.id}`)
+      return {
+        ok: true,
+        status: 200,
+        json: async () =>
+          envelope({ ...contact, version: 2, name: 'Latest contact' }),
+      };
+    return original(url, options);
+  });
+  mount(`/app/customers/${customer.id}/contacts/${contact.id}/edit`);
+  const name = await screen.findByLabelText('Contact name');
+  await userEvent.clear(name);
+  await userEvent.type(name, 'My contact draft');
+  await userEvent.click(screen.getByRole('button', { name: 'Save contact' }));
+  expect(await screen.findByText('Contact changed.')).toBeVisible();
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Review latest contact' }),
+  );
+  expect(await screen.findByText('Latest contact')).toBeVisible();
+  await userEvent.click(
+    screen.getByRole('button', { name: 'Keep my draft for version 2' }),
+  );
+  expect(writes).toBe(1);
+  expect(name).toHaveValue('My contact draft');
+  await userEvent.click(screen.getByRole('button', { name: 'Save contact' }));
+  expect(
+    await screen.findByRole('heading', { name: 'Customer saved' }),
+  ).toBeVisible();
+  expect(fetch).toHaveBeenCalledWith(
+    `/api/v1/contacts/${contact.id}`,
+    expect.objectContaining({
+      headers: expect.objectContaining({ 'If-Match': '"2"' }),
     }),
   );
 });

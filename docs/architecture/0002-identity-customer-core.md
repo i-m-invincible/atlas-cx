@@ -62,6 +62,12 @@ The API rejects extra input fields and naive datetimes. OpenAPI generates the
 frontend DTOs. Unknown health/activity stays null rather than inventing values.
 
 The original M0 migration is preserved. M1 is an additive frozen-SQL migration.
+Identity transactions lock user, workspace, then session/setup token in that
+order. The user/workspace locks use NO KEY UPDATE so foreign-key checks remain
+possible. This conservatively serializes authenticated transactions within a
+workspace in M1, preventing ownership, last-admin, and revocation races. No
+external service calls occur inside those transactions. Finer-grained locking
+requires measured contention and equivalent concurrency tests in a later milestone.
 CI exercises an upgrade with an existing M0 workspace and empty-schema rollback/
 repeat upgrade. The API continues to use only the application database role.
 

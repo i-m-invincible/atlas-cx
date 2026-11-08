@@ -22,6 +22,12 @@ function Navigation({ onNavigate }: { onNavigate?: () => void }) {
             </NavLink>
           </li>
         )}
+        {plannedSections.map((section) => (
+          <li className="planned-link" key={section}>
+            <span>{section}</span>
+            <span className="metadata">Planned</span>
+          </li>
+        ))}
         {identity?.role === 'admin' && (
           <li>
             <NavLink to="/app/settings/workspace" onClick={onNavigate}>
@@ -29,12 +35,6 @@ function Navigation({ onNavigate }: { onNavigate?: () => void }) {
             </NavLink>
           </li>
         )}
-        {plannedSections.map((section) => (
-          <li className="planned-link" key={section}>
-            <span>{section}</span>
-            <span className="metadata">Planned</span>
-          </li>
-        ))}
       </ul>
     </nav>
   );
@@ -140,7 +140,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         />
       </dialog>
       <main id="main-content" className="main-content" tabIndex={-1}>
-        <Suspense fallback={<p role="status">Loading page�</p>}>
+        <Suspense fallback={<p role="status">Loading page...</p>}>
           {children}
         </Suspense>
       </main>

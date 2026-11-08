@@ -49,7 +49,7 @@ export function App() {
     <Suspense
       fallback={
         <main className="auth-page">
-          <p role="status">Loading page�</p>
+          <p role="status">Loading page...</p>
         </main>
       }
     >

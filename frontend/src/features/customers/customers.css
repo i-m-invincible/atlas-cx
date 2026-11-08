@@ -92,7 +92,7 @@ legend {
 }
 .form-surface > .checkbox-label,
 .compact-form > .checkbox-label,
-fieldset .checkbox-label {
+.form-surface > fieldset .checkbox-label {
   display: flex;
 }
 .compact-form {

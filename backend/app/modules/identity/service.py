@@ -59,11 +59,13 @@ def login(
                 {"Retry-After": str(remaining)},
             )
         buckets.append(bucket)
-    user = by_email(session, str(payload.email))
+    user = by_email(session, str(payload.email), lock=True)
     valid_password = verify_password(
         user.password_hash if user else None, payload.password.get_secret_value()
     )
     workspace = workspace_by_slug(session, payload.workspace_slug)
+    if workspace:
+        workspace = session.get(Workspace, workspace.id, with_for_update={"key_share": True})
     session_id = uuid4()
     scope = (
         access_scope(session, user, workspace, payload.audience, session_id)
@@ -91,7 +93,15 @@ def login(
         )
     )
     record_audit(
-        session, workspace.id, user.id, "auth.login", "session", session_id, [], request_id
+        session,
+        workspace.id,
+        user.id,
+        "auth.login",
+        "session",
+        session_id,
+        [],
+        request_id,
+        actor_kind=payload.audience,
     )
     return scope, raw, csrf
 
@@ -134,15 +144,30 @@ def issue_setup(
 
 def complete_setup(session: Session, payload: SetupInput, request_id: str) -> None:
     setup = session.scalar(
-        select(SetupToken)
-        .where(SetupToken.token_hash == digest(payload.setup_token.get_secret_value()))
-        .with_for_update()
+        select(SetupToken).where(
+            SetupToken.token_hash == digest(payload.setup_token.get_secret_value())
+        )
     )
     invalid = Fault(400, "setup_invalid", "This setup link or password is invalid or expired.")
     if not setup or setup.used_at or setup.expires_at <= now():
         raise invalid
-    user = session.scalar(select(User).where(User.id == setup.user_id).with_for_update())
+    user = session.scalar(
+        select(User).where(User.id == setup.user_id).with_for_update(key_share=True)
+    )
     if not user or user.disabled_at:
+        raise invalid
+    if setup.workspace_id:
+        set_scope(session, setup.workspace_id)
+        workspace = session.get(Workspace, setup.workspace_id, with_for_update={"key_share": True})
+        if not workspace or workspace.archived_at:
+            raise invalid
+    setup = session.scalar(
+        select(SetupToken)
+        .where(SetupToken.id == setup.id)
+        .with_for_update()
+        .execution_options(populate_existing=True)
+    )
+    if not setup or setup.used_at or setup.expires_at <= now():
         raise invalid
     if setup.purpose == "recovery" or user.password_hash is None:
         if not payload.new_password or payload.current_password:
@@ -160,9 +185,6 @@ def complete_setup(session: Session, payload: SetupInput, request_id: str) -> No
         raise invalid
     if setup.workspace_id:
         set_scope(session, setup.workspace_id)
-        workspace = session.get(Workspace, setup.workspace_id)
-        if not workspace or workspace.archived_at:
-            raise invalid
         target: Membership | PortalBinding | None
         if setup.membership_id:
             target = session.get(Membership, setup.membership_id)
@@ -187,5 +209,6 @@ def complete_setup(session: Session, payload: SetupInput, request_id: str) -> No
             target.id,
             ["active"],
             request_id,
+            actor_kind="portal" if isinstance(target, PortalBinding) else "staff",
         )
     setup.used_at = now()

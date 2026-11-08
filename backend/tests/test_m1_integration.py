@@ -23,6 +23,7 @@ from app.modules.identity.models import (
 )
 from app.modules.identity.operator import bootstrap_workspace
 from app.modules.identity.security import SESSION_COOKIE, digest, password_hash
+from app.modules.identity.service import issue_setup
 from app.modules.workspace.models import Workspace
 from app.modules.workspace.team_models import Team, TeamMember
 from app.platform.audit import AuditEvent
@@ -713,6 +714,180 @@ def test_setup_consumption_is_atomic_under_race(core: Core, clients: Any) -> Non
     with ThreadPoolExecutor(max_workers=2) as executor:
         results = list(executor.map(consume, [(first, headers[0]), (second, headers[1])]))
     assert sorted(results) == [200, 400]
+
+
+@pytest.mark.parametrize("role", ["admin", "manager", "agent", "viewer"])
+def test_customer_role_matrix(core: Core, clients: Any, role: str) -> None:
+    client = clients(role + "1")
+    row = new_customer(clients())
+    assert client.get(f"/api/v1/customers/{row['id']}").status_code == 200
+    changed = mutate(client, f"/customers/{row['id']}", {"name": "Role matrix"}, "PATCH", 1)
+    assert changed.status_code == (403 if role == "viewer" else 200)
+    version = 1 if role == "viewer" else 2
+    archived = mutate(
+        client, f"/customers/{row['id']}/archive", {"reason": "Synthetic test"}, version=version
+    )
+    assert archived.status_code == (200 if role in {"admin", "manager"} else 403)
+    assert mutate(client, "/teams", {"name": str(uuid4()), "member_ids": []}).status_code == (
+        201 if role == "admin" else 403
+    )
+
+
+def test_access_change_transfers_ownership_and_revokes_sessions(core: Core, clients: Any) -> None:
+    admin, actor = clients(), clients(None)
+    data = setup_member(admin, core, "manager")
+    raw = data["setup_url"].split("#token=")[1]
+    assert (
+        mutate(actor, "/auth/setup", {"setup_token": raw, "new_password": PASSWORD}).status_code
+        == 200
+    )
+    member_id = data["member"]["id"]
+    assert (
+        mutate(
+            actor,
+            "/auth/login",
+            {
+                "workspace_slug": core.actors["admin1"]["workspace"],
+                "audience": "staff",
+                "email": data["member"]["email"],
+                "password": PASSWORD,
+            },
+        ).status_code
+        == 200
+    )
+    row = new_customer(admin, owner_member_id=member_id)
+    workspace = admin.get("/api/v1/workspace").json()["data"]
+    assert (
+        mutate(
+            admin,
+            "/workspace",
+            {"feedback_manager_member_id": member_id},
+            "PATCH",
+            workspace["version"],
+        ).status_code
+        == 200
+    )
+    path = f"/members/{member_id}"
+    member = admin.get("/api/v1" + path).json()["data"]
+    rejected = mutate(admin, path, {"role": "viewer"}, "PATCH", member["version"])
+    assert rejected.status_code == 409 and rejected.json()["code"] == "replacement_required"
+    assert (
+        admin.get(f"/api/v1/customers/{row['id']}").json()["data"]["owner_member_id"] == member_id
+    )
+    replacement = str(core.actors["admin1"]["member"])
+    assert (
+        mutate(
+            admin,
+            path,
+            {"role": "viewer", "replacement_member_id": replacement},
+            "PATCH",
+            member["version"],
+        ).status_code
+        == 200
+    )
+    assert actor.get("/api/v1/auth/me").status_code == 401
+    assert (
+        admin.get(f"/api/v1/customers/{row['id']}").json()["data"]["owner_member_id"] == replacement
+    )
+    assert (
+        admin.get("/api/v1/workspace").json()["data"]["feedback_manager_member_id"] == replacement
+    )
+    engine = build_engine(core.app_url)
+    with workspace_session(engine, core.workspaces[0]) as session:
+        assert session.scalar(
+            select(AuditEvent.id).where(
+                AuditEvent.entity_id == UUID(row["id"]),
+                AuditEvent.action == "customer.owner_reassigned",
+            )
+        )
+    engine.dispose()
+
+
+def test_operator_recovery_revokes_sessions_and_is_single_use(core: Core, clients: Any) -> None:
+    data = setup_member(clients(), core)
+    actor = clients(None)
+    assert (
+        mutate(
+            actor,
+            "/auth/setup",
+            {
+                "setup_token": data["setup_url"].split("#token=")[1],
+                "new_password": PASSWORD,
+            },
+        ).status_code
+        == 200
+    )
+    assert (
+        mutate(
+            actor,
+            "/auth/login",
+            {
+                "workspace_slug": core.actors["admin1"]["workspace"],
+                "audience": "staff",
+                "email": data["member"]["email"],
+                "password": PASSWORD,
+            },
+        ).status_code
+        == 200
+    )
+    engine = build_engine(core.migration_url)
+    with Session(engine) as session, session.begin():
+        user = session.get(User, UUID(data["member"]["user_id"]))
+        assert user
+        url = issue_setup(session, user, "recovery")
+    anonymous = clients(None)
+    payload = {"setup_token": url.split("#token=")[1], "new_password": "Recovery-password-99"}
+    assert mutate(anonymous, "/auth/setup", payload).status_code == 200
+    assert mutate(anonymous, "/auth/setup", payload).status_code == 400
+    assert actor.get("/api/v1/auth/me").status_code == 401
+    engine.dispose()
+
+
+def test_concurrent_password_changes_cannot_leave_sessions_valid(core: Core, clients: Any) -> None:
+    data = setup_member(clients(), core)
+    first, second = clients(None), clients(None)
+    assert (
+        mutate(
+            first,
+            "/auth/setup",
+            {
+                "setup_token": data["setup_url"].split("#token=")[1],
+                "new_password": PASSWORD,
+            },
+        ).status_code
+        == 200
+    )
+    for client in (first, second):
+        assert (
+            mutate(
+                client,
+                "/auth/login",
+                {
+                    "workspace_slug": core.actors["admin1"]["workspace"],
+                    "audience": "staff",
+                    "email": data["member"]["email"],
+                    "password": PASSWORD,
+                },
+            ).status_code
+            == 200
+        )
+    headers = [csrf(first), csrf(second)]
+
+    def change(pair: tuple[TestClient, dict[str, str]]) -> int:
+        client, hdr = pair
+        return client.post(
+            "/api/v1/auth/password",
+            headers=hdr,
+            json={
+                "current_password": PASSWORD,
+                "new_password": "Concurrent-password-77",
+            },
+        ).status_code
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        results = list(executor.map(change, [(first, headers[0]), (second, headers[1])]))
+    assert sorted(results) == [200, 401]
+    assert all(client.get("/api/v1/auth/me").status_code == 401 for client in (first, second))
 
 
 def test_login_rate_limit_is_persisted(core: Core, clients: Any) -> None:

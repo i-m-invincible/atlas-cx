@@ -6,13 +6,21 @@ Date: 8 November 2026. Same Windows toolchain as the foundation record below.
 All required source files were read before coding; the authoritative source
 documents remain byte-identical.
 
-- Backend: 21 unit/HTTP tests passed; 27 integration cases are separately selected.
-- Frontend: 15 unit tests passed; production build and strict TypeScript passed.
-- Ruff lint and strict mypy passed. The complete final quality run is in progress.
-- Browser interaction/reflow checks are in progress at 1440, 1024, 700, and 390 px.
-- Docker and PostgreSQL are unavailable on this host. The new migration, real-role
-  integration tests, container health checks, and real-stack browser flow await CI.
-  Unexecuted checks are not counted as passes.
+- Backend: 21 unit/HTTP tests passed. The first CI run passed 27 PostgreSQL cases;
+  seven additional role, transfer, recovery, and concurrency cases await CI.
+- Frontend: production build, strict TypeScript, ESLint, and formatting passed.
+  All 16 unit tests passed, including explicit contact conflict review/re-save.
+- Ruff lint, formatting, and strict mypy passed.
+- All 17 browser interaction/reflow checks passed locally at 1440, 1024, 700,
+  and 390 px, plus foundation shell checks at 320 px. Representative list/detail/
+  form screenshots across the required sizes were visually inspected.
+- Docker and PostgreSQL are unavailable on this host. CI passed the M0 data
+  preservation upgrade, rollback/repeat upgrades, real-role isolation suite,
+  container builds, and same-origin health smoke checks.
+- The initial real-stack browser test reached customer/contact persistence and
+  portal setup, then checked permissions before portal login finished because
+  its heading selector also matched the sign-in heading. The selector was made
+  exact. The corrected full flow awaits CI; it is not counted as a pass yet.
 
 No case authorization, release load/restore test, screen-reader certification,
 deployment, or production-readiness claim is made. M2 adds the real case vertical

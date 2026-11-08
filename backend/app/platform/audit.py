@@ -37,12 +37,13 @@ def record_audit(
     fields: list[str],
     request_id: str,
     reason: str | None = None,
+    actor_kind: str | None = None,
 ) -> None:
     session.add(
         AuditEvent(
             workspace_id=workspace_id,
             actor_user_id=actor_id,
-            actor_kind="staff" if actor_id else "operator",
+            actor_kind=actor_kind or ("staff" if actor_id else "operator"),
             action=action,
             entity_type=entity_type,
             entity_id=entity_id,

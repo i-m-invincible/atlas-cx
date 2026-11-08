@@ -197,7 +197,7 @@ function CustomerEditor({ customer }: { customer?: Customer }) {
               </button>
               {latest && (
                 <>
-                  <h2>Latest saved customer � Version {latest.version}</h2>
+                  <h2>Latest saved customer: version {latest.version}</h2>
                   <dl className="record-details">
                     <dt>Name</dt>
                     <dd>{latest.name}</dd>

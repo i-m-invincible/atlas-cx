@@ -19,7 +19,7 @@ from app.platform.protocol import Fault, now
 
 def by_email(session: Session, email: str, lock: bool = False) -> User | None:
     query = select(User).where(User.normalized_email == email.strip().lower())
-    return session.scalar(query.with_for_update() if lock else query)
+    return session.scalar(query.with_for_update(key_share=True) if lock else query)
 
 
 def workspace_by_slug(session: Session, slug: str) -> Workspace | None:
@@ -39,16 +39,12 @@ def access_scope(
         return None
     member_id, contact_id, role = None, None, None
     if audience == "staff":
-        member = session.scalar(
-            select(Membership).where(Membership.user_id == user.id).with_for_update()
-        )
+        member = session.scalar(select(Membership).where(Membership.user_id == user.id))
         if not member or not member.active:
             return None
         member_id, role = member.id, member.role
     else:
-        binding = session.scalar(
-            select(PortalBinding).where(PortalBinding.user_id == user.id).with_for_update()
-        )
+        binding = session.scalar(select(PortalBinding).where(PortalBinding.user_id == user.id))
         if not binding or not binding.active:
             return None
         contact = session.get(Contact, binding.contact_id)
@@ -70,9 +66,7 @@ def access_scope(
 def authenticate(session: Session, raw: str) -> tuple[WorkspaceScope, LoginSession]:
     if len(raw) > 128:
         raise Fault(401, "unauthenticated", "Your session expired. Sign in to continue.")
-    stored = session.scalar(
-        select(LoginSession).where(LoginSession.token_hash == digest(raw)).with_for_update()
-    )
+    stored = session.scalar(select(LoginSession).where(LoginSession.token_hash == digest(raw)))
     instant = now()
     if (
         not stored
@@ -81,8 +75,24 @@ def authenticate(session: Session, raw: str) -> tuple[WorkspaceScope, LoginSessi
         or stored.absolute_expires_at <= instant
     ):
         raise Fault(401, "unauthenticated", "Your session expired. Sign in to continue.")
+    # Consistent lock order prevents access changes and password/session revocation
+    # from deadlocking concurrent requests. NO KEY UPDATE permits FK checks.
+    user = session.get(User, stored.user_id, with_for_update={"key_share": True})
     set_scope(session, stored.workspace_id)
-    workspace, user = session.get(Workspace, stored.workspace_id), session.get(User, stored.user_id)
+    workspace = session.get(Workspace, stored.workspace_id, with_for_update={"key_share": True})
+    stored = session.scalar(
+        select(LoginSession)
+        .where(LoginSession.id == stored.id)
+        .with_for_update()
+        .execution_options(populate_existing=True)
+    )
+    if (
+        not stored
+        or stored.revoked_at
+        or stored.expires_at <= now()
+        or stored.absolute_expires_at <= now()
+    ):
+        raise Fault(401, "unauthenticated", "Your session expired. Sign in to continue.")
     scope = (
         access_scope(session, user, workspace, stored.audience, stored.id)
         if user and workspace
