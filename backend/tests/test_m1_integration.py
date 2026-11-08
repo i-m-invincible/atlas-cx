@@ -79,7 +79,11 @@ def core() -> Iterator[Core]:
                 session.add(user)
                 session.flush()
                 member = Membership(
-                    workspace_id=workspace.id, user_id=user.id, role=role, active=True
+                    workspace_id=workspace.id,
+                    user_id=user.id,
+                    role=role,
+                    active=True,
+                    setup_completed_at=now(),
                 )
                 session.add(member)
                 session.flush()
@@ -116,6 +120,7 @@ def core() -> Iterator[Core]:
                         contact_id=contact.id,
                         user_id=user.id,
                         active=True,
+                        setup_completed_at=now(),
                     )
                 )
                 value.actors[f"portal{suffix}{number}"] = {
@@ -506,6 +511,17 @@ def test_existing_account_setup_requires_existing_password(core: Core, clients: 
         },
     ).json()["data"]
     assert data["member"]["display_name"] == "Must not replace global name"
+    # A global password proves account existence, not acceptance of this invitation.
+    assert (
+        mutate(
+            admin,
+            f"/members/{data['member']['id']}",
+            {"active": True},
+            "PATCH",
+            data["member"]["version"],
+        ).status_code
+        == 409
+    )
     raw = data["setup_url"].split("#token=")[1]
     anonymous = clients(None)
     assert (
@@ -840,6 +856,63 @@ def test_operator_recovery_revokes_sessions_and_is_single_use(core: Core, client
     assert mutate(anonymous, "/auth/setup", payload).status_code == 200
     assert mutate(anonymous, "/auth/setup", payload).status_code == 400
     assert actor.get("/api/v1/auth/me").status_code == 401
+    engine.dispose()
+
+
+def test_pending_portal_binding_requires_account_acceptance(core: Core, clients: Any) -> None:
+    admin, portal = clients(), clients(None)
+    existing = core.actors["manager2"]
+    row = new_customer(admin)
+    created = mutate(
+        admin,
+        "/contacts",
+        {
+            "customer_id": row["id"],
+            "name": "Pending existing account",
+            "email": existing["email"],
+        },
+    ).json()["data"]
+    provisioned = mutate(admin, f"/contacts/{created['id']}/portal-access", version=1)
+    assert provisioned.status_code == 200
+    assert (
+        mutate(
+            admin, f"/contacts/{created['id']}/portal-access", {"active": True}, "PATCH", 2
+        ).status_code
+        == 409
+    )
+    engine = build_engine(core.app_url)
+    with pytest.raises(DBAPIError), workspace_session(engine, core.workspaces[0]) as session:
+        session.execute(
+            update(PortalBinding)
+            .where(PortalBinding.contact_id == UUID(created["id"]))
+            .values(active=True)
+        )
+    assert (
+        mutate(
+            portal,
+            "/auth/setup",
+            {
+                "setup_token": provisioned.json()["data"]["setup_url"].split("#token=")[1],
+                "current_password": PASSWORD,
+            },
+        ).status_code
+        == 200
+    )
+    assert (
+        mutate(
+            portal,
+            "/auth/login",
+            {
+                "workspace_slug": core.actors["admin1"]["workspace"],
+                "audience": "portal",
+                "email": existing["email"],
+                "password": PASSWORD,
+            },
+        ).status_code
+        == 200
+    )
+    assert portal.get("/api/v1/auth/me").json()["data"]["contact_id"] == created["id"]
+    assert admin.get(f"/api/v1/contacts/{created['id']}").json()["data"]["portal_enabled"] is True
     engine.dispose()
 
 

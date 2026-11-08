@@ -6,8 +6,9 @@ Date: 8 November 2026. Same Windows toolchain as the foundation record below.
 All required source files were read before coding; the authoritative source
 documents remain byte-identical.
 
-- Backend: 21 unit/HTTP tests passed. The first CI run passed 27 PostgreSQL cases;
-  seven additional role, transfer, recovery, and concurrency cases await CI.
+- Backend: 21 unit/HTTP tests passed. CI passed 34 PostgreSQL cases including
+  role permissions, ownership transfer, recovery, and concurrent password changes.
+  The additional setup-acceptance migration and regression await the final CI run.
 - Frontend: production build, strict TypeScript, ESLint, and formatting passed.
   All 16 unit tests passed, including explicit contact conflict review/re-save.
 - Ruff lint, formatting, and strict mypy passed.
@@ -20,7 +21,7 @@ documents remain byte-identical.
 - The initial real-stack browser test reached customer/contact persistence and
   portal setup, then checked permissions before portal login finished because
   its heading selector also matched the sign-in heading. The selector was made
-  exact. The corrected full flow awaits CI; it is not counted as a pass yet.
+  exact. The corrected real-stack flow passed in CI on commit 075dda2.
 
 No case authorization, release load/restore test, screen-reader certification,
 deployment, or production-readiness claim is made. M2 adds the real case vertical

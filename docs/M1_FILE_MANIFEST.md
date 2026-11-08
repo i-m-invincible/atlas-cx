@@ -9,6 +9,7 @@ dependency locks are included.
 - `README.md`
 - `backend/alembic/env.py`
 - `backend/alembic/versions/0002_identity_customers.py`
+- `backend/alembic/versions/0003_setup_acceptance.py`
 - `backend/app/main.py`
 - `backend/app/modules/customers/__init__.py`
 - `backend/app/modules/customers/models.py`

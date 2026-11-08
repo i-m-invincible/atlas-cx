@@ -9,6 +9,10 @@ portal access. There is no public user directory. Login and provisioning use
 exact normalized-email lookups. Pending staff projections retain the inviting
 workspace's supplied name, rather than disclosing a global name before acceptance.
 Existing-account setup requires the existing password and never silently resets it.
+Access records also retain setup completion separately from activation. An
+administrator cannot activate a pending invitation or binding just because its
+global user already has a password. A database CHECK enforces this invariant;
+previously accepted access can be disabled and restored without another setup.
 
 The operator CLI requires the migration role and prompts for passwords. It
 bootstraps the first administrator and issues recovery links only after external
@@ -61,7 +65,8 @@ Lists use signed keyset cursors bound to workspace, resource, and filters.
 The API rejects extra input fields and naive datetimes. OpenAPI generates the
 frontend DTOs. Unknown health/activity stays null rather than inventing values.
 
-The original M0 migration is preserved. M1 is an additive frozen-SQL migration.
+The original M0 migration is preserved. M1 adds identity/customer DDL and a
+separate acceptance-invariant migration; existing migrations are not rewritten.
 Identity transactions lock user, workspace, then session/setup token in that
 order. The user/workspace locks use NO KEY UPDATE so foreign-key checks remain
 possible. This conservatively serializes authenticated transactions within a

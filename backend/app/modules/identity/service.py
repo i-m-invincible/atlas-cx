@@ -198,6 +198,7 @@ def complete_setup(session: Session, payload: SetupInput, request_id: str) -> No
             if not contact or contact.archived_at or not customer or customer.archived_at:
                 raise invalid
         target.active = True
+        target.setup_completed_at = now()
         target.version += 1
         target.updated_at = now()
         record_audit(

@@ -33,6 +33,7 @@ class Membership(Base):
         UniqueConstraint("workspace_id", "id"),
         UniqueConstraint("workspace_id", "user_id"),
         CheckConstraint("role IN ('admin','manager','agent','viewer')"),
+        CheckConstraint("NOT active OR setup_completed_at IS NOT NULL"),
         CheckConstraint("version > 0"),
     )
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
@@ -40,6 +41,7 @@ class Membership(Base):
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
     role: Mapped[str] = mapped_column(String(16))
     invited_display_name: Mapped[str | None] = mapped_column(String(120))
+    setup_completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     active: Mapped[bool] = mapped_column(default=False)
     version: Mapped[int] = mapped_column(default=1)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -56,11 +58,13 @@ class PortalBinding(Base):
             ["workspace_id", "contact_id"], ["contacts.workspace_id", "contacts.id"]
         ),
         CheckConstraint("version > 0"),
+        CheckConstraint("NOT active OR setup_completed_at IS NOT NULL"),
     )
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     workspace_id: Mapped[UUID] = mapped_column(ForeignKey("workspaces.id"))
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
     contact_id: Mapped[UUID]
+    setup_completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     active: Mapped[bool] = mapped_column(default=False)
     version: Mapped[int] = mapped_column(default=1)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

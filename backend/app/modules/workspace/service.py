@@ -145,7 +145,10 @@ def update_member(
     match_version(request, row.version)
     role = payload.role if payload.role is not None else row.role
     active = payload.active if payload.active is not None else row.active
-    if active and not uow.session.scalar(select(User.password_hash).where(User.id == row.user_id)):
+    if active and (
+        not row.setup_completed_at
+        or not uow.session.scalar(select(User.password_hash).where(User.id == row.user_id))
+    ):
         raise Fault(409, "setup_required", "This member must complete their setup link first.")
     if row.role == "admin" and row.active and (role != "admin" or not active):
         count = uow.session.scalar(
@@ -286,7 +289,11 @@ def portal_access(uow: UnitOfWork, identifier: UUID, active: bool, request: Requ
     user = uow.session.get(User, binding.user_id)
     customer = customers.customer(uow.session, contact.customer_id)
     if active and (
-        not user or not user.password_hash or contact.archived_at or customer.archived_at
+        not binding.setup_completed_at
+        or not user
+        or not user.password_hash
+        or contact.archived_at
+        or customer.archived_at
     ):
         raise Fault(
             409,

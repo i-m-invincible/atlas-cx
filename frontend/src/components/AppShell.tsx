@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Link, Navigate, NavLink, useLocation } from 'react-router-dom';
 import { useSession } from '../features/identity/session';
 
 const plannedSections = ['Support', 'Analytics', 'Knowledge', 'Follow-ups'];
@@ -63,6 +63,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => query.removeEventListener('change', resize);
   }, []);
 
+  if (identity?.audience === 'portal') return <Navigate to="/portal" replace />;
   return (
     <div className="app-shell">
       <a className="skip-link" href="#main-content">

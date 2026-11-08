@@ -17,6 +17,7 @@ from app.modules.workspace.models import Workspace
 from app.platform import models  # noqa: F401
 from app.platform.audit import record_audit
 from app.platform.database import build_engine, set_scope
+from app.platform.protocol import now
 
 
 def bootstrap_workspace(
@@ -64,7 +65,13 @@ def bootstrap_workspace(
         select(Membership.id).where(Membership.active.is_(True), Membership.role == "admin")
     ):
         raise ValueError("This workspace already has an administrator; use a setup link")
-    member = Membership(workspace_id=workspace.id, user_id=user.id, role="admin", active=True)
+    member = Membership(
+        workspace_id=workspace.id,
+        user_id=user.id,
+        role="admin",
+        active=True,
+        setup_completed_at=now(),
+    )
     session.add(member)
     session.flush()
     workspace.feedback_manager_member_id = member.id
