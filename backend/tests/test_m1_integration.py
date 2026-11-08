@@ -156,8 +156,8 @@ def core() -> Iterator[Core]:
             for model in (
                 IdempotencyRecord,
                 ReadMarker,
-                Message,
                 CaseTransition,
+                Message,
                 CaseCycle,
                 Case,
                 CaseConfig,
