@@ -29,6 +29,7 @@ with engine.begin() as connection:
     connection.execute(
         text("SELECT set_config('app.workspace_id', :scope, true)"), {"scope": str(identifier)}
     )
+    connection.execute(text("SELECT set_config('app.audience', 'staff', true)"))
     row = connection.execute(
         text("SELECT name, timezone, version, is_demo FROM workspaces WHERE id=:id"),
         {"id": identifier},
