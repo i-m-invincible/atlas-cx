@@ -1,5 +1,63 @@
 # Verification evidence
 
+## M2 case vertical slice
+
+Date: 9 November 2026 (India time). The required specifications, wireframes,
+engineering rules, roadmap, and M1 architecture record were read before coding.
+The product/design specifications and PDF remain byte-identical. No dependency
+was added for M2; the existing locked installations were used locally and clean
+installations are repeated by CI.
+
+| Check                     | Observed result                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Backend quality           | Ruff lint/format and strict mypy passed; all 52 unit/HTTP tests passed locally.                                                                                                                                                                                                                                                                                                                                 |
+| PostgreSQL                | 64 integration cases passed in CI against PostgreSQL 17/pgvector using the actual non-owner, non-superuser, non-BYPASSRLS `atlas_app` role.                                                                                                                                                                                                                                                                     |
+| API behavior              | Creation and numbering, default/pinned configuration, assignment, competing claims, all invalid-transition fixtures, resolution/reopening, terminal closure, immutable messages, audit atomicity, monotonic read markers, filters/cursors, and idempotent retries are covered.                                                                                                                                  |
+| Privacy                   | Tests cover cross-workspace IDs/associations, two contacts sharing one customer, public/private message separation, safe portal DTOs, mass-assignment rejection, revoked access, direct RLS reads/writes, and role restrictions.                                                                                                                                                                                |
+| Clocks                    | Independent fixed-time fixtures cover first response, pending pauses, direct resolution from pending, strict overdue boundaries, snapshotted targets, and new cycles retaining prior resolutions.                                                                                                                                                                                                               |
+| Migrations and containers | CI passed M0 and M1 preservation fixtures, empty-schema downgrade/repeat upgrades, Compose validation, both image builds, and health/security-header smoke checks.                                                                                                                                                                                                                                              |
+| Frontend quality          | Formatting, ESLint, strict TypeScript, Vite build, and all 27 unit/integration tests passed locally.                                                                                                                                                                                                                                                                                                            |
+| Deterministic browsers    | All 29 checks passed in the local regression suite. Two real-stack tests skip locally; skips are not passes.                                                                                                                                                                                                                                                                                                    |
+| Responsive review         | Support and portal interactions tested at 1440, 1024, 700, and 390px. Screenshots were inspected for conversation/form layouts and resolution dialogs. Mobile dialog viewport dimensions, keyboard focus containment, draft preservation, Back focus/filter restoration, and horizontal overflow are asserted. Automated axe checks found no serious/critical violations on the tested support/portal surfaces. |
+| Real-stack M2 browser     | Both M1 and M2 real-stack browser tests passed in CI against Compose, using persisted API data without route mocks.                                                                                                                                                                                                                                                                                             |
+| Local Docker/PostgreSQL   | Unavailable on this Windows host. All actual database/container results come from GitHub Actions.                                                                                                                                                                                                                                                                                                               |
+
+The real-stack scenario creates a portal request, reloads persisted data, claims
+and edits assignment, posts a private note and public reply, asks for information,
+resumes through a portal response, resolves, reopens, verifies the preserved prior
+cycle, resolves again, and closes. It also attempts another contact's read/reply/
+reopen and another workspace's case ID, and checks secure cookies and empty
+browser storage. Its synthetic fixtures live only in a disposable database;
+random credentials are written to ignored private files and never printed.
+
+Observed failures were fixed: scoped migration-fixture cleanup needed a staff
+audience; transition references had to be removed before test messages; imported
+PostgreSQL fixtures had to remain registered after linting; queue Back focus
+needed to follow the shell's heading focus; and delayed heading focus needed to
+respect users who had already started typing. Browser-test selectors were also
+corrected for the portal's navigation/empty-state links and the synthetic member
+label. The real-stack flow found that a reply's success notice could precede its
+version refresh; state actions now stay disabled through the write/refresh and
+take the confirmed version when opened. Desktop dialogs are explicitly centered
+after visual review exposed the CSS reset's removal of their automatic margins.
+Creation retries are checked before archived-record validation so an
+authorized retry returns the original case without creating a new request.
+
+Configuration publication UI, five presets, follow-up tasks, ratings, and CSV
+imports remain M3. No RAG, analytics, or health computation was added. These
+results do not constitute full manual screen-reader, restore, load, or production
+release validation. Workspace transactions still serialize conservatively;
+throughput has not been measured. Nothing was merged to main or deployed.
+
+The M0/M1 sections below are historical milestone records; their statements about
+case functionality being absent describe those earlier increments.
+
+Code commit `f58ddd69f6834d1d3d6067a274c11e60f81be0cc` passed both jobs in
+[pull-request CI](https://github.com/i-m-invincible/atlas-cx/actions/runs/42512924979).
+Work was paused at the user's request after saving the documentation checkpoint.
+No observed failure remains on that tested code commit. The documentation-only
+checkpoint's automatic CI run has not been observed; see [resume instructions](RESUME.md).
+
 ## M1 identity and customer core
 
 Date: 8 November 2026. Same Windows toolchain as the foundation record below.

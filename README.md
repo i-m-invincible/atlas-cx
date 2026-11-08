@@ -1,14 +1,18 @@
 # Atlas CX
 
 Customer Operations & Service Intelligence Platform. The repository contains the
-M0 foundation and M1 identity and customer core. Atlas CX is standalone.
+M0 foundation, M1 identity and customer core, and M2 support workflow. Atlas CX is
+standalone.
 
 Staff can sign in, manage customers and contacts, search and filter records,
 archive records, and administer workspace membership and teams according to
 their role. Administrators issue single-use staff and portal setup links.
-Portal users have a separate identity boundary; case submission and messaging
-are planned for M2. No case, analytics, health scoring, RAG, or worker workflow
-is implemented. Unknown health and activity remain unknown.
+Bound portal contacts can submit requests and follow their own public
+conversations. Staff can claim and assign cases, reply publicly, write private
+notes, request information, resolve, reopen, and close work according to their
+role. Cases retain resolution cycles and response/resolution target snapshots.
+Ratings, follow-up tasks, CSV imports, analytics, health computation, RAG, and
+configuration authoring remain planned. Unknown health and activity remain unknown.
 
 Read the unchanged [product specification](docs/PRODUCT_SPEC.md),
 [design system](docs/DESIGN_SYSTEM.md), [wireframes](docs/Atlas_CX_Wireframe_Atlas.pdf),
@@ -104,6 +108,8 @@ migrated PostgreSQL database: set `TEST_DATABASE_URL` to its `atlas_app` URL and
 `MIGRATION_DATABASE_URL` to its `atlas_migrator` URL, then run
 `uv run pytest -m integration`. Tests exercise the actual non-owner role,
 forced RLS, authentication, CSRF, CRUD, constraints, setup links, and revocation.
+They also exercise contact-scoped case access, private-message isolation,
+concurrent claims, state transitions, clocks, retries, and assignment transfers.
 SQLite cannot verify these controls. Fixture cleanup uses the migration role.
 
 From the root:
@@ -114,13 +120,38 @@ npm run test:e2e
 python scripts/verify_sources.py
 ```
 
-Browser tests exercise customer interactions at 1440, 1024, 700, and 390 pixels,
-plus the foundation's 320-pixel shell checks. Test-only API fixtures provide
-deterministic UI states. The separate real-stack test skips unless
-`E2E_BASE_URL` is set. CI runs it against Compose with randomly generated,
-synthetic identities prepared by `backend/scripts/seed_m1_browser.py`. That
-script writes a private, ignored temporary credentials file, never a default
-account. Do not run it against a database containing real customer data.
+Browser tests exercise customer, support, and portal interactions at 1440, 1024,
+700, and 390 pixels, plus the foundation's 320-pixel shell checks. Test-only API
+fixtures provide deterministic UI states. The separate M1 and M2 real-stack tests
+skip unless `E2E_BASE_URL` is set. CI runs them against Compose with synthetic
+identities and a random password prepared by `backend/scripts/seed_m1_browser.py`
+and `seed_m2_browser.py`. These scripts write private, ignored temporary
+credentials files and are only for an expendable test database. They never run
+at application startup. Do not run them against real customer data.
+
+## Demonstrating the support workflow
+
+1. Sign in as an administrator. Create a customer and two contacts under Customers.
+   Issue each contact a portal setup link and accept it in a separate browser
+   context. Setup links are sensitive and single use.
+2. Sign in as the first contact through `/portal/sign-in`. Choose New request,
+   enter a category, subject, and description, then submit. Reload to confirm it
+   persisted. The second contact cannot see or open that request.
+3. In the staff Support inbox, find the request and choose Claim case. Details
+   provides assignment and priority editing. A competing stale claim must be
+   reviewed before retrying.
+4. Add an Internal note, then a Public reply. Only the public reply appears in
+   the portal. Choose Ask customer to post a question and pause resolution;
+   the contact's reply resumes it. First response never pauses.
+5. Resolve with a public summary and resolution code. The portal can explicitly
+   reopen with a message. History retains the prior resolution and a new cycle.
+   Resolve again, then close as a manager or administrator. Closed requests
+   offer creation of a related request.
+
+The default published configuration supplies three categories and four priority
+targets. Each case pins its configuration and original targets; editing priority
+does not reset its clocks. Public and internal drafts remain separate in memory.
+Failed writes retain drafts, and conflicts require review and a new explicit save.
 
 Regenerate contracts after API schema changes:
 
@@ -132,9 +163,10 @@ npm run api:generate
 ```
 
 CI checks quality, contracts, dependencies, source hashes, PostgreSQL isolation,
-M0 data preservation during upgrade, rollback/repeat upgrades, container builds,
-health smoke checks, and a real browser authentication/customer/portal flow.
+M0 and M1 data preservation during upgrade, rollback/repeat upgrades, container
+builds, health smoke checks, and real browser identity/customer/support flows.
 It does not deploy. See [verification evidence](docs/VERIFICATION.md),
-[changed files](docs/M1_FILE_MANIFEST.md), and
-[identity/customer architecture](docs/architecture/0002-identity-customer-core.md).
-The next milestone is **M2: the portal request → agent reply → resolution slice**.
+[M2 changed files](docs/M2_FILE_MANIFEST.md),
+[identity/customer architecture](docs/architecture/0002-identity-customer-core.md),
+and [case workflow decisions](docs/architecture/0003-case-workflow.md).
+The next milestone is **M3: Configuration and follow-up**.

@@ -2,6 +2,10 @@
 
 Status: implemented for M1. The source specifications remain unchanged.
 
+This record describes the M1 milestone. M2 now adds the case workflow and portal
+screens described in [the case decision record](0003-case-workflow.md); references
+below to their absence describe the original M1 boundary.
+
 ## Identity and authorization
 
 A global user can belong to several workspaces and have separate staff and

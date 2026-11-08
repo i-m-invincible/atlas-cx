@@ -1,0 +1,69 @@
+# M2 changed files
+
+Added or modified since the completed M1 commit
+`fdcf06f0611fe1c9004d54562f8fa3b6b8a59cd1`. The authoritative product/design
+specifications and PDF, original migrations, and dependency locks are unchanged.
+
+- `.github/workflows/ci.yml`
+- `README.md`
+- `backend/alembic/versions/0004_case_workflow.py`
+- `backend/app/main.py`
+- `backend/app/modules/cases/__init__.py`
+- `backend/app/modules/cases/assignments.py`
+- `backend/app/modules/cases/clocks.py`
+- `backend/app/modules/cases/models.py`
+- `backend/app/modules/cases/repository.py`
+- `backend/app/modules/cases/router.py`
+- `backend/app/modules/cases/schemas.py`
+- `backend/app/modules/cases/service.py`
+- `backend/app/modules/customers/service.py`
+- `backend/app/modules/identity/operator.py`
+- `backend/app/modules/identity/repository.py`
+- `backend/app/modules/workspace/case_config_models.py`
+- `backend/app/modules/workspace/case_configuration.py`
+- `backend/app/modules/workspace/models.py`
+- `backend/app/modules/workspace/schemas.py`
+- `backend/app/modules/workspace/service.py`
+- `backend/app/platform/idempotency.py`
+- `backend/app/platform/models.py`
+- `backend/scripts/seed_m2_browser.py`
+- `backend/scripts/verify_m0_upgrade.py`
+- `backend/scripts/verify_m1_upgrade.py`
+- `backend/tests/test_case_domain.py`
+- `backend/tests/test_m1_integration.py`
+- `backend/tests/test_m2_integration.py`
+- `docs/M2_FILE_MANIFEST.md`
+- `docs/RESUME.md`
+- `docs/ROADMAP.md`
+- `docs/VERIFICATION.md`
+- `docs/architecture/0002-identity-customer-core.md`
+- `docs/architecture/0003-case-workflow.md`
+- `docs/contracts/openapi.json`
+- `frontend/e2e/customer-fixture.ts`
+- `frontend/e2e/full-stack.spec.ts`
+- `frontend/e2e/m2-full-stack.spec.ts`
+- `frontend/e2e/support-fixture.ts`
+- `frontend/e2e/support.spec.ts`
+- `frontend/src/api/client.ts`
+- `frontend/src/api/schema.d.ts`
+- `frontend/src/app/App.tsx`
+- `frontend/src/components/AppShell.tsx`
+- `frontend/src/features/customers/CustomerDetail.tsx`
+- `frontend/src/features/identity/Account.tsx`
+- `frontend/src/features/identity/SignOut.tsx`
+- `frontend/src/features/overview/Overview.tsx`
+- `frontend/src/features/portal/PortalShell.tsx`
+- `frontend/src/features/portal/RequestDetail.tsx`
+- `frontend/src/features/portal/Requests.tsx`
+- `frontend/src/features/support/CaseAssignment.tsx`
+- `frontend/src/features/support/CaseWorkspace.tsx`
+- `frontend/src/features/support/CreateCase.tsx`
+- `frontend/src/features/support/CustomerCases.tsx`
+- `frontend/src/features/support/Support.test.tsx`
+- `frontend/src/features/support/Support.tsx`
+- `frontend/src/features/support/components.tsx`
+- `frontend/src/features/support/data.ts`
+- `frontend/src/features/support/support.css`
+- `frontend/src/main.tsx`
+- `frontend/src/test/case-fixtures.ts`
+- `frontend/src/test/case-server.ts`
