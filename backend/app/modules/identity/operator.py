@@ -13,6 +13,7 @@ from app.modules.identity.models import Membership, User
 from app.modules.identity.repository import by_email, workspace_by_slug
 from app.modules.identity.security import password_hash, verify_password
 from app.modules.identity.service import issue_setup
+from app.modules.workspace.case_configuration import seed_default
 from app.modules.workspace.models import Workspace
 from app.platform import models  # noqa: F401
 from app.platform.audit import record_audit
@@ -60,6 +61,7 @@ def bootstrap_workspace(
             raise ValueError(
                 "An existing membership must be changed through workspace administration"
             )
+        seed_default(session, workspace, member.id)
         return workspace, member
     if session.scalar(
         select(Membership.id).where(Membership.active.is_(True), Membership.role == "admin")
@@ -75,6 +77,7 @@ def bootstrap_workspace(
     session.add(member)
     session.flush()
     workspace.feedback_manager_member_id = member.id
+    seed_default(session, workspace, member.id)
     record_audit(
         session,
         workspace.id,

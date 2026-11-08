@@ -4,6 +4,7 @@ from uuid import UUID
 from fastapi import Request
 from sqlalchemy import delete, func, select, update
 
+from app.modules.cases import assignments
 from app.modules.customers import repository as customers
 from app.modules.customers.models import Customer
 from app.modules.identity.models import LoginSession, Membership, PortalBinding, SetupToken, User
@@ -31,6 +32,8 @@ from app.platform.protocol import Fault, match_version, missing, now
 
 def workspace_view(row: Workspace) -> WorkspaceView:
     return WorkspaceView(
+        active_case_config_id=row.active_case_config_id,
+        capabilities={"customers": True, "cases": row.active_case_config_id is not None},
         id=row.id,
         version=row.version,
         name=row.name,
@@ -159,6 +162,7 @@ def update_member(
         if count is None or count <= 1:
             raise Fault(409, "last_administrator", "At least one active administrator must remain.")
     losing_ownership = not active or role == "viewer"
+    case_work = losing_ownership and assignments.has_work(uow, row.id)
     customers_owned = (
         uow.session.scalar(
             select(func.count()).select_from(Customer).where(Customer.owner_member_id == row.id)
@@ -169,7 +173,7 @@ def update_member(
     fallback_changes = workspace.feedback_manager_member_id == row.id and (
         not active or role not in {"admin", "manager"}
     )
-    if customers_owned or fallback_changes:
+    if customers_owned or fallback_changes or case_work:
         if not payload.replacement_member_id or payload.replacement_member_id == row.id:
             raise Fault(
                 409,
@@ -178,6 +182,7 @@ def update_member(
                 "before changing this access.",
             )
         replacement = eligible_member(uow, payload.replacement_member_id, bool(fallback_changes))
+        assignments.transfer(uow, row.id, replacement.id, request)
         transferred = uow.session.scalars(
             update(Customer)
             .where(Customer.owner_member_id == row.id)
@@ -360,6 +365,8 @@ def save_team(
 ) -> TeamView:
     require_role(uow.scope, "admin")
     updating = identifier is not None
+    if identifier and isinstance(payload, TeamPatch):
+        assignments.check_team(uow, identifier, payload.member_ids, payload.archived)
     if identifier:
         row = uow.session.get(Team, identifier, with_for_update=True)
         if not row:

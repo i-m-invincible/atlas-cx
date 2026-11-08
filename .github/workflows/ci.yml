@@ -78,6 +78,9 @@ jobs:
         run: |
           uv sync --locked
           uv run python -m scripts.verify_m0_upgrade
+      - name: Preserve M1 identities and customers during M2 upgrade
+        working-directory: backend
+        run: uv run python -m scripts.verify_m1_upgrade
       - name: Empty-schema rollback and repeat upgrade
         run: |
           docker compose run --rm migrate .venv/bin/alembic downgrade base

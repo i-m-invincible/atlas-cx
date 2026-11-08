@@ -165,6 +165,9 @@ def archive(
     match_version(request, row.version)
     if row.archived_at:
         raise Fault(409, "archived", "This record is already archived.")
+    from app.modules.cases.assignments import check_archive
+
+    check_archive(uow, identifier, is_contact)
     row.archived_at = now()
     row.updated_at = now()
     row.version += 1

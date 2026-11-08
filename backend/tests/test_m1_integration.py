@@ -13,6 +13,14 @@ from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session
 
 from app.main import create_app
+from app.modules.cases.models import (
+    Case,
+    CaseCycle,
+    CaseTransition,
+    Message,
+    ReadMarker,
+    WorkspaceCounter,
+)
 from app.modules.customers.models import Contact, Customer
 from app.modules.identity.models import (
     LoginSession,
@@ -24,11 +32,13 @@ from app.modules.identity.models import (
 from app.modules.identity.operator import bootstrap_workspace
 from app.modules.identity.security import SESSION_COOKIE, digest, password_hash
 from app.modules.identity.service import issue_setup
+from app.modules.workspace.case_config_models import CaseConfig
 from app.modules.workspace.models import Workspace
 from app.modules.workspace.team_models import Team, TeamMember
 from app.platform.audit import AuditEvent
 from app.platform.config import get_settings
 from app.platform.database import build_engine, workspace_session
+from app.platform.idempotency import IdempotencyRecord
 from app.platform.protocol import now
 
 pytestmark = pytest.mark.integration
@@ -139,10 +149,19 @@ def core() -> Iterator[Core]:
             workspace = session.get(Workspace, workspace_id)
             assert workspace
             workspace.feedback_manager_member_id = None
+            workspace.active_case_config_id = None
             session.flush()
             session.execute(delete(SetupToken).where(SetupToken.workspace_id == workspace_id))
             session.execute(delete(LoginSession).where(LoginSession.workspace_id == workspace_id))
             for model in (
+                IdempotencyRecord,
+                ReadMarker,
+                Message,
+                CaseTransition,
+                CaseCycle,
+                Case,
+                CaseConfig,
+                WorkspaceCounter,
                 AuditEvent,
                 TeamMember,
                 Team,

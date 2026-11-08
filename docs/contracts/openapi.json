@@ -178,7 +178,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Envelope_MessageView_"
+                  "$ref": "#/components/schemas/app__platform__protocol__Envelope_MessageView___1"
                 }
               }
             }
@@ -219,7 +219,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Envelope_MessageView_"
+                  "$ref": "#/components/schemas/app__platform__protocol__Envelope_MessageView___1"
                 }
               }
             }
@@ -829,6 +829,1134 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Envelope_ContactView_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/case-configs": {
+      "get": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Configs",
+        "operationId": "configs_api_v1_case_configs_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_list_ConfigView__"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/case-configs/{identifier}": {
+      "get": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Config Detail",
+        "operationId": "config_detail_api_v1_case_configs__identifier__get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Identifier"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_ConfigView_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases": {
+      "get": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Cases",
+        "operationId": "cases_api_v1_cases_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 200,
+              "default": "",
+              "title": "Q"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 150
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "State"
+            }
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Priority"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "name": "customer_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "assignee_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Assignee Id"
+            }
+          },
+          {
+            "name": "team_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Team Id"
+            }
+          },
+          {
+            "name": "overdue",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Overdue"
+            }
+          },
+          {
+            "name": "unread",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Unread"
+            }
+          },
+          {
+            "name": "view",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "all",
+                "unassigned",
+                "mine",
+                "awaiting_customer",
+                "recently_resolved"
+              ],
+              "type": "string",
+              "default": "all",
+              "title": "View"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "created_at",
+                "last_message_at",
+                "priority"
+              ],
+              "type": "string",
+              "default": "created_at",
+              "title": "Sort"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 25,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 4096
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_list_CaseSummary__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Create Case",
+        "operationId": "create_case_api_v1_cases_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaseCreateStaff"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_CaseDetail_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{identifier}": {
+      "get": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Case",
+        "operationId": "case_api_v1_cases__identifier__get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Identifier"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_CaseDetail_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Patch Case",
+        "operationId": "patch_case_api_v1_cases__identifier__patch",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Identifier"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CasePatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_CaseDetail_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{identifier}/transitions": {
+      "post": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Transition",
+        "operationId": "transition_api_v1_cases__identifier__transitions_post",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Identifier"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitionInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_TransitionResult_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{identifier}/messages": {
+      "get": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Messages",
+        "operationId": "messages_api_v1_cases__identifier__messages_get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "after_sequence",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "After Sequence"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 25,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 4096
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_list_MessageView__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Post Message",
+        "operationId": "post_message_api_v1_cases__identifier__messages_post",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Identifier"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__platform__protocol__Envelope_MessageView___2"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{identifier}/read-marker": {
+      "post": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Mark Read",
+        "operationId": "mark_read_api_v1_cases__identifier__read_marker_post",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Identifier"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_ReadInput_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{identifier}/history": {
+      "get": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "History",
+        "operationId": "history_api_v1_cases__identifier__history_get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 25,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 4096
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_list_HistoryView__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/portal/config": {
+      "get": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Portal Config",
+        "operationId": "portal_config_api_v1_portal_config_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_PortalConfig_"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/portal/cases": {
+      "get": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Portal Cases",
+        "operationId": "portal_cases_api_v1_portal_cases_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 200,
+              "default": "",
+              "title": "Q"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 150
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "State"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 25,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 4096
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_list_PortalCaseSummary__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Portal Create",
+        "operationId": "portal_create_api_v1_portal_cases_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaseCreatePortal"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_PortalCaseDetail_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/portal/cases/{identifier}": {
+      "get": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Portal Case",
+        "operationId": "portal_case_api_v1_portal_cases__identifier__get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Identifier"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_PortalCaseDetail_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/portal/cases/{identifier}/messages": {
+      "get": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Portal Messages",
+        "operationId": "portal_messages_api_v1_portal_cases__identifier__messages_get",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Identifier"
+            }
+          },
+          {
+            "name": "after_sequence",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "After Sequence"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 25,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 4096
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_list_PortalMessageView__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Portal Message",
+        "operationId": "portal_message_api_v1_portal_cases__identifier__messages_post",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Identifier"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PortalMessageCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_PortalMessageView_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/portal/cases/{identifier}/reopen": {
+      "post": {
+        "tags": [
+          "cases"
+        ],
+        "summary": "Portal Reopen",
+        "operationId": "portal_reopen_api_v1_portal_cases__identifier__reopen_post",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Identifier"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReopenInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope_PortalCaseDetail_"
                 }
               }
             }
@@ -1603,6 +2731,689 @@
         ],
         "title": "AuditView"
       },
+      "CaseCreatePortal": {
+        "properties": {
+          "category_key": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Category Key"
+          },
+          "subject": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Subject"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 1,
+            "title": "Description"
+          },
+          "custom_values": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "maxProperties": 20,
+            "title": "Custom Values"
+          },
+          "related_case_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Related Case Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "category_key",
+          "subject",
+          "description"
+        ],
+        "title": "CaseCreatePortal"
+      },
+      "CaseCreateStaff": {
+        "properties": {
+          "category_key": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Category Key"
+          },
+          "subject": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Subject"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 1,
+            "title": "Description"
+          },
+          "custom_values": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "maxProperties": 20,
+            "title": "Custom Values"
+          },
+          "related_case_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Related Case Id"
+          },
+          "customer_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Customer Id"
+          },
+          "requester_contact_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Requester Contact Id"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "urgent",
+              "high",
+              "normal",
+              "low"
+            ],
+            "title": "Priority",
+            "default": "normal"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "manual_phone",
+              "manual_email",
+              "manual_other"
+            ],
+            "title": "Source",
+            "default": "manual_other"
+          },
+          "team_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Team Id"
+          },
+          "assignee_member_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assignee Member Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "category_key",
+          "subject",
+          "description",
+          "customer_id",
+          "requester_contact_id"
+        ],
+        "title": "CaseCreateStaff"
+      },
+      "CaseDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "number": {
+            "type": "integer",
+            "title": "Number"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "new",
+              "open",
+              "pending_customer",
+              "resolved",
+              "closed"
+            ],
+            "title": "State"
+          },
+          "state_label": {
+            "type": "string",
+            "title": "State Label"
+          },
+          "category_key": {
+            "type": "string",
+            "title": "Category Key"
+          },
+          "category_label": {
+            "type": "string",
+            "title": "Category Label"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "urgent",
+              "high",
+              "normal",
+              "low"
+            ],
+            "title": "Priority"
+          },
+          "customer": {
+            "$ref": "#/components/schemas/Reference"
+          },
+          "requester": {
+            "$ref": "#/components/schemas/Reference"
+          },
+          "team": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Reference"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "assignee": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Reference"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "unread": {
+            "type": "boolean",
+            "title": "Unread"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "last_message_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Message At"
+          },
+          "target_status": {
+            "$ref": "#/components/schemas/ClockView"
+          },
+          "config_version_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Config Version Id"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "custom_values": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Custom Values"
+          },
+          "field_definitions": {
+            "items": {
+              "$ref": "#/components/schemas/FieldDefinition"
+            },
+            "type": "array",
+            "title": "Field Definitions"
+          },
+          "first_response_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Response At"
+          },
+          "first_response_target_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "First Response Target At"
+          },
+          "first_response_status": {
+            "$ref": "#/components/schemas/ClockView"
+          },
+          "current_cycle": {
+            "$ref": "#/components/schemas/CycleView"
+          },
+          "cycles": {
+            "items": {
+              "$ref": "#/components/schemas/CycleView"
+            },
+            "type": "array",
+            "title": "Cycles"
+          },
+          "related_case_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Related Case Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "number",
+          "version",
+          "subject",
+          "state",
+          "state_label",
+          "category_key",
+          "category_label",
+          "priority",
+          "customer",
+          "requester",
+          "team",
+          "assignee",
+          "unread",
+          "created_at",
+          "updated_at",
+          "last_message_at",
+          "target_status",
+          "config_version_id",
+          "source",
+          "custom_values",
+          "field_definitions",
+          "first_response_at",
+          "first_response_target_at",
+          "first_response_status",
+          "current_cycle",
+          "cycles",
+          "related_case_id"
+        ],
+        "title": "CaseDetail"
+      },
+      "CasePatch": {
+        "properties": {
+          "category_key": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category Key"
+          },
+          "priority": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "urgent",
+                  "high",
+                  "normal",
+                  "low"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Priority"
+          },
+          "team_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Team Id"
+          },
+          "assignee_member_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assignee Member Id"
+          },
+          "custom_values": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/JsonValue"
+                },
+                "type": "object",
+                "maxProperties": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Custom Values"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "CasePatch"
+      },
+      "CaseSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "number": {
+            "type": "integer",
+            "title": "Number"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "new",
+              "open",
+              "pending_customer",
+              "resolved",
+              "closed"
+            ],
+            "title": "State"
+          },
+          "state_label": {
+            "type": "string",
+            "title": "State Label"
+          },
+          "category_key": {
+            "type": "string",
+            "title": "Category Key"
+          },
+          "category_label": {
+            "type": "string",
+            "title": "Category Label"
+          },
+          "priority": {
+            "type": "string",
+            "enum": [
+              "urgent",
+              "high",
+              "normal",
+              "low"
+            ],
+            "title": "Priority"
+          },
+          "customer": {
+            "$ref": "#/components/schemas/Reference"
+          },
+          "requester": {
+            "$ref": "#/components/schemas/Reference"
+          },
+          "team": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Reference"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "assignee": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Reference"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "unread": {
+            "type": "boolean",
+            "title": "Unread"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "last_message_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Message At"
+          },
+          "target_status": {
+            "$ref": "#/components/schemas/ClockView"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "number",
+          "version",
+          "subject",
+          "state",
+          "state_label",
+          "category_key",
+          "category_label",
+          "priority",
+          "customer",
+          "requester",
+          "team",
+          "assignee",
+          "unread",
+          "created_at",
+          "updated_at",
+          "last_message_at",
+          "target_status"
+        ],
+        "title": "CaseSummary"
+      },
+      "Category": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{0,49}$",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Label"
+          },
+          "default_team_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Default Team Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "label"
+        ],
+        "title": "Category"
+      },
+      "ClockView": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "due",
+              "overdue",
+              "paused",
+              "met",
+              "missed"
+            ],
+            "title": "Status"
+          },
+          "elapsed_seconds": {
+            "type": "number",
+            "title": "Elapsed Seconds"
+          },
+          "remaining_seconds": {
+            "type": "number",
+            "title": "Remaining Seconds"
+          },
+          "target_seconds": {
+            "type": "integer",
+            "title": "Target Seconds"
+          },
+          "is_overdue": {
+            "type": "boolean",
+            "title": "Is Overdue"
+          },
+          "due_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "elapsed_seconds",
+          "remaining_seconds",
+          "target_seconds",
+          "is_overdue",
+          "due_at"
+        ],
+        "title": "ClockView"
+      },
+      "ConfigView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "number": {
+            "type": "integer",
+            "title": "Number"
+          },
+          "status": {
+            "type": "string",
+            "const": "published",
+            "title": "Status"
+          },
+          "definition": {
+            "$ref": "#/components/schemas/Definition"
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Published At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "number",
+          "status",
+          "definition",
+          "published_at"
+        ],
+        "title": "ConfigView"
+      },
       "ContactCreate": {
         "properties": {
           "customer_id": {
@@ -2093,6 +3904,183 @@
         ],
         "title": "CustomerView"
       },
+      "CycleView": {
+        "properties": {
+          "cycle_number": {
+            "type": "integer",
+            "title": "Cycle Number"
+          },
+          "opened_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Opened At"
+          },
+          "target_seconds": {
+            "type": "integer",
+            "title": "Target Seconds"
+          },
+          "paused_seconds": {
+            "type": "number",
+            "title": "Paused Seconds"
+          },
+          "pause_started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pause Started At"
+          },
+          "resolved_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved At"
+          },
+          "resolution_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Code"
+          },
+          "resolution_summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Summary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cycle_number",
+          "opened_at",
+          "target_seconds",
+          "paused_seconds",
+          "pause_started_at",
+          "resolved_at",
+          "resolution_code",
+          "resolution_summary"
+        ],
+        "title": "CycleView"
+      },
+      "Definition": {
+        "properties": {
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/Category"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Categories"
+          },
+          "state_labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "enum": [
+                "new",
+                "open",
+                "pending_customer",
+                "resolved",
+                "closed"
+              ]
+            },
+            "type": "object",
+            "title": "State Labels"
+          },
+          "priorities": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Targets"
+            },
+            "propertyNames": {
+              "enum": [
+                "urgent",
+                "high",
+                "normal",
+                "low"
+              ]
+            },
+            "type": "object",
+            "title": "Priorities"
+          },
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/FieldDefinition"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Fields"
+          },
+          "portal_default_priority": {
+            "type": "string",
+            "const": "normal",
+            "title": "Portal Default Priority",
+            "default": "normal"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "categories",
+          "state_labels",
+          "priorities"
+        ],
+        "title": "Definition"
+      },
+      "Envelope_CaseDetail_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/CaseDetail"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "Envelope[CaseDetail]"
+      },
+      "Envelope_ConfigView_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ConfigView"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "Envelope[ConfigView]"
+      },
       "Envelope_ContactView_": {
         "properties": {
           "data": {
@@ -2189,10 +4177,10 @@
         ],
         "title": "Envelope[MemberView]"
       },
-      "Envelope_MessageView_": {
+      "Envelope_PortalCaseDetail_": {
         "properties": {
           "data": {
-            "$ref": "#/components/schemas/MessageView"
+            "$ref": "#/components/schemas/PortalCaseDetail"
           },
           "meta": {
             "$ref": "#/components/schemas/Meta"
@@ -2203,7 +4191,39 @@
           "data",
           "meta"
         ],
-        "title": "Envelope[MessageView]"
+        "title": "Envelope[PortalCaseDetail]"
+      },
+      "Envelope_PortalConfig_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PortalConfig"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "Envelope[PortalConfig]"
+      },
+      "Envelope_PortalMessageView_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PortalMessageView"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "Envelope[PortalMessageView]"
       },
       "Envelope_PortalSetupView_": {
         "properties": {
@@ -2221,6 +4241,22 @@
         ],
         "title": "Envelope[PortalSetupView]"
       },
+      "Envelope_ReadInput_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ReadInput"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "Envelope[ReadInput]"
+      },
       "Envelope_TeamView_": {
         "properties": {
           "data": {
@@ -2236,6 +4272,22 @@
           "meta"
         ],
         "title": "Envelope[TeamView]"
+      },
+      "Envelope_TransitionResult_": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/TransitionResult"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "Envelope[TransitionResult]"
       },
       "Envelope_WorkspaceView_": {
         "properties": {
@@ -2272,6 +4324,46 @@
           "meta"
         ],
         "title": "Envelope[list[AuditView]]"
+      },
+      "Envelope_list_CaseSummary__": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/CaseSummary"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "Envelope[list[CaseSummary]]"
+      },
+      "Envelope_list_ConfigView__": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ConfigView"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "Envelope[list[ConfigView]]"
       },
       "Envelope_list_ContactView__": {
         "properties": {
@@ -2313,6 +4405,26 @@
         ],
         "title": "Envelope[list[CustomerView]]"
       },
+      "Envelope_list_HistoryView__": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/HistoryView"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "Envelope[list[HistoryView]]"
+      },
       "Envelope_list_MemberView__": {
         "properties": {
           "data": {
@@ -2333,6 +4445,66 @@
         ],
         "title": "Envelope[list[MemberView]]"
       },
+      "Envelope_list_MessageView__": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/app__modules__cases__schemas__MessageView"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "Envelope[list[MessageView]]"
+      },
+      "Envelope_list_PortalCaseSummary__": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/PortalCaseSummary"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "Envelope[list[PortalCaseSummary]]"
+      },
+      "Envelope_list_PortalMessageView__": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/PortalMessageView"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "Envelope[list[PortalMessageView]]"
+      },
       "Envelope_list_TeamView__": {
         "properties": {
           "data": {
@@ -2352,6 +4524,94 @@
           "meta"
         ],
         "title": "Envelope[list[TeamView]]"
+      },
+      "FieldDefinition": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{0,49}$",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Label"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "string",
+              "integer",
+              "decimal",
+              "boolean",
+              "date",
+              "single_select"
+            ],
+            "title": "Type"
+          },
+          "required_on_create": {
+            "type": "boolean",
+            "title": "Required On Create",
+            "default": false
+          },
+          "required_on_resolve": {
+            "type": "boolean",
+            "title": "Required On Resolve",
+            "default": false
+          },
+          "portal_visible": {
+            "type": "boolean",
+            "title": "Portal Visible",
+            "default": false
+          },
+          "portal_editable_on_create": {
+            "type": "boolean",
+            "title": "Portal Editable On Create",
+            "default": false
+          },
+          "allowed_values": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "title": "Allowed Values"
+          },
+          "minimum": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minimum"
+          },
+          "maximum": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum"
+          },
+          "default": {
+            "$ref": "#/components/schemas/JsonValue"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "type"
+        ],
+        "title": "FieldDefinition"
       },
       "FieldError": {
         "properties": {
@@ -2421,6 +4681,91 @@
           "meta"
         ],
         "title": "HealthResponse"
+      },
+      "HistoryView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "transition",
+              "audit"
+            ],
+            "title": "Kind"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Occurred At"
+          },
+          "action": {
+            "type": "string",
+            "title": "Action"
+          },
+          "from_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From State"
+          },
+          "to_state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "To State"
+          },
+          "cycle_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cycle Number"
+          },
+          "changed_fields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Changed Fields"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "occurred_at",
+          "action"
+        ],
+        "title": "HistoryView"
       },
       "IdentityView": {
         "properties": {
@@ -2536,6 +4881,7 @@
         ],
         "title": "IdentityView"
       },
+      "JsonValue": {},
       "LoginInput": {
         "properties": {
           "workspace_slug": {
@@ -2733,18 +5079,30 @@
         ],
         "title": "MemberView"
       },
-      "MessageView": {
+      "MessageCreate": {
         "properties": {
-          "message": {
+          "body": {
             "type": "string",
-            "title": "Message"
+            "maxLength": 10000,
+            "minLength": 1,
+            "title": "Body"
+          },
+          "visibility": {
+            "type": "string",
+            "enum": [
+              "public",
+              "internal"
+            ],
+            "title": "Visibility",
+            "default": "public"
           }
         },
+        "additionalProperties": false,
         "type": "object",
         "required": [
-          "message"
+          "body"
         ],
-        "title": "MessageView"
+        "title": "MessageCreate"
       },
       "Meta": {
         "properties": {
@@ -2801,6 +5159,294 @@
           "new_password"
         ],
         "title": "PasswordInput"
+      },
+      "PortalCaseDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "number": {
+            "type": "integer",
+            "title": "Number"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "category_label": {
+            "type": "string",
+            "title": "Category Label"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "new",
+              "open",
+              "pending_customer",
+              "resolved",
+              "closed"
+            ],
+            "title": "State"
+          },
+          "state_label": {
+            "type": "string",
+            "title": "State Label"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "custom_values": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "type": "object",
+            "title": "Custom Values"
+          },
+          "field_definitions": {
+            "items": {
+              "$ref": "#/components/schemas/PublicField"
+            },
+            "type": "array",
+            "title": "Field Definitions"
+          },
+          "latest_public_resolution": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Public Resolution"
+          },
+          "current_cycle_number": {
+            "type": "integer",
+            "title": "Current Cycle Number"
+          },
+          "can_reply": {
+            "type": "boolean",
+            "title": "Can Reply"
+          },
+          "can_reopen": {
+            "type": "boolean",
+            "title": "Can Reopen"
+          },
+          "can_rate": {
+            "type": "boolean",
+            "title": "Can Rate",
+            "default": false
+          },
+          "related_case_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Related Case Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "number",
+          "version",
+          "subject",
+          "category_label",
+          "state",
+          "state_label",
+          "created_at",
+          "custom_values",
+          "field_definitions",
+          "latest_public_resolution",
+          "current_cycle_number",
+          "can_reply",
+          "can_reopen",
+          "related_case_id"
+        ],
+        "title": "PortalCaseDetail"
+      },
+      "PortalCaseSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "number": {
+            "type": "integer",
+            "title": "Number"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "category_label": {
+            "type": "string",
+            "title": "Category Label"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "new",
+              "open",
+              "pending_customer",
+              "resolved",
+              "closed"
+            ],
+            "title": "State"
+          },
+          "state_label": {
+            "type": "string",
+            "title": "State Label"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "number",
+          "version",
+          "subject",
+          "category_label",
+          "state",
+          "state_label",
+          "created_at"
+        ],
+        "title": "PortalCaseSummary"
+      },
+      "PortalConfig": {
+        "properties": {
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/PublicCategory"
+            },
+            "type": "array",
+            "title": "Categories"
+          },
+          "state_labels": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "enum": [
+                "new",
+                "open",
+                "pending_customer",
+                "resolved",
+                "closed"
+              ]
+            },
+            "type": "object",
+            "title": "State Labels"
+          },
+          "fields": {
+            "items": {
+              "$ref": "#/components/schemas/PublicField"
+            },
+            "type": "array",
+            "title": "Fields"
+          }
+        },
+        "type": "object",
+        "required": [
+          "categories",
+          "state_labels",
+          "fields"
+        ],
+        "title": "PortalConfig"
+      },
+      "PortalMessageCreate": {
+        "properties": {
+          "body": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 1,
+            "title": "Body"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "body"
+        ],
+        "title": "PortalMessageCreate"
+      },
+      "PortalMessageView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "sequence": {
+            "type": "integer",
+            "title": "Sequence"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "author_display": {
+            "type": "string",
+            "title": "Author Display"
+          },
+          "author_kind": {
+            "type": "string",
+            "title": "Author Kind"
+          },
+          "visibility": {
+            "type": "string",
+            "const": "public",
+            "title": "Visibility",
+            "default": "public"
+          },
+          "message_kind": {
+            "type": "string",
+            "title": "Message Kind"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_case_version": {
+            "type": "integer",
+            "title": "Updated Case Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "sequence",
+          "body",
+          "author_display",
+          "author_kind",
+          "message_kind",
+          "created_at",
+          "updated_case_version"
+        ],
+        "title": "PortalMessageView"
       },
       "PortalSetupView": {
         "properties": {
@@ -2877,6 +5523,139 @@
         ],
         "title": "Problem"
       },
+      "PublicCategory": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "label"
+        ],
+        "title": "PublicCategory"
+      },
+      "PublicField": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "required_on_create": {
+            "type": "boolean",
+            "title": "Required On Create"
+          },
+          "portal_editable_on_create": {
+            "type": "boolean",
+            "title": "Portal Editable On Create"
+          },
+          "allowed_values": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Allowed Values"
+          },
+          "minimum": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minimum"
+          },
+          "maximum": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "label",
+          "type",
+          "required_on_create",
+          "portal_editable_on_create",
+          "allowed_values",
+          "minimum",
+          "maximum"
+        ],
+        "title": "PublicField"
+      },
+      "ReadInput": {
+        "properties": {
+          "last_read_sequence": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Last Read Sequence"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "last_read_sequence"
+        ],
+        "title": "ReadInput"
+      },
+      "Reference": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "Reference"
+      },
+      "ReopenInput": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Message"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "ReopenInput"
+      },
       "ResponseMeta": {
         "properties": {
           "request_id": {
@@ -2937,6 +5716,27 @@
           "setup_token"
         ],
         "title": "SetupInput"
+      },
+      "Targets": {
+        "properties": {
+          "response_minutes": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Response Minutes"
+          },
+          "resolution_minutes": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Resolution Minutes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "response_minutes",
+          "resolution_minutes"
+        ],
+        "title": "Targets"
       },
       "TeamCreate": {
         "properties": {
@@ -3061,6 +5861,156 @@
           "created_at"
         ],
         "title": "TeamView"
+      },
+      "TransitionInput": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "triage",
+              "ask_customer",
+              "resume",
+              "resolve",
+              "reopen",
+              "close"
+            ],
+            "title": "Action"
+          },
+          "assignee_member_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assignee Member Id"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 4000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 4000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "resolution_summary": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 4000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Summary"
+          },
+          "resolution_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "answered",
+                  "fixed",
+                  "fulfilled",
+                  "declined",
+                  "duplicate",
+                  "other"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution Code"
+          },
+          "custom_values": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/JsonValue"
+                },
+                "type": "object",
+                "maxProperties": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Custom Values"
+          },
+          "related_case_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Related Case Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "title": "TransitionInput"
+      },
+      "TransitionResult": {
+        "properties": {
+          "case": {
+            "$ref": "#/components/schemas/CaseDetail"
+          },
+          "transition_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Transition Id"
+          },
+          "message_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "case",
+          "transition_id",
+          "message_id"
+        ],
+        "title": "TransitionResult"
       },
       "ValidationError": {
         "properties": {
@@ -3192,7 +6142,15 @@
             }
           },
           "active_case_config_id": {
-            "type": "null",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Active Case Config Id"
           },
           "active_health_profile_id": {
@@ -3210,6 +6168,106 @@
           "feedback_manager_member_id"
         ],
         "title": "WorkspaceView"
+      },
+      "app__modules__cases__schemas__MessageView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "sequence": {
+            "type": "integer",
+            "title": "Sequence"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "author_display": {
+            "type": "string",
+            "title": "Author Display"
+          },
+          "author_kind": {
+            "type": "string",
+            "title": "Author Kind"
+          },
+          "visibility": {
+            "type": "string",
+            "title": "Visibility"
+          },
+          "message_kind": {
+            "type": "string",
+            "title": "Message Kind"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_case_version": {
+            "type": "integer",
+            "title": "Updated Case Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "sequence",
+          "body",
+          "author_display",
+          "author_kind",
+          "visibility",
+          "message_kind",
+          "created_at",
+          "updated_case_version"
+        ],
+        "title": "MessageView"
+      },
+      "app__modules__identity__schemas__MessageView": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "MessageView"
+      },
+      "app__platform__protocol__Envelope_MessageView___1": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/app__modules__identity__schemas__MessageView"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "Envelope[MessageView]"
+      },
+      "app__platform__protocol__Envelope_MessageView___2": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/app__modules__cases__schemas__MessageView"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Meta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "meta"
+        ],
+        "title": "Envelope[MessageView]"
       }
     }
   }

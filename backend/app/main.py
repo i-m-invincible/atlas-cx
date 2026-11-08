@@ -11,6 +11,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from starlette.exceptions import HTTPException
 from starlette.responses import Response
 
+from app.modules.cases.router import router as cases_router
 from app.modules.customers.router import router as customers_router
 from app.modules.identity.router import router as identity_router
 from app.modules.workspace.router import router as workspace_router
@@ -123,6 +124,7 @@ def create_app() -> FastAPI:
     application.include_router(health_router, prefix="/api/v1")
     application.include_router(identity_router, prefix="/api/v1")
     application.include_router(customers_router, prefix="/api/v1")
+    application.include_router(cases_router, prefix="/api/v1")
     application.include_router(workspace_router, prefix="/api/v1")
     return application
 

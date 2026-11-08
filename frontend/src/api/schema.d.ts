@@ -246,6 +246,232 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/case-configs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Configs */
+        get: operations["configs_api_v1_case_configs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/case-configs/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Config Detail */
+        get: operations["config_detail_api_v1_case_configs__identifier__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Cases */
+        get: operations["cases_api_v1_cases_get"];
+        put?: never;
+        /** Create Case */
+        post: operations["create_case_api_v1_cases_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cases/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Case */
+        get: operations["case_api_v1_cases__identifier__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Patch Case */
+        patch: operations["patch_case_api_v1_cases__identifier__patch"];
+        trace?: never;
+    };
+    "/api/v1/cases/{identifier}/transitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Transition */
+        post: operations["transition_api_v1_cases__identifier__transitions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cases/{identifier}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Messages */
+        get: operations["messages_api_v1_cases__identifier__messages_get"];
+        put?: never;
+        /** Post Message */
+        post: operations["post_message_api_v1_cases__identifier__messages_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cases/{identifier}/read-marker": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark Read */
+        post: operations["mark_read_api_v1_cases__identifier__read_marker_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cases/{identifier}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** History */
+        get: operations["history_api_v1_cases__identifier__history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Portal Config */
+        get: operations["portal_config_api_v1_portal_config_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/cases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Portal Cases */
+        get: operations["portal_cases_api_v1_portal_cases_get"];
+        put?: never;
+        /** Portal Create */
+        post: operations["portal_create_api_v1_portal_cases_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/cases/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Portal Case */
+        get: operations["portal_case_api_v1_portal_cases__identifier__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/cases/{identifier}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Portal Messages */
+        get: operations["portal_messages_api_v1_portal_cases__identifier__messages_get"];
+        put?: never;
+        /** Portal Message */
+        post: operations["portal_message_api_v1_portal_cases__identifier__messages_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/portal/cases/{identifier}/reopen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Portal Reopen */
+        post: operations["portal_reopen_api_v1_portal_cases__identifier__reopen_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/workspace": {
         parameters: {
             query?: never;
@@ -409,6 +635,257 @@ export interface components {
              */
             occurred_at: string;
         };
+        /** CaseCreatePortal */
+        CaseCreatePortal: {
+            /** Category Key */
+            category_key: string;
+            /** Subject */
+            subject: string;
+            /** Description */
+            description: string;
+            /** Custom Values */
+            custom_values?: {
+                [key: string]: components["schemas"]["JsonValue"];
+            };
+            /** Related Case Id */
+            related_case_id?: string | null;
+        };
+        /** CaseCreateStaff */
+        CaseCreateStaff: {
+            /** Category Key */
+            category_key: string;
+            /** Subject */
+            subject: string;
+            /** Description */
+            description: string;
+            /** Custom Values */
+            custom_values?: {
+                [key: string]: components["schemas"]["JsonValue"];
+            };
+            /** Related Case Id */
+            related_case_id?: string | null;
+            /**
+             * Customer Id
+             * Format: uuid
+             */
+            customer_id: string;
+            /**
+             * Requester Contact Id
+             * Format: uuid
+             */
+            requester_contact_id: string;
+            /**
+             * Priority
+             * @default normal
+             * @enum {string}
+             */
+            priority: "urgent" | "high" | "normal" | "low";
+            /**
+             * Source
+             * @default manual_other
+             * @enum {string}
+             */
+            source: "manual_phone" | "manual_email" | "manual_other";
+            /** Team Id */
+            team_id?: string | null;
+            /** Assignee Member Id */
+            assignee_member_id?: string | null;
+        };
+        /** CaseDetail */
+        CaseDetail: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Number */
+            number: number;
+            /** Version */
+            version: number;
+            /** Subject */
+            subject: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "new" | "open" | "pending_customer" | "resolved" | "closed";
+            /** State Label */
+            state_label: string;
+            /** Category Key */
+            category_key: string;
+            /** Category Label */
+            category_label: string;
+            /**
+             * Priority
+             * @enum {string}
+             */
+            priority: "urgent" | "high" | "normal" | "low";
+            customer: components["schemas"]["Reference"];
+            requester: components["schemas"]["Reference"];
+            team: components["schemas"]["Reference"] | null;
+            assignee: components["schemas"]["Reference"] | null;
+            /** Unread */
+            unread: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /**
+             * Last Message At
+             * Format: date-time
+             */
+            last_message_at: string;
+            target_status: components["schemas"]["ClockView"];
+            /**
+             * Config Version Id
+             * Format: uuid
+             */
+            config_version_id: string;
+            /** Source */
+            source: string;
+            /** Custom Values */
+            custom_values: {
+                [key: string]: components["schemas"]["JsonValue"];
+            };
+            /** Field Definitions */
+            field_definitions: components["schemas"]["FieldDefinition"][];
+            /** First Response At */
+            first_response_at: string | null;
+            /**
+             * First Response Target At
+             * Format: date-time
+             */
+            first_response_target_at: string;
+            first_response_status: components["schemas"]["ClockView"];
+            current_cycle: components["schemas"]["CycleView"];
+            /** Cycles */
+            cycles: components["schemas"]["CycleView"][];
+            /** Related Case Id */
+            related_case_id: string | null;
+        };
+        /** CasePatch */
+        CasePatch: {
+            /** Category Key */
+            category_key?: string | null;
+            /** Priority */
+            priority?: ("urgent" | "high" | "normal" | "low") | null;
+            /** Team Id */
+            team_id?: string | null;
+            /** Assignee Member Id */
+            assignee_member_id?: string | null;
+            /** Custom Values */
+            custom_values?: {
+                [key: string]: components["schemas"]["JsonValue"];
+            } | null;
+        };
+        /** CaseSummary */
+        CaseSummary: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Number */
+            number: number;
+            /** Version */
+            version: number;
+            /** Subject */
+            subject: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "new" | "open" | "pending_customer" | "resolved" | "closed";
+            /** State Label */
+            state_label: string;
+            /** Category Key */
+            category_key: string;
+            /** Category Label */
+            category_label: string;
+            /**
+             * Priority
+             * @enum {string}
+             */
+            priority: "urgent" | "high" | "normal" | "low";
+            customer: components["schemas"]["Reference"];
+            requester: components["schemas"]["Reference"];
+            team: components["schemas"]["Reference"] | null;
+            assignee: components["schemas"]["Reference"] | null;
+            /** Unread */
+            unread: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /**
+             * Last Message At
+             * Format: date-time
+             */
+            last_message_at: string;
+            target_status: components["schemas"]["ClockView"];
+        };
+        /** Category */
+        Category: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Default Team Id */
+            default_team_id?: string | null;
+        };
+        /** ClockView */
+        ClockView: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "due" | "overdue" | "paused" | "met" | "missed";
+            /** Elapsed Seconds */
+            elapsed_seconds: number;
+            /** Remaining Seconds */
+            remaining_seconds: number;
+            /** Target Seconds */
+            target_seconds: number;
+            /** Is Overdue */
+            is_overdue: boolean;
+            /** Due At */
+            due_at: string | null;
+        };
+        /** ConfigView */
+        ConfigView: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Version */
+            version: number;
+            /** Number */
+            number: number;
+            /**
+             * Status
+             * @constant
+             */
+            status: "published";
+            definition: components["schemas"]["Definition"];
+            /**
+             * Published At
+             * Format: date-time
+             */
+            published_at: string;
+        };
         /** ContactCreate */
         ContactCreate: {
             /**
@@ -565,6 +1042,59 @@ export interface components {
             /** Last Meaningful Activity At */
             last_meaningful_activity_at?: null;
         };
+        /** CycleView */
+        CycleView: {
+            /** Cycle Number */
+            cycle_number: number;
+            /**
+             * Opened At
+             * Format: date-time
+             */
+            opened_at: string;
+            /** Target Seconds */
+            target_seconds: number;
+            /** Paused Seconds */
+            paused_seconds: number;
+            /** Pause Started At */
+            pause_started_at: string | null;
+            /** Resolved At */
+            resolved_at: string | null;
+            /** Resolution Code */
+            resolution_code: string | null;
+            /** Resolution Summary */
+            resolution_summary: string | null;
+        };
+        /** Definition */
+        Definition: {
+            /** Categories */
+            categories: components["schemas"]["Category"][];
+            /** State Labels */
+            state_labels: {
+                [key: string]: string;
+            };
+            /** Priorities */
+            priorities: {
+                [key: string]: components["schemas"]["Targets"];
+            };
+            /** Fields */
+            fields?: components["schemas"]["FieldDefinition"][];
+            /**
+             * Portal Default Priority
+             * @default normal
+             * @constant
+             */
+            portal_default_priority: "normal";
+        };
+        /** Envelope[CaseDetail] */
+        Envelope_CaseDetail_: {
+            data: components["schemas"]["CaseDetail"];
+            meta: components["schemas"]["Meta"];
+        };
+        /** Envelope[ConfigView] */
+        Envelope_ConfigView_: {
+            data: components["schemas"]["ConfigView"];
+            meta: components["schemas"]["Meta"];
+        };
         /** Envelope[ContactView] */
         Envelope_ContactView_: {
             data: components["schemas"]["ContactView"];
@@ -595,9 +1125,19 @@ export interface components {
             data: components["schemas"]["MemberView"];
             meta: components["schemas"]["Meta"];
         };
-        /** Envelope[MessageView] */
-        Envelope_MessageView_: {
-            data: components["schemas"]["MessageView"];
+        /** Envelope[PortalCaseDetail] */
+        Envelope_PortalCaseDetail_: {
+            data: components["schemas"]["PortalCaseDetail"];
+            meta: components["schemas"]["Meta"];
+        };
+        /** Envelope[PortalConfig] */
+        Envelope_PortalConfig_: {
+            data: components["schemas"]["PortalConfig"];
+            meta: components["schemas"]["Meta"];
+        };
+        /** Envelope[PortalMessageView] */
+        Envelope_PortalMessageView_: {
+            data: components["schemas"]["PortalMessageView"];
             meta: components["schemas"]["Meta"];
         };
         /** Envelope[PortalSetupView] */
@@ -605,9 +1145,19 @@ export interface components {
             data: components["schemas"]["PortalSetupView"];
             meta: components["schemas"]["Meta"];
         };
+        /** Envelope[ReadInput] */
+        Envelope_ReadInput_: {
+            data: components["schemas"]["ReadInput"];
+            meta: components["schemas"]["Meta"];
+        };
         /** Envelope[TeamView] */
         Envelope_TeamView_: {
             data: components["schemas"]["TeamView"];
+            meta: components["schemas"]["Meta"];
+        };
+        /** Envelope[TransitionResult] */
+        Envelope_TransitionResult_: {
+            data: components["schemas"]["TransitionResult"];
             meta: components["schemas"]["Meta"];
         };
         /** Envelope[WorkspaceView] */
@@ -619,6 +1169,18 @@ export interface components {
         Envelope_list_AuditView__: {
             /** Data */
             data: components["schemas"]["AuditView"][];
+            meta: components["schemas"]["Meta"];
+        };
+        /** Envelope[list[CaseSummary]] */
+        Envelope_list_CaseSummary__: {
+            /** Data */
+            data: components["schemas"]["CaseSummary"][];
+            meta: components["schemas"]["Meta"];
+        };
+        /** Envelope[list[ConfigView]] */
+        Envelope_list_ConfigView__: {
+            /** Data */
+            data: components["schemas"]["ConfigView"][];
             meta: components["schemas"]["Meta"];
         };
         /** Envelope[list[ContactView]] */
@@ -633,10 +1195,34 @@ export interface components {
             data: components["schemas"]["CustomerView"][];
             meta: components["schemas"]["Meta"];
         };
+        /** Envelope[list[HistoryView]] */
+        Envelope_list_HistoryView__: {
+            /** Data */
+            data: components["schemas"]["HistoryView"][];
+            meta: components["schemas"]["Meta"];
+        };
         /** Envelope[list[MemberView]] */
         Envelope_list_MemberView__: {
             /** Data */
             data: components["schemas"]["MemberView"][];
+            meta: components["schemas"]["Meta"];
+        };
+        /** Envelope[list[MessageView]] */
+        Envelope_list_MessageView__: {
+            /** Data */
+            data: components["schemas"]["app__modules__cases__schemas__MessageView"][];
+            meta: components["schemas"]["Meta"];
+        };
+        /** Envelope[list[PortalCaseSummary]] */
+        Envelope_list_PortalCaseSummary__: {
+            /** Data */
+            data: components["schemas"]["PortalCaseSummary"][];
+            meta: components["schemas"]["Meta"];
+        };
+        /** Envelope[list[PortalMessageView]] */
+        Envelope_list_PortalMessageView__: {
+            /** Data */
+            data: components["schemas"]["PortalMessageView"][];
             meta: components["schemas"]["Meta"];
         };
         /** Envelope[list[TeamView]] */
@@ -644,6 +1230,45 @@ export interface components {
             /** Data */
             data: components["schemas"]["TeamView"][];
             meta: components["schemas"]["Meta"];
+        };
+        /** FieldDefinition */
+        FieldDefinition: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "string" | "integer" | "decimal" | "boolean" | "date" | "single_select";
+            /**
+             * Required On Create
+             * @default false
+             */
+            required_on_create: boolean;
+            /**
+             * Required On Resolve
+             * @default false
+             */
+            required_on_resolve: boolean;
+            /**
+             * Portal Visible
+             * @default false
+             */
+            portal_visible: boolean;
+            /**
+             * Portal Editable On Create
+             * @default false
+             */
+            portal_editable_on_create: boolean;
+            /** Allowed Values */
+            allowed_values?: string[];
+            /** Minimum */
+            minimum?: number | null;
+            /** Maximum */
+            maximum?: number | null;
+            default?: components["schemas"]["JsonValue"];
         };
         /** FieldError */
         FieldError: {
@@ -671,6 +1296,36 @@ export interface components {
         HealthResponse: {
             data: components["schemas"]["HealthData"];
             meta: components["schemas"]["ResponseMeta"];
+        };
+        /** HistoryView */
+        HistoryView: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "transition" | "audit";
+            /**
+             * Occurred At
+             * Format: date-time
+             */
+            occurred_at: string;
+            /** Action */
+            action: string;
+            /** From State */
+            from_state?: string | null;
+            /** To State */
+            to_state?: string | null;
+            /** Cycle Number */
+            cycle_number?: number | null;
+            /** Changed Fields */
+            changed_fields?: string[];
+            /** Reason */
+            reason?: string | null;
         };
         /** IdentityView */
         IdentityView: {
@@ -712,6 +1367,7 @@ export interface components {
                 [key: string]: boolean;
             };
         };
+        JsonValue: unknown;
         /** LoginInput */
         LoginInput: {
             /** Workspace Slug */
@@ -793,10 +1449,16 @@ export interface components {
              */
             created_at: string;
         };
-        /** MessageView */
-        MessageView: {
-            /** Message */
-            message: string;
+        /** MessageCreate */
+        MessageCreate: {
+            /** Body */
+            body: string;
+            /**
+             * Visibility
+             * @default public
+             * @enum {string}
+             */
+            visibility: "public" | "internal";
         };
         /** Meta */
         Meta: {
@@ -822,6 +1484,130 @@ export interface components {
              * Format: password
              */
             new_password: string;
+        };
+        /** PortalCaseDetail */
+        PortalCaseDetail: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Number */
+            number: number;
+            /** Version */
+            version: number;
+            /** Subject */
+            subject: string;
+            /** Category Label */
+            category_label: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "new" | "open" | "pending_customer" | "resolved" | "closed";
+            /** State Label */
+            state_label: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Custom Values */
+            custom_values: {
+                [key: string]: components["schemas"]["JsonValue"];
+            };
+            /** Field Definitions */
+            field_definitions: components["schemas"]["PublicField"][];
+            /** Latest Public Resolution */
+            latest_public_resolution: string | null;
+            /** Current Cycle Number */
+            current_cycle_number: number;
+            /** Can Reply */
+            can_reply: boolean;
+            /** Can Reopen */
+            can_reopen: boolean;
+            /**
+             * Can Rate
+             * @default false
+             */
+            can_rate: boolean;
+            /** Related Case Id */
+            related_case_id: string | null;
+        };
+        /** PortalCaseSummary */
+        PortalCaseSummary: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Number */
+            number: number;
+            /** Version */
+            version: number;
+            /** Subject */
+            subject: string;
+            /** Category Label */
+            category_label: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "new" | "open" | "pending_customer" | "resolved" | "closed";
+            /** State Label */
+            state_label: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** PortalConfig */
+        PortalConfig: {
+            /** Categories */
+            categories: components["schemas"]["PublicCategory"][];
+            /** State Labels */
+            state_labels: {
+                [key: string]: string;
+            };
+            /** Fields */
+            fields: components["schemas"]["PublicField"][];
+        };
+        /** PortalMessageCreate */
+        PortalMessageCreate: {
+            /** Body */
+            body: string;
+        };
+        /** PortalMessageView */
+        PortalMessageView: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Sequence */
+            sequence: number;
+            /** Body */
+            body: string;
+            /** Author Display */
+            author_display: string;
+            /** Author Kind */
+            author_kind: string;
+            /**
+             * Visibility
+             * @default public
+             * @constant
+             */
+            visibility: "public";
+            /** Message Kind */
+            message_kind: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Updated Case Version */
+            updated_case_version: number;
         };
         /** PortalSetupView */
         PortalSetupView: {
@@ -851,6 +1637,52 @@ export interface components {
             /** Field Errors */
             field_errors?: components["schemas"]["FieldError"][] | null;
         };
+        /** PublicCategory */
+        PublicCategory: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+        };
+        /** PublicField */
+        PublicField: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Type */
+            type: string;
+            /** Required On Create */
+            required_on_create: boolean;
+            /** Portal Editable On Create */
+            portal_editable_on_create: boolean;
+            /** Allowed Values */
+            allowed_values: string[];
+            /** Minimum */
+            minimum: number | null;
+            /** Maximum */
+            maximum: number | null;
+        };
+        /** ReadInput */
+        ReadInput: {
+            /** Last Read Sequence */
+            last_read_sequence: number;
+        };
+        /** Reference */
+        Reference: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+        };
+        /** ReopenInput */
+        ReopenInput: {
+            /** Message */
+            message: string;
+        };
         /** ResponseMeta */
         ResponseMeta: {
             /** Request Id */
@@ -867,6 +1699,13 @@ export interface components {
             new_password?: string | null;
             /** Current Password */
             current_password?: string | null;
+        };
+        /** Targets */
+        Targets: {
+            /** Response Minutes */
+            response_minutes: number;
+            /** Resolution Minutes */
+            resolution_minutes: number;
         };
         /** TeamCreate */
         TeamCreate: {
@@ -904,6 +1743,41 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+        };
+        /** TransitionInput */
+        TransitionInput: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "triage" | "ask_customer" | "resume" | "resolve" | "reopen" | "close";
+            /** Assignee Member Id */
+            assignee_member_id?: string | null;
+            /** Message */
+            message?: string | null;
+            /** Reason */
+            reason?: string | null;
+            /** Resolution Summary */
+            resolution_summary?: string | null;
+            /** Resolution Code */
+            resolution_code?: ("answered" | "fixed" | "fulfilled" | "declined" | "duplicate" | "other") | null;
+            /** Custom Values */
+            custom_values?: {
+                [key: string]: components["schemas"]["JsonValue"];
+            } | null;
+            /** Related Case Id */
+            related_case_id?: string | null;
+        };
+        /** TransitionResult */
+        TransitionResult: {
+            case: components["schemas"]["CaseDetail"];
+            /**
+             * Transition Id
+             * Format: uuid
+             */
+            transition_id: string;
+            /** Message Id */
+            message_id: string | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -955,9 +1829,51 @@ export interface components {
                 [key: string]: boolean;
             };
             /** Active Case Config Id */
-            active_case_config_id?: null;
+            active_case_config_id?: string | null;
             /** Active Health Profile Id */
             active_health_profile_id?: null;
+        };
+        /** MessageView */
+        app__modules__cases__schemas__MessageView: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Sequence */
+            sequence: number;
+            /** Body */
+            body: string;
+            /** Author Display */
+            author_display: string;
+            /** Author Kind */
+            author_kind: string;
+            /** Visibility */
+            visibility: string;
+            /** Message Kind */
+            message_kind: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Updated Case Version */
+            updated_case_version: number;
+        };
+        /** MessageView */
+        app__modules__identity__schemas__MessageView: {
+            /** Message */
+            message: string;
+        };
+        /** Envelope[MessageView] */
+        app__platform__protocol__Envelope_MessageView___1: {
+            data: components["schemas"]["app__modules__identity__schemas__MessageView"];
+            meta: components["schemas"]["Meta"];
+        };
+        /** Envelope[MessageView] */
+        app__platform__protocol__Envelope_MessageView___2: {
+            data: components["schemas"]["app__modules__cases__schemas__MessageView"];
+            meta: components["schemas"]["Meta"];
         };
     };
     responses: never;
@@ -1127,7 +2043,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Envelope_MessageView_"];
+                    "application/json": components["schemas"]["app__platform__protocol__Envelope_MessageView___1"];
                 };
             };
             /** @description Validation Error */
@@ -1160,7 +2076,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Envelope_MessageView_"];
+                    "application/json": components["schemas"]["app__platform__protocol__Envelope_MessageView___1"];
                 };
             };
             /** @description Validation Error */
@@ -1501,6 +2417,596 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Envelope_ContactView_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    configs_api_v1_case_configs_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_ConfigView__"];
+                };
+            };
+        };
+    };
+    config_detail_api_v1_case_configs__identifier__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_ConfigView_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cases_api_v1_cases_get: {
+        parameters: {
+            query?: {
+                q?: string;
+                state?: string | null;
+                priority?: string | null;
+                category?: string | null;
+                customer_id?: string | null;
+                assignee_id?: string | null;
+                team_id?: string | null;
+                overdue?: boolean | null;
+                unread?: boolean | null;
+                view?: "all" | "unassigned" | "mine" | "awaiting_customer" | "recently_resolved";
+                sort?: "created_at" | "last_message_at" | "priority";
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_CaseSummary__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_case_api_v1_cases_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CaseCreateStaff"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_CaseDetail_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    case_api_v1_cases__identifier__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_CaseDetail_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_case_api_v1_cases__identifier__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CasePatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_CaseDetail_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    transition_api_v1_cases__identifier__transitions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransitionInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_TransitionResult_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    messages_api_v1_cases__identifier__messages_get: {
+        parameters: {
+            query?: {
+                after_sequence?: number;
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_MessageView__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    post_message_api_v1_cases__identifier__messages_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MessageCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["app__platform__protocol__Envelope_MessageView___2"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_read_api_v1_cases__identifier__read_marker_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReadInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_ReadInput_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    history_api_v1_cases__identifier__history_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_HistoryView__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    portal_config_api_v1_portal_config_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_PortalConfig_"];
+                };
+            };
+        };
+    };
+    portal_cases_api_v1_portal_cases_get: {
+        parameters: {
+            query?: {
+                q?: string;
+                state?: string | null;
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_PortalCaseSummary__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    portal_create_api_v1_portal_cases_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CaseCreatePortal"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_PortalCaseDetail_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    portal_case_api_v1_portal_cases__identifier__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_PortalCaseDetail_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    portal_messages_api_v1_portal_cases__identifier__messages_get: {
+        parameters: {
+            query?: {
+                after_sequence?: number;
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_PortalMessageView__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    portal_message_api_v1_portal_cases__identifier__messages_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PortalMessageCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_PortalMessageView_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    portal_reopen_api_v1_portal_cases__identifier__reopen_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReopenInput"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_PortalCaseDetail_"];
                 };
             };
             /** @description Validation Error */

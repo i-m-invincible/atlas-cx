@@ -34,6 +34,9 @@ with engine.begin() as connection:
         {"id": identifier},
     ).one()
     assert row == ("M0 upgrade fixture", "Asia/Kolkata", 1, False)
+    connection.execute(
+        text("DELETE FROM workspace_counters WHERE workspace_id=:id"), {"id": identifier}
+    )
     connection.execute(text("DELETE FROM workspaces WHERE id=:id"), {"id": identifier})
 engine.dispose()
 print("Verified M0 workspace preservation during M1 upgrade")

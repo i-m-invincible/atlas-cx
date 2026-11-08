@@ -17,7 +17,7 @@ class WorkspaceView(BaseModel):
     timezone: str
     feedback_manager_member_id: UUID | None
     capabilities: dict[str, bool] = {"customers": True, "cases": False}
-    active_case_config_id: None = None
+    active_case_config_id: UUID | None = None
     active_health_profile_id: None = None
 
 
