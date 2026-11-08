@@ -2,38 +2,16 @@ import { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { api } from '../../api/client';
 import { useSession } from './session';
+import { SignOut } from './SignOut';
 import { ErrorMessage, Loading } from '../../components/Feedback';
 
-export function SignOut() {
-  const { setIdentity } = useSession();
-  const [error, setError] = useState<Error | null>(null);
-  const [pending, setPending] = useState(false);
-  return (
-    <>
-      <button
-        className="button secondary"
-        disabled={pending}
-        onClick={async () => {
-          setPending(true);
-          setError(null);
-          try {
-            await api('/auth/logout', { method: 'POST' });
-            setIdentity(null);
-          } catch (failure) {
-            setError(failure as Error);
-          } finally {
-            setPending(false);
-          }
-        }}
-      >
-        {pending ? 'Signing out…' : 'Sign out'}
-      </button>
-      <ErrorMessage error={error} />
-    </>
-  );
-}
-
-export function Account({ portal = false }: { portal?: boolean }) {
+export function Account({
+  portal = false,
+  embedded = false,
+}: {
+  portal?: boolean;
+  embedded?: boolean;
+}) {
   const { identity, loading, setIdentity } = useSession();
   const [error, setError] = useState<Error | null>(null);
   const [pending, setPending] = useState(false);
@@ -42,9 +20,10 @@ export function Account({ portal = false }: { portal?: boolean }) {
     return <Navigate to={portal ? '/portal/sign-in' : '/sign-in'} replace />;
   if (portal && identity.audience !== 'portal')
     return <Navigate to="/app/customers" replace />;
+  const Container = embedded || !portal ? 'section' : 'main';
   return (
-    <main className={portal ? 'auth-page portal-page' : ''}>
-      {portal && <Link to="/">Atlas CX</Link>}
+    <Container className={portal && !embedded ? 'auth-page portal-page' : ''}>
+      {portal && !embedded && <Link to="/portal">Atlas CX</Link>}
       <h1 id="page-heading" tabIndex={-1}>
         {portal ? 'Customer portal' : 'Your account'}
       </h1>
@@ -52,10 +31,9 @@ export function Account({ portal = false }: { portal?: boolean }) {
         {identity.display_name} · {identity.workspace_name}
       </p>
       <p className="small-reading">{identity.email}</p>
-      {portal && (
+      {portal && !embedded && (
         <p>
-          Request workflows are not available yet. Your account is connected to
-          your own contact identity.
+          Your account is connected to your own requests and public replies.
         </p>
       )}
       <form
@@ -111,7 +89,7 @@ export function Account({ portal = false }: { portal?: boolean }) {
           {pending ? 'Changing password…' : 'Change password'}
         </button>
       </form>
-      <SignOut />
-    </main>
+      {!embedded && <SignOut />}
+    </Container>
   );
 }

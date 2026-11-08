@@ -3,6 +3,32 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppShell } from '../components/AppShell';
 import { Overview } from '../features/overview/Overview';
 import { RequireStaff } from '../features/identity/SessionProvider';
+import { PortalShell } from '../features/portal/PortalShell';
+const Support = lazy(() =>
+  import('../features/support/Support').then((module) => ({
+    default: module.Support,
+  })),
+);
+const CreateCase = lazy(() =>
+  import('../features/support/CreateCase').then((module) => ({
+    default: module.CreateCase,
+  })),
+);
+const CaseAssignment = lazy(() =>
+  import('../features/support/CaseAssignment').then((module) => ({
+    default: module.CaseAssignment,
+  })),
+);
+const Requests = lazy(() =>
+  import('../features/portal/Requests').then((module) => ({
+    default: module.Requests,
+  })),
+);
+const RequestDetail = lazy(() =>
+  import('../features/portal/RequestDetail').then((module) => ({
+    default: module.RequestDetail,
+  })),
+);
 const SignIn = lazy(() =>
   import('../features/identity/SignIn').then((module) => ({
     default: module.SignIn,
@@ -57,7 +83,75 @@ export function App() {
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/portal/sign-in" element={<SignIn portal />} />
         <Route path="/setup" element={<Setup />} />
-        <Route path="/portal" element={<Account portal />} />
+        <Route
+          path="/portal"
+          element={
+            <PortalShell>
+              <Requests />
+            </PortalShell>
+          }
+        />
+        <Route
+          path="/portal/new"
+          element={
+            <PortalShell>
+              <CreateCase portal />
+            </PortalShell>
+          }
+        />
+        <Route
+          path="/portal/requests/:id"
+          element={
+            <PortalShell>
+              <RequestDetail />
+            </PortalShell>
+          }
+        />
+        <Route
+          path="/portal/profile"
+          element={
+            <PortalShell>
+              <Account portal embedded />
+            </PortalShell>
+          }
+        />
+        {[
+          '/app/support/inbox',
+          '/app/support/cases',
+          '/app/support/cases/:id',
+        ].map((path) => (
+          <Route
+            key={path}
+            path={path}
+            element={
+              <RequireStaff>
+                <AppShell>
+                  <Support />
+                </AppShell>
+              </RequireStaff>
+            }
+          />
+        ))}
+        <Route
+          path="/app/support/cases/new"
+          element={
+            <RequireStaff>
+              <AppShell>
+                <CreateCase />
+              </AppShell>
+            </RequireStaff>
+          }
+        />
+        <Route
+          path="/app/support/cases/:id/edit"
+          element={
+            <RequireStaff>
+              <AppShell>
+                <CaseAssignment />
+              </AppShell>
+            </RequireStaff>
+          }
+        />
         <Route path="/" element={<Navigate to="/app/overview" replace />} />
         <Route
           path="/app/overview"

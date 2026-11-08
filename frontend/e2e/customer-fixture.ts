@@ -79,6 +79,8 @@ export async function customerFixture(
       return route.fulfill({ status: 204 });
     }
     if (path === '/members') return reply(envelope([member]));
+    if ((path === '/cases' || path === '/portal/cases') && method === 'GET')
+      return reply(envelope([]));
     if (path === '/health/live') return reply(envelope({ status: 'ok' }));
     if (path === '/customers' && method === 'GET') {
       if (failList) {

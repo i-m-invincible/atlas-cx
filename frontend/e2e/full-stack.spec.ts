@@ -83,7 +83,7 @@ test('M1 full stack persists customers and enforces portal identity', async ({
   await expect(
     portal.getByRole('heading', {
       level: 1,
-      name: 'Customer portal',
+      name: 'Your requests',
       exact: true,
     }),
   ).toBeVisible();

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { CustomerCases } from '../support/CustomerCases';
 import {
   useInfiniteQuery,
   useQuery,
@@ -169,14 +170,7 @@ export function CustomerDetail() {
             </dd>
           </dl>
           <div className="ruled-section">
-            <h2>Related work</h2>
-            <p>
-              Cases, product events, and follow-ups will appear in later
-              milestones.
-            </p>
-            <p className="small-reading">
-              No operational history or health score has been calculated.
-            </p>
+            <CustomerCases customerId={row.id} archived={!!row.archived_at} />
           </div>
           {canArchive && !row.archived_at && (
             <details className="ruled-section">

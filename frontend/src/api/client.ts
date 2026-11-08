@@ -28,6 +28,7 @@ export async function api<T>(
     method?: string;
     body?: unknown;
     version?: number;
+    idempotencyKey?: string;
     signal?: AbortSignal;
   } = {},
 ): Promise<ApiEnvelope<T>> {
@@ -49,6 +50,8 @@ export async function api<T>(
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
   if (options.version !== undefined)
     headers['If-Match'] = `"${options.version}"`;
+  if (options.idempotencyKey)
+    headers['Idempotency-Key'] = options.idempotencyKey;
   const response = await fetch(`/api/v1${path}`, {
     method,
     headers,

@@ -3,10 +3,11 @@ import type { ReactNode } from 'react';
 import { Link, Navigate, NavLink, useLocation } from 'react-router-dom';
 import { useSession } from '../features/identity/session';
 
-const plannedSections = ['Support', 'Analytics', 'Knowledge', 'Follow-ups'];
+const plannedSections = ['Analytics', 'Knowledge', 'Follow-ups'];
 
 function Navigation({ onNavigate }: { onNavigate?: () => void }) {
   const { identity } = useSession();
+  const location = useLocation();
   return (
     <nav aria-label="Primary navigation">
       <ul className="navigation">
@@ -20,6 +21,26 @@ function Navigation({ onNavigate }: { onNavigate?: () => void }) {
             <NavLink to="/app/customers" onClick={onNavigate}>
               Customers
             </NavLink>
+          </li>
+        )}
+        {identity?.audience === 'staff' ? (
+          <li>
+            <Link
+              to="/app/support/inbox"
+              aria-current={
+                location.pathname.startsWith('/app/support')
+                  ? 'page'
+                  : undefined
+              }
+              onClick={onNavigate}
+            >
+              Support
+            </Link>
+          </li>
+        ) : (
+          <li className="planned-link">
+            <span>Support</span>
+            <span className="metadata">Sign in</span>
           </li>
         )}
         {plannedSections.map((section) => (
