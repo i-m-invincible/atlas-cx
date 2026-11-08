@@ -50,7 +50,10 @@ test('M2 full stack persists portal requests, replies, resolution cycles and iso
   const beta = await betaContext.newPage();
   try {
     await signIn(alpha, fixture.alpha_email, true);
-    await alpha.getByRole('link', { name: 'New request', exact: true }).click();
+    await alpha
+      .getByRole('navigation', { name: 'Portal navigation' })
+      .getByRole('link', { name: 'New request', exact: true })
+      .click();
     const subject = `Synthetic persisted M2 request ${Date.now()}`;
     const description = 'I cannot open the synthetic shared project.';
     await alpha.getByLabel('Category', { exact: true }).selectOption('access');

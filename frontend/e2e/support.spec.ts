@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import axe from 'axe-core';
 import { supportFixture } from './support-fixture';
-import { syntheticCase } from '../src/test/case-fixtures';
+import { member, syntheticCase } from '../src/test/case-fixtures';
 
 for (const width of [1440, 1024, 700, 390]) {
   test(`support workflow and reading order at ${width}px`, async ({ page }) => {
@@ -27,6 +27,7 @@ for (const width of [1440, 1024, 700, 390]) {
     });
     if (width === 1440) await expect(context).toBeVisible();
     else await expect(context).toBeHidden();
+    await page.evaluate(() => document.fonts.ready);
     await page.screenshot({
       path: `test-results/support-${width}-conversation.png`,
       fullPage: true,
@@ -79,9 +80,16 @@ for (const width of [1440, 1024, 700, 390]) {
     await resolution
       .getByLabel('Public resolution summary')
       .fill('Access was restored after correcting the project setting.');
+    if (width <= 700) {
+      const bounds = await resolution.boundingBox();
+      expect(bounds!.x).toBe(0);
+      expect(bounds!.y).toBe(0);
+      expect(bounds!.width).toBe(width);
+      expect(bounds!.height).toBe(1000);
+    }
     await page.screenshot({
       path: `test-results/support-${width}-resolution.png`,
-      fullPage: true,
+      fullPage: false,
     });
     await resolution
       .getByRole('button', { name: 'Resolve case', exact: true })
@@ -120,6 +128,7 @@ for (const width of [1440, 1024, 700, 390]) {
     await page
       .getByLabel('Description', { exact: true })
       .fill('I cannot open the shared project after signing in.');
+    await page.evaluate(() => document.fonts.ready);
     await page.screenshot({
       path: `test-results/portal-${width}-request.png`,
       fullPage: true,
@@ -163,6 +172,39 @@ for (const width of [1440, 1024, 700, 390]) {
     ).toBe(true);
   });
 }
+
+test('case details and assignment remain usable at 1024px with reduced motion', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1024, height: 1000 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const server = await supportFixture(page);
+  await page.goto(`/app/support/cases/${syntheticCase.id}`);
+  await page.getByRole('button', { name: 'Details', exact: true }).click();
+  await expect(
+    page.getByRole('link', { name: 'Synthetic customer', exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole('link', { name: 'Edit assignment and priority', exact: true })
+    .click();
+  await page
+    .getByLabel('Assignee', { exact: true })
+    .selectOption({ label: member.display_name });
+  await page.getByLabel('Priority', { exact: true }).selectOption('high');
+  await page
+    .getByRole('button', { name: 'Save case details', exact: true })
+    .click();
+  await expect(
+    page.getByRole('heading', { name: syntheticCase.subject, exact: true }),
+  ).toBeVisible();
+  expect(server.row.priority).toBe('high');
+  expect(server.row.assignee?.name).toBe(member.display_name);
+  expect(
+    server.requests.find((item) => item.method === 'PATCH')?.headers[
+      'If-Match'
+    ],
+  ).toBe('"1"');
+});
 
 test('support dialogs preserve drafts and trap keyboard focus', async ({
   page,

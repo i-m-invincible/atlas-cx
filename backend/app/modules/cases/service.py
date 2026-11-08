@@ -248,14 +248,16 @@ def create(uow: UnitOfWork, payload: CaseCreateStaff | CaseCreatePortal, request
         raise missing()
     with repo.case_storage(uow):
         customer = uow.session.get(Customer, contact.customer_id)
-        if not customer or customer.archived_at or contact.archived_at:
-            raise Fault(409, "archived", "Archived customer records cannot receive new requests.")
+        if not customer:
+            raise missing()
         if isinstance(payload, CaseCreateStaff) and customer.id != payload.customer_id:
             raise Fault(422, "requester_mismatch", "Choose a contact belonging to this customer.")
         replay, exists = idempotency.prepare(uow, request, payload)
         if exists:
             assert replay.resource_id
             return repo.get_case(uow, replay.resource_id)
+        if customer.archived_at or contact.archived_at:
+            raise Fault(409, "archived", "Archived customer records cannot receive new requests.")
         workspace = uow.session.get(Workspace, uow.scope.workspace_id)
         assert workspace
         config, definition = published(uow.session, workspace.active_case_config_id)

@@ -750,7 +750,17 @@ def test_customer_archive_requires_no_active_cases(core: Core, clients: Any) -> 
             "email": f"archive-{uuid4()}@example.com",
         },
     ).json()["data"]
-    row = create_case(admin, core, customer_id=customer["id"], requester_contact_id=contact["id"])
+    payload = {
+        "subject": "Archive and retry fixture",
+        "description": "A retry must not create another case after archiving.",
+        "category_key": "access",
+        "customer_id": customer["id"],
+        "requester_contact_id": contact["id"],
+    }
+    key = str(uuid4())
+    created = command(admin, "/cases", payload, key=key)
+    assert created.status_code == 201
+    row = created.json()["data"]
     assert (
         mutate(
             admin, f"/customers/{customer['id']}/archive", {"reason": "Archive"}, version=1
@@ -773,3 +783,6 @@ def test_customer_archive_requires_no_active_cases(core: Core, clients: Any) -> 
         ).status_code
         == 200
     )
+    replay = command(admin, "/cases", payload, key=key)
+    assert replay.status_code == 201 and replay.json()["data"]["id"] == row["id"]
+    assert command(admin, "/cases", payload).status_code == 409
