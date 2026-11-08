@@ -1,0 +1,14 @@
+docs/PRODUCT_SPEC.md
+docs/DESIGN_SYSTEM.md
+docs/contracts/openapi.json
+frontend/src/api/schema.d.ts
+package-lock.json
+backend/uv.lock
+node_modules
+frontend/dist
+.cache
+.runtime
+.venv
+tmp
+test-results
+playwright-report
