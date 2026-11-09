@@ -1,6 +1,7 @@
 """Evaluate the versioned synthetic corpus in a disposable PostgreSQL database."""
 
 import argparse
+import hashlib
 import json
 import os
 import platform
@@ -17,7 +18,13 @@ from sqlalchemy.orm import Session
 from app.modules.identity.operator import bootstrap_workspace
 from app.modules.knowledge import retrieval
 from app.modules.knowledge.content import checksum, normalize
-from app.modules.knowledge.model_manifest import EMBEDDING_REVISION, PROMPT_VERSION, QWEN_TOKENIZER
+from app.modules.knowledge.model_manifest import (
+    EMBEDDING_REVISION,
+    GENERATION_DIGEST,
+    GENERATION_MODEL,
+    PROMPT_VERSION,
+    QWEN_TOKENIZER,
+)
 from app.modules.knowledge.models import Document, Revision
 from app.modules.knowledge.providers import FastTokenizer, MiniLM, ModelFailure, Ollama
 from app.modules.knowledge.worker import Runtime, process
@@ -152,22 +159,52 @@ def proportion(numerator: int, denominator: int) -> dict[str, int]:
 
 
 def evaluate(args: argparse.Namespace) -> dict[str, object]:
-    corpus = Corpus.model_validate_json(CORPUS_PATH.read_text(encoding="utf-8"))
-    assert Counter(row.category for row in corpus.questions) == {
-        "direct": 30,
-        "multi": 10,
-        "unanswerable": 10,
-        "conflict": 5,
-        "injection": 5,
-    }
-    assert sum(row.partition == "held_out" for row in corpus.questions) == 20
+    corpus_bytes = args.corpus.read_bytes()
+    corpus = Corpus.model_validate_json(corpus_bytes)
+    if args.corpus.resolve() == CORPUS_PATH.resolve():
+        assert Counter(row.category for row in corpus.questions) == {
+            "direct": 30,
+            "multi": 10,
+            "unanswerable": 10,
+            "conflict": 5,
+            "injection": 5,
+        }
+        assert sum(row.partition == "held_out" for row in corpus.questions) == 20
+    questions = [
+        row
+        for row in corpus.questions
+        if args.partition == "all" or row.partition == args.partition
+    ]
+    if not questions:
+        raise ValueError("No questions in the selected partition")
     app = build_engine(os.environ["TEST_DATABASE_URL"])
     migration = build_engine(os.environ["MIGRATION_DATABASE_URL"])
     queue = build_engine(os.environ["QUEUE_DATABASE_URL"])
     directory = Path(args.models)
     embedder = MiniLM(directory)
     tokenizer = FastTokenizer(directory, QWEN_TOKENIZER)
-    generator = Ollama(args.ollama_url, tokenizer) if args.generate else None
+    traces: list[dict[str, object]] = []
+    generator = Ollama(args.ollama_url, tokenizer, observe=traces.append) if args.generate else None
+    if args.baseline and args.generate:
+        from scripts.m5_baseline import ModelFailure as BaselineFailure
+        from scripts.m5_baseline import Ollama as Baseline
+
+        class RecordedBaseline(Baseline):
+            def request(self, path, timeout, payload=None):
+                if payload is not None:
+                    payload["options"]["num_thread"] = 3
+                result = super().request(path, timeout, payload)
+                if payload is not None:
+                    traces.append({"stage": "draft", "result": result})
+                return result
+
+            def generate(self, question, sources):
+                try:
+                    return super().generate(question, sources)
+                except BaselineFailure as exc:
+                    raise ModelFailure(exc.code) from None
+
+        generator = RecordedBaseline(args.ollama_url, tokenizer)
     if generator:
         generator.verify()
     runtime = Runtime(embedder, tokenizer.count, None)
@@ -203,7 +240,8 @@ def evaluate(args: argparse.Namespace) -> dict[str, object]:
         results: list[dict[str, object]] = []
         abstained_unanswerable = 0
         citations_valid = citations_count = fallbacks = 0
-        for question in corpus.questions:
+        for question in questions:
+            traces.clear()
             start = perf_counter()
             query = question.question
             vector = embedder.embed([query])[0]
@@ -264,22 +302,37 @@ def evaluate(args: argparse.Namespace) -> dict[str, object]:
             total_times.append((perf_counter() - start) * 1000)
             result = {
                 "id": question.id,
+                "category": question.category,
                 "partition": question.partition,
                 "matches": found,
                 "mode": mode,
                 "error": error,
                 "answer": answer,
+                "sources": [
+                    {
+                        "label": item.label,
+                        "ref": f"{refs[item.version_id]}:c{item.ordinal}",
+                        "title": item.title,
+                        "excerpt": item.excerpt,
+                        "similarity": next(
+                            (
+                                hit.similarity
+                                for hit in vectors
+                                if hit.source.chunk_id == item.chunk_id
+                            ),
+                            None,
+                        ),
+                    }
+                    for item in selected
+                ],
+                "trace": list(traces),
             }
             results.append(result)
-            if args.log_claims and answer:
+            if args.log_claims:
                 print(
                     "Synthetic claim record "
                     + json.dumps(
-                        {
-                            "id": question.id,
-                            "answer": answer,
-                            "sources": found["hybrid"],
-                        },
+                        result,
                         ensure_ascii=True,
                     ),
                     flush=True,
@@ -299,9 +352,13 @@ def evaluate(args: argparse.Namespace) -> dict[str, object]:
         leaks += sum(other.foreign_marker in str(row["answer"]) for row in results)
         return {
             "corpus": corpus.version,
+            "corpus_sha256": hashlib.sha256(corpus_bytes).hexdigest(),
             "embedding_revision": EMBEDDING_REVISION,
             "retrieval_version": retrieval.RETRIEVAL_VERSION,
-            "prompt_version": PROMPT_VERSION,
+            "prompt_version": "policy-claims-2" if args.baseline else PROMPT_VERSION,
+            "generation_model": GENERATION_MODEL + "@" + GENERATION_DIGEST,
+            "inference_threads": 3,
+            "partition": args.partition,
             "machine": platform.platform(),
             "cpu_threads": os.cpu_count(),
             "generation_requested": args.generate,
@@ -309,19 +366,27 @@ def evaluate(args: argparse.Namespace) -> dict[str, object]:
             "hit_at_6": {
                 method: {
                     partition: proportion(hit[method, partition], eligible[partition])
-                    for partition in ("development", "held_out")
+                    for partition in sorted({row.partition for row in questions})
                 }
                 for method in ("lexical", "vector", "hybrid")
             },
             "all_support_at_6": {
                 method: {
                     partition: proportion(complete[method, partition], eligible[partition])
-                    for partition in ("development", "held_out")
+                    for partition in sorted({row.partition for row in questions})
                 }
                 for method in ("lexical", "vector", "hybrid")
             },
             "citation_validity": proportion(citations_valid, citations_count),
-            "unanswerable_abstention": proportion(abstained_unanswerable, 10),
+            "unanswerable_abstention": proportion(
+                abstained_unanswerable, sum(row.category == "unanswerable" for row in questions)
+            ),
+            "modes_by_category": {
+                category: dict(
+                    Counter(row["mode"] for row in results if row["category"] == category)
+                )
+                for category in sorted({row.category for row in questions})
+            },
             "fallback": proportion(fallbacks, len(results)),
             "isolation_disclosures": leaks,
             "latency": {
@@ -343,6 +408,11 @@ def main() -> None:
     parser.add_argument("--models", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--generate", action="store_true")
+    parser.add_argument("--baseline", action="store_true", help="Frozen M5 adapter comparison")
+    parser.add_argument("--corpus", type=Path, default=CORPUS_PATH)
+    parser.add_argument(
+        "--partition", choices=["all", "development", "held_out", "confirmation"], default="all"
+    )
     parser.add_argument("--ollama-url", default="http://127.0.0.1:11434")
     parser.add_argument(
         "--log-claims",

@@ -11,6 +11,7 @@ on:
       - 'backend/app/modules/knowledge/model_manifest.py'
       - 'backend/app/modules/knowledge/providers.py'
       - 'backend/app/modules/knowledge/retrieval.py'
+      - 'backend/scripts/m5_baseline.py'
 
 permissions:
   contents: read
@@ -47,6 +48,7 @@ jobs:
         run: |
           lscpu | grep -E '^(Model name|CPU\(s\))'
           uv run --group ai python -m scripts.evaluate_knowledge \
+            --partition development \
             --models ../.runtime/models --output ../.runtime/retrieval-evaluation.json
       - name: Reviewable generation against pinned local Ollama
         working-directory: backend
@@ -70,6 +72,7 @@ jobs:
           curl --fail --silent --show-error --retry 20 --retry-connrefused "$OLLAMA_HOST/api/tags" >/dev/null
           "$runtime/bin/ollama" pull qwen2.5:1.5b
           uv run --group ai python -m scripts.evaluate_knowledge --generate --log-claims \
+            --partition development \
             --models ../.runtime/models --output ../.runtime/generation-evaluation.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
