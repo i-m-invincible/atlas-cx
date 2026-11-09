@@ -126,6 +126,14 @@ for (const width of [1440, 1024, 700, 390]) {
     };
     await page.route('**/api/v1/case-configs', async (route) => {
       draft = { ...draft, definition: route.request().postDataJSON() };
+      expect(draft.definition.fields?.[0]).toMatchObject({
+        key: 'queue_rank',
+        type: 'integer',
+        minimum: 1,
+        default: 4,
+        required_on_create: true,
+        portal_visible: false,
+      });
       return route.fulfill({ status: 201, json: envelope(draft) });
     });
     await page.route('**/api/v1/case-configs/' + draftId, async (route) =>
@@ -148,6 +156,19 @@ for (const width of [1440, 1024, 700, 390]) {
     await page.getByLabel('Starter preset').selectOption('service_business');
     await page.getByRole('button', { name: 'Copy preset into draft' }).click();
     await expect(page.getByLabel('Category label')).toHaveValue('Appointment');
+    await page.getByRole('button', { name: 'Add custom field' }).click();
+    await page.getByLabel('Field key', { exact: true }).fill('queue_rank');
+    await page
+      .getByLabel('Field label', { exact: true })
+      .fill('Internal queue rank');
+    await page
+      .getByLabel('Field type', { exact: true })
+      .selectOption('integer');
+    await page.getByLabel('Minimum · Optional', { exact: true }).fill('1');
+    await page
+      .getByLabel('Default value · Optional', { exact: true })
+      .fill('4');
+    await page.getByLabel('Required on creation', { exact: true }).check();
     await page.getByRole('button', { name: 'Save draft' }).click();
     await expect(page.getByText('Draft saved.', { exact: true })).toBeVisible();
     await expect(page).toHaveURL(
@@ -157,6 +178,11 @@ for (const width of [1440, 1024, 700, 390]) {
     await expect(
       page.getByRole('heading', { name: 'Portal request preview' }),
     ).toBeVisible();
+    await expect(
+      page
+        .getByRole('group', { name: 'New request fields' })
+        .getByLabel(/Internal queue rank/),
+    ).toHaveCount(0);
     await page
       .getByRole('button', { name: 'Publish configuration', exact: true })
       .click();

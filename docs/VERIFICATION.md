@@ -1,5 +1,38 @@
 # Verification evidence
 
+## M3 configuration and follow-up
+
+Verified on 9 November 2026 against commit
+`638e8542890117f71ea6e5eefc20d7124f3b944d`.
+
+| Check              | Result                                                                                                                                                                                                                                                                                   |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Backend quality    | Ruff lint and formatting, strict mypy, and 71 unit and HTTP tests passed.                                                                                                                                                                                                                |
+| PostgreSQL         | 74 integration tests passed against PostgreSQL 17 and pgvector using the non-owner `atlas_app` role.                                                                                                                                                                                     |
+| Configuration      | Tests cover all five templates, publication authorization and validation, immutable published rows, routing, hidden portal fields, and existing cases retaining their pinned versions.                                                                                                   |
+| Tasks and feedback | Tests cover task permissions, archive guards, reassignment, completion and reopening audit events, contact isolation, concurrent ratings, the 48-hour deadline, and both ownership fallbacks.                                                                                            |
+| CSV                | Tests cover the byte and row limits, duplicate IDs, foreign owners, blank optional cells, stale previews, replay, expiry, and all-or-nothing commit.                                                                                                                                     |
+| Frontend           | Formatting, ESLint, strict TypeScript, production build, and all 27 frontend tests passed. The generated API contract matched the server.                                                                                                                                                |
+| Chromium           | 33 deterministic checks passed. The M3 checks exercise draft publication, typed fields, task completion, CSV errors, keyboard rating, and horizontal overflow at 1440, 1024, 700, and 390 px. Automated axe checks found no serious or critical violations on the tested rating surface. |
+| Compose            | All three real-stack browser workflows passed. M3 publishes the Service business preset in a separate workspace, routes an appointment request through the same case engine, records and completes its rating-generated task, and commits a 1 MiB CSV after preview.                     |
+| Migration          | M0 through M2 data preservation, rollback to base, repeat upgrade, both image builds, and health smoke checks passed. The M2 fixture retained its case, pinned configuration, original message, and resolution target.                                                                   |
+| Sources            | The product specification, design system, and wireframe PDF passed byte checks. Earlier migrations were unchanged.                                                                                                                                                                       |
+
+The first Compose run found that publication succeeded but the new-draft route
+could remount the editor before its confirmation appeared. Saving now opens
+the draft's version URL. Chromium checks the confirmation after publication.
+The upload proxy reserves space for multipart framing on the CSV endpoint.
+The API enforces the 1 MiB file limit independently.
+
+Database and container evidence comes from GitHub Actions. The Windows host
+does not have Docker or PostgreSQL. Local browser runs skip the three Compose
+tests. Full manual screen-reader, load, and restore verification remain release
+work. Expired import staging is cleared by subsequent import writes or the
+scoped operator command.
+
+[Pull request CI](https://github.com/i-m-invincible/atlas-cx/actions/runs/42593914800)
+· [Branch CI](https://github.com/i-m-invincible/atlas-cx/actions/runs/42593884589)
+
 ## M2 case vertical slice
 
 Date: 9 November 2026 (India time). The required specifications, wireframes,

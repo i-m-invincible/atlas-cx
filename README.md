@@ -1,8 +1,8 @@
 # Atlas CX
 
 Customer Operations & Service Intelligence Platform. The repository contains the
-M0 foundation, M1 identity and customer core, and M2 support workflow. Atlas CX is
-standalone.
+M0 foundation, M1 identity and customer core, M2 support workflow, and M3
+configuration, follow-ups, ratings, and CSV imports. Atlas CX is standalone.
 
 Staff can sign in, manage customers and contacts, search and filter records,
 archive records, and administer workspace membership and teams according to
@@ -11,8 +11,11 @@ Bound portal contacts can submit requests and follow their own public
 conversations. Staff can claim and assign cases, reply publicly, write private
 notes, request information, resolve, reopen, and close work according to their
 role. Cases retain resolution cycles and response/resolution target snapshots.
-Ratings, follow-up tasks, CSV imports, analytics, health computation, RAG, and
-configuration authoring remain planned. Unknown health and activity remain unknown.
+Administrators publish versioned case configuration from five starter presets.
+Staff manage follow-up tasks, and portal contacts can rate their latest resolved
+cycle. A low rating creates a single staff follow-up. Administrators and managers
+can validate and commit customer CSVs. Analytics, health computation, and RAG
+remain planned.
 
 Read the unchanged [product specification](docs/PRODUCT_SPEC.md),
 [design system](docs/DESIGN_SYSTEM.md), [wireframes](docs/Atlas_CX_Wireframe_Atlas.pdf),
@@ -122,7 +125,7 @@ python scripts/verify_sources.py
 
 Browser tests exercise customer, support, and portal interactions at 1440, 1024,
 700, and 390 pixels, plus the foundation's 320-pixel shell checks. Test-only API
-fixtures provide deterministic UI states. The separate M1 and M2 real-stack tests
+fixtures provide deterministic UI states. The separate M1, M2, and M3 real-stack tests
 skip unless `E2E_BASE_URL` is set. CI runs them against Compose with synthetic
 identities and a random password prepared by `backend/scripts/seed_m1_browser.py`
 and `seed_m2_browser.py`. These scripts write private, ignored temporary
@@ -153,6 +156,27 @@ targets. Each case pins its configuration and original targets; editing priority
 does not reset its clocks. Public and internal drafts remain separate in memory.
 Failed writes retain drafts, and conflicts require review and a new explicit save.
 
+## Configuration, follow-ups, and imports
+
+Open **Settings → Case configuration → Start a draft**. Copy a preset, choose
+workspace routing teams, and edit categories, priority targets, state labels,
+or fields. Save the draft, review its portal form, and publish it for new cases.
+To demonstrate a second industry, publish the Service business preset in a
+separate workspace, route Appointment to an active team, and submit a portal
+request with an appointment date. Earlier cases still use their original version.
+
+Submit a rating of 1 or 2 after a portal request is resolved. The resulting task
+appears under **Follow-ups → Feedback**. Open it, enter what was done, and
+complete it. Historical ratings remain visible to their requester.
+
+Choose **Customers → Import CSV** to validate a UTF-8 file, inspect each row, and
+confirm the import. The required columns are `external_id`, `name`, and `kind`.
+The optional columns are `lifecycle`, `owner_email`, `tags` (semicolon-separated),
+and `activity_expected` (true or false). The limit is 1 MiB and 1,000 data rows.
+Previews expire after 24 hours. From the backend checkout, an operator can clear
+expired staging with `uv run python -m scripts.purge_customer_imports WORKSPACE_SLUG`
+using the migration database credential.
+
 Regenerate contracts after API schema changes:
 
 ```sh
@@ -163,10 +187,11 @@ npm run api:generate
 ```
 
 CI checks quality, contracts, dependencies, source hashes, PostgreSQL isolation,
-M0 and M1 data preservation during upgrade, rollback/repeat upgrades, container
-builds, health smoke checks, and real browser identity/customer/support flows.
+M0 through M2 data preservation during upgrade, rollback and repeat upgrades,
+container builds, health smoke checks, and real browser workflows.
 It does not deploy. See [verification evidence](docs/VERIFICATION.md),
-[M2 changed files](docs/M2_FILE_MANIFEST.md),
+[M3 changed files](docs/M3_FILE_MANIFEST.md),
 [identity/customer architecture](docs/architecture/0002-identity-customer-core.md),
-and [case workflow decisions](docs/architecture/0003-case-workflow.md).
-The next milestone is **M3: Configuration and follow-up**.
+[case workflow decisions](docs/architecture/0003-case-workflow.md), and
+[M3 architecture decisions](docs/architecture/0004-configuration-followups-imports.md).
+The next milestone is **M4 Activity and analytics**.

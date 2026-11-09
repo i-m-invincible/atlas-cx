@@ -17,16 +17,16 @@ optimistic concurrency, and idempotent retries.
 The Organic support and portal interfaces adapt at 1440, 1024, 700, and 390px.
 See [verification evidence](VERIFICATION.md) for executed checks and limits.
 
-The next implementation milestone is **M3 Configuration and follow-up**, as
-defined in section 19 of the product specification.
+M3 Configuration and follow-up adds five starter presets, immutable published
+versions, typed case fields, task ownership and completion history, and ratings
+for the latest resolved cycle. A qualifying rating creates one follow-up.
+Customer CSVs have a staged preview, row-level errors, and an atomic commit.
+See the [M3 verification record](VERIFICATION.md#m3-configuration-and-follow-up).
 
-- Publish immutable configuration versions and demonstrate a second preset.
-- Provide all five prescribed presets and bounded custom fields.
-- Implement follow-up tasks with scoped ownership and audit history.
-- Add ratings and create exactly one task for qualifying low feedback.
-- Add the specified CSV import flows and validation.
+The next milestone is **M4 Activity and analytics**. It adds event definitions
+and credentials, idempotent ingestion, a customer timeline, and independently
+checked activity and service reports.
 
-M4 adds activity ingestion and independently checked analytics. M5 adds knowledge
-and RAG. M6 adds rules-based health and product finishing. M7 validates the complete
-release, including restore, load, security, and accessibility evidence. These
-remain planned. No merge to main or deployment is authorized.
+M5 adds knowledge and RAG. M6 adds rules-based health and product finishing.
+M7 validates the complete release, including restore, load, security, and
+accessibility evidence. No merge to main or deployment is authorized.
