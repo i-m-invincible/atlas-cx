@@ -11,6 +11,10 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from starlette.exceptions import HTTPException
 from starlette.responses import Response
 
+from app.modules.activities.admin import router as event_admin_router
+from app.modules.activities.ingest_router import router as ingestion_router
+from app.modules.activities.read_router import router as customer_activity_router
+from app.modules.analytics.router import router as analytics_router
 from app.modules.cases.router import router as cases_router
 from app.modules.customers.import_router import router as imports_router
 from app.modules.customers.router import router as customers_router
@@ -39,7 +43,7 @@ def create_app() -> FastAPI:
     application = FastAPI(
         title="Atlas CX API",
         version="0.1.0",
-        description="Atlas CX identity, workspace, and customer core API.",
+        description="Atlas CX customer operations and service intelligence API.",
         lifespan=lifespan,
         docs_url="/api/docs" if settings.app_env != "production" else None,
         redoc_url=None,
@@ -132,6 +136,10 @@ def create_app() -> FastAPI:
     application.include_router(case_config_router, prefix="/api/v1")
     application.include_router(followups_router, prefix="/api/v1")
     application.include_router(imports_router, prefix="/api/v1")
+    application.include_router(event_admin_router, prefix="/api/v1")
+    application.include_router(ingestion_router, prefix="/api/v1")
+    application.include_router(customer_activity_router, prefix="/api/v1")
+    application.include_router(analytics_router, prefix="/api/v1")
     return application
 
 

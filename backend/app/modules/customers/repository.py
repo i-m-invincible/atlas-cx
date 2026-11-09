@@ -1,9 +1,10 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import literal, select, tuple_
+from sqlalchemy import func, literal, select, tuple_
 from sqlalchemy.orm import Session
 
+from app.modules.activities.models import CustomerEvent
 from app.modules.customers.models import Contact, Customer
 from app.modules.customers.schemas import ContactFilters, ContactView, CustomerFilters, CustomerView
 from app.modules.identity.models import Membership, PortalBinding, User
@@ -24,7 +25,29 @@ def contact(session: Session, identifier: UUID, lock: bool = False) -> Contact:
     return value
 
 
-def customer_view(session: Session, row: Customer) -> CustomerView:
+def event_times(
+    session: Session, ids: list[UUID]
+) -> dict[UUID, tuple[datetime | None, datetime | None]]:
+    query = (
+        select(
+            CustomerEvent.customer_id,
+            func.max(CustomerEvent.occurred_at).filter(CustomerEvent.activity_flag_snapshot),
+            func.max(CustomerEvent.received_at),
+        )
+        .where(CustomerEvent.customer_id.in_(ids))
+        .group_by(CustomerEvent.customer_id)
+    )
+    return {
+        identifier: (meaningful, received)
+        for identifier, meaningful, received in session.execute(query)
+    }
+
+
+def customer_view(
+    session: Session,
+    row: Customer,
+    activity: tuple[datetime | None, datetime | None] | None = None,
+) -> CustomerView:
     owner = (
         session.scalar(
             select(User.display_name)
@@ -34,11 +57,18 @@ def customer_view(session: Session, row: Customer) -> CustomerView:
         if row.owner_member_id
         else None
     )
+    meaningful, received = (
+        activity
+        if activity is not None
+        else event_times(session, [row.id]).get(row.id, (None, None))
+    )
     return CustomerView(
         **{
             field: getattr(row, field) for field in CustomerView.model_fields if hasattr(row, field)
         },
         owner_name=owner,
+        last_meaningful_activity_at=meaningful,
+        last_event_received_at=received,
     )
 
 
@@ -116,7 +146,8 @@ def page_customers(
         if more
         else None
     )
-    return [customer_view(session, row) for row in rows], cursor
+    activity = event_times(session, [row.id for row in rows]) if rows else {}
+    return [customer_view(session, row, activity.get(row.id, (None, None))) for row in rows], cursor
 
 
 def page_contacts(

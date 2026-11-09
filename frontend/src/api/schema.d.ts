@@ -788,6 +788,230 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/event-definitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Definitions */
+        get: operations["definitions_api_v1_event_definitions_get"];
+        put?: never;
+        /** Create Definition */
+        post: operations["create_definition_api_v1_event_definitions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/event-definitions/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Definition */
+        get: operations["definition_api_v1_event_definitions__identifier__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update Definition */
+        patch: operations["update_definition_api_v1_event_definitions__identifier__patch"];
+        trace?: never;
+    };
+    "/api/v1/api-credentials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Credentials */
+        get: operations["credentials_api_v1_api_credentials_get"];
+        put?: never;
+        /** Issue */
+        post: operations["issue_api_v1_api_credentials_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api-credentials/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Credential */
+        get: operations["credential_api_v1_api_credentials__identifier__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/api-credentials/{identifier}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Revoke */
+        post: operations["revoke_api_v1_api_credentials__identifier__revoke_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/events/batch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Batch */
+        post: operations["batch_api_v1_events_batch_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customers/{customer_id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Events */
+        get: operations["events_api_v1_customers__customer_id__events_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customers/{customer_id}/events/{event_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Event Detail */
+        get: operations["event_detail_api_v1_customers__customer_id__events__event_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customers/{customer_id}/timeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Timeline */
+        get: operations["timeline_api_v1_customers__customer_id__timeline_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Overview */
+        get: operations["overview_api_v1_analytics_overview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/trends": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Trends */
+        get: operations["trends_api_v1_analytics_trends_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/records": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Records */
+        get: operations["records_api_v1_analytics_records_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export */
+        get: operations["export_api_v1_analytics_export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1047,6 +1271,15 @@ export interface components {
             /** Default Team Id */
             default_team_id?: string | null;
         };
+        /** CategoryVolume */
+        CategoryVolume: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Count */
+            count: number;
+        };
         /** ClockView */
         ClockView: {
             /**
@@ -1146,6 +1379,69 @@ export interface components {
              */
             updated_at: string;
         };
+        /** CredentialCreate */
+        CredentialCreate: {
+            /** Name */
+            name: string;
+        };
+        /** CredentialIssued */
+        CredentialIssued: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Version */
+            version: number;
+            /** Token Prefix */
+            token_prefix: string;
+            /**
+             * Scope
+             * @constant
+             */
+            scope: "events:write";
+            /** Revoked At */
+            revoked_at: string | null;
+            /** Last Used At */
+            last_used_at: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Secret */
+            secret: string;
+        };
+        /** CredentialView */
+        CredentialView: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Version */
+            version: number;
+            /** Token Prefix */
+            token_prefix: string;
+            /**
+             * Scope
+             * @constant
+             */
+            scope: "events:write";
+            /** Revoked At */
+            revoked_at: string | null;
+            /** Last Used At */
+            last_used_at: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
         /** CsrfView */
         CsrfView: {
             /** Csrf Token */
@@ -1239,7 +1535,9 @@ export interface components {
             /** Latest Health */
             latest_health?: null;
             /** Last Meaningful Activity At */
-            last_meaningful_activity_at?: null;
+            last_meaningful_activity_at?: string | null;
+            /** Last Event Received At */
+            last_event_received_at?: string | null;
         };
         /** CycleView */
         CycleView: {
@@ -1284,6 +1582,82 @@ export interface components {
              */
             portal_default_priority: "normal";
         };
+        /** DefinitionCreate */
+        DefinitionCreate: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Allowed Properties */
+            allowed_properties?: {
+                [key: string]: components["schemas"]["PropertyRule"];
+            };
+            /** Counts As Activity */
+            counts_as_activity: boolean;
+            /**
+             * Enabled
+             * @default true
+             */
+            enabled: boolean;
+        };
+        /** DefinitionPatch */
+        DefinitionPatch: {
+            /** Label */
+            label?: string | null;
+            /** Allowed Properties */
+            allowed_properties?: {
+                [key: string]: components["schemas"]["PropertyRule"];
+            } | null;
+            /** Counts As Activity */
+            counts_as_activity?: boolean | null;
+            /** Enabled */
+            enabled?: boolean | null;
+        };
+        /** DefinitionView */
+        DefinitionView: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Allowed Properties */
+            allowed_properties?: {
+                [key: string]: components["schemas"]["PropertyRule"];
+            };
+            /** Counts As Activity */
+            counts_as_activity: boolean;
+            /**
+             * Enabled
+             * @default true
+             */
+            enabled: boolean;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Version */
+            version: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** Durations */
+        Durations: {
+            /** Median Seconds */
+            median_seconds: number | null;
+            /** P90 Seconds */
+            p90_seconds: number | null;
+            /** Sample Count */
+            sample_count: number;
+            attainment: components["schemas"]["Rate"];
+        };
         /** Envelope[CaseDetail] */
         Envelope_CaseDetail_: {
             data: components["schemas"]["CaseDetail"];
@@ -1299,6 +1673,16 @@ export interface components {
             data: components["schemas"]["ContactView"];
             meta: components["schemas"]["Meta"];
         };
+        /** Envelope[CredentialIssued] */
+        Envelope_CredentialIssued_: {
+            data: components["schemas"]["CredentialIssued"];
+            meta: components["schemas"]["Meta"];
+        };
+        /** Envelope[CredentialView] */
+        Envelope_CredentialView_: {
+            data: components["schemas"]["CredentialView"];
+            meta: components["schemas"]["Meta"];
+        };
         /** Envelope[CsrfView] */
         Envelope_CsrfView_: {
             data: components["schemas"]["CsrfView"];
@@ -1307,6 +1691,16 @@ export interface components {
         /** Envelope[CustomerView] */
         Envelope_CustomerView_: {
             data: components["schemas"]["CustomerView"];
+            meta: components["schemas"]["Meta"];
+        };
+        /** Envelope[DefinitionView] */
+        Envelope_DefinitionView_: {
+            data: components["schemas"]["DefinitionView"];
+            meta: components["schemas"]["Meta"];
+        };
+        /** Envelope[EventView] */
+        Envelope_EventView_: {
+            data: components["schemas"]["EventView"];
             meta: components["schemas"]["Meta"];
         };
         /** Envelope[FeedbackView] */
@@ -1324,6 +1718,11 @@ export interface components {
             data: components["schemas"]["ImportView"];
             meta: components["schemas"]["Meta"];
         };
+        /** Envelope[IngestResult] */
+        Envelope_IngestResult_: {
+            data: components["schemas"]["IngestResult"];
+            meta: components["schemas"]["Meta"];
+        };
         /** Envelope[MemberSetupView] */
         Envelope_MemberSetupView_: {
             data: components["schemas"]["MemberSetupView"];
@@ -1332,6 +1731,11 @@ export interface components {
         /** Envelope[MemberView] */
         Envelope_MemberView_: {
             data: components["schemas"]["MemberView"];
+            meta: components["schemas"]["Meta"];
+        };
+        /** Envelope[Overview] */
+        Envelope_Overview_: {
+            data: components["schemas"]["Overview"];
             meta: components["schemas"]["Meta"];
         };
         /** Envelope[PortalCaseDetail] */
@@ -1374,6 +1778,11 @@ export interface components {
             data: components["schemas"]["TransitionResult"];
             meta: components["schemas"]["Meta"];
         };
+        /** Envelope[Trends] */
+        Envelope_Trends_: {
+            data: components["schemas"]["Trends"];
+            meta: components["schemas"]["Meta"];
+        };
         /** Envelope[WorkspaceView] */
         Envelope_WorkspaceView_: {
             data: components["schemas"]["WorkspaceView"];
@@ -1409,10 +1818,28 @@ export interface components {
             data: components["schemas"]["ContactView"][];
             meta: components["schemas"]["Meta"];
         };
+        /** Envelope[list[CredentialView]] */
+        Envelope_list_CredentialView__: {
+            /** Data */
+            data: components["schemas"]["CredentialView"][];
+            meta: components["schemas"]["Meta"];
+        };
         /** Envelope[list[CustomerView]] */
         Envelope_list_CustomerView__: {
             /** Data */
             data: components["schemas"]["CustomerView"][];
+            meta: components["schemas"]["Meta"];
+        };
+        /** Envelope[list[DefinitionView]] */
+        Envelope_list_DefinitionView__: {
+            /** Data */
+            data: components["schemas"]["DefinitionView"][];
+            meta: components["schemas"]["Meta"];
+        };
+        /** Envelope[list[EventView]] */
+        Envelope_list_EventView__: {
+            /** Data */
+            data: components["schemas"]["EventView"][];
             meta: components["schemas"]["Meta"];
         };
         /** Envelope[list[FeedbackView]] */
@@ -1437,6 +1864,12 @@ export interface components {
         Envelope_list_MessageView__: {
             /** Data */
             data: components["schemas"]["app__modules__cases__schemas__MessageView"][];
+            meta: components["schemas"]["Meta"];
+        };
+        /** Envelope[list[MetricRecord]] */
+        Envelope_list_MetricRecord__: {
+            /** Data */
+            data: components["schemas"]["MetricRecord"][];
             meta: components["schemas"]["Meta"];
         };
         /** Envelope[list[PortalCaseSummary]] */
@@ -1474,6 +1907,65 @@ export interface components {
             /** Data */
             data: components["schemas"]["TeamView"][];
             meta: components["schemas"]["Meta"];
+        };
+        /** Envelope[list[TimelineEntry]] */
+        Envelope_list_TimelineEntry__: {
+            /** Data */
+            data: components["schemas"]["TimelineEntry"][];
+            meta: components["schemas"]["Meta"];
+        };
+        /** EventBatch */
+        EventBatch: {
+            /** Events */
+            events: components["schemas"]["EventInput"][];
+        };
+        /** EventInput */
+        EventInput: {
+            /** External Event Id */
+            external_event_id: string;
+            /** Customer External Id */
+            customer_external_id: string;
+            /** Event Name */
+            event_name: string;
+            /**
+             * Occurred At
+             * Format: date-time
+             */
+            occurred_at: string;
+            /** Properties */
+            properties?: {
+                [key: string]: string | boolean | number;
+            };
+        };
+        /** EventView */
+        EventView: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** External Event Id */
+            external_event_id: string;
+            /** Event Name */
+            event_name: string;
+            /** Event Label */
+            event_label: string;
+            /**
+             * Occurred At
+             * Format: date-time
+             */
+            occurred_at: string;
+            /**
+             * Received At
+             * Format: date-time
+             */
+            received_at: string;
+            /** Properties */
+            properties: {
+                [key: string]: string | boolean | number;
+            };
+            /** Counts As Activity */
+            counts_as_activity: boolean;
         };
         /** FeedbackView */
         FeedbackView: {
@@ -1685,6 +2177,17 @@ export interface components {
             /** Completed At */
             completed_at: string | null;
         };
+        /** IngestResult */
+        IngestResult: {
+            /** Received Count */
+            received_count: number;
+            /** Inserted Count */
+            inserted_count: number;
+            /** Duplicate Count */
+            duplicate_count: number;
+            /** Ids */
+            ids: string[];
+        };
         JsonValue: unknown;
         /** LoginInput */
         LoginInput: {
@@ -1789,6 +2292,69 @@ export interface components {
              * @default false
              */
             has_more: boolean;
+        };
+        /** MetricRecord */
+        MetricRecord: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Record Type
+             * @enum {string}
+             */
+            record_type: "case" | "task" | "feedback";
+            /**
+             * Reference Id
+             * Format: uuid
+             */
+            reference_id: string;
+            /** Title */
+            title: string;
+            /**
+             * Observed At
+             * Format: date-time
+             */
+            observed_at: string;
+            /**
+             * Eligible
+             * @default true
+             */
+            eligible: boolean;
+            /** Meets Measure */
+            meets_measure?: boolean | null;
+            /** Seconds */
+            seconds?: number | null;
+            /** Cycle Number */
+            cycle_number?: number | null;
+        };
+        /** Overview */
+        Overview: {
+            scope: components["schemas"]["ReportScope"];
+            /** New Cases */
+            new_cases: number;
+            /** Active Backlog */
+            active_backlog: number;
+            /** Unassigned */
+            unassigned: number;
+            /** Unanswered Overdue */
+            unanswered_overdue: number;
+            /** Resolution Overdue */
+            resolution_overdue: number;
+            /** Paused */
+            paused: number;
+            first_response: components["schemas"]["Durations"];
+            resolution: components["schemas"]["Durations"];
+            reopen: components["schemas"]["Rate"];
+            /** Immature Cycles */
+            immature_cycles: number;
+            csat: components["schemas"]["Rate"];
+            coverage: components["schemas"]["Rate"];
+            follow_up: components["schemas"]["Rate"];
+            /** Categories */
+            categories: components["schemas"]["CategoryVolume"][];
+            trend: components["schemas"]["Trends"];
         };
         /** PasswordInput */
         PasswordInput: {
@@ -1955,6 +2521,16 @@ export interface components {
             /** Field Errors */
             field_errors?: components["schemas"]["FieldError"][] | null;
         };
+        /** PropertyRule */
+        PropertyRule: {
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "string" | "integer" | "number" | "boolean";
+            /** Max Length */
+            max_length?: number | null;
+        };
         /** PublicCategory */
         PublicCategory: {
             /** Key */
@@ -1981,6 +2557,15 @@ export interface components {
             /** Maximum */
             maximum: number | null;
         };
+        /** Rate */
+        Rate: {
+            /** Numerator */
+            numerator: number;
+            /** Denominator */
+            denominator: number;
+            /** Share */
+            share: number | null;
+        };
         /** ReadInput */
         ReadInput: {
             /** Last Read Sequence */
@@ -2000,6 +2585,37 @@ export interface components {
         ReopenInput: {
             /** Message */
             message: string;
+        };
+        /** ReportScope */
+        ReportScope: {
+            /**
+             * From At
+             * Format: date-time
+             */
+            from_at: string;
+            /**
+             * To At
+             * Format: date-time
+             */
+            to_at: string;
+            /** Timezone */
+            timezone: string;
+            /** Category */
+            category: string | null;
+            /** Team Id */
+            team_id: string | null;
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /** Today Partial */
+            today_partial: boolean;
         };
         /** ResolutionFeedback */
         ResolutionFeedback: {
@@ -2204,6 +2820,37 @@ export interface components {
              */
             created_at: string;
         };
+        /** TimelineEntry */
+        TimelineEntry: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "message" | "transition" | "event" | "task" | "feedback";
+            /**
+             * Occurred At
+             * Format: date-time
+             */
+            occurred_at: string;
+            /** Received At */
+            received_at: string | null;
+            /** Title */
+            title: string;
+            /**
+             * Reference Id
+             * Format: uuid
+             */
+            reference_id: string;
+            /** Preview */
+            preview: string;
+            /** Actor */
+            actor: string;
+        };
         /** TransitionInput */
         TransitionInput: {
             /**
@@ -2238,6 +2885,33 @@ export interface components {
             transition_id: string;
             /** Message Id */
             message_id: string | null;
+        };
+        /** TrendPoint */
+        TrendPoint: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /** Count */
+            count: number;
+            /** Categories */
+            categories: {
+                [key: string]: number;
+            };
+            /** Partial */
+            partial: boolean;
+        };
+        /** Trends */
+        Trends: {
+            scope: components["schemas"]["ReportScope"];
+            /**
+             * Bucket
+             * @enum {string}
+             */
+            bucket: "day" | "week";
+            /** Points */
+            points: components["schemas"]["TrendPoint"][];
         };
         /** ValidationError */
         ValidationError: {
@@ -4381,6 +5055,548 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Envelope_ImportView_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    definitions_api_v1_event_definitions_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_DefinitionView__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_definition_api_v1_event_definitions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DefinitionCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_DefinitionView_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    definition_api_v1_event_definitions__identifier__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_DefinitionView_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_definition_api_v1_event_definitions__identifier__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DefinitionPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_DefinitionView_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    credentials_api_v1_api_credentials_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_CredentialView__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    issue_api_v1_api_credentials_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CredentialCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_CredentialIssued_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    credential_api_v1_api_credentials__identifier__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_CredentialView_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revoke_api_v1_api_credentials__identifier__revoke_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_CredentialView_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    batch_api_v1_events_batch_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EventBatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_IngestResult_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    events_api_v1_customers__customer_id__events_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+                event_name?: string | null;
+                from?: string | null;
+                to?: string | null;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_EventView__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    event_detail_api_v1_customers__customer_id__events__event_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                event_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_EventView_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    timeline_api_v1_customers__customer_id__timeline_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                cursor?: string | null;
+                kinds?: string | null;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_TimelineEntry__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    overview_api_v1_analytics_overview_get: {
+        parameters: {
+            query?: {
+                from?: string | null;
+                to?: string | null;
+                timezone?: string | null;
+                category?: string | null;
+                team_id?: string | null;
+                bucket?: "day" | "week";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_Overview_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    trends_api_v1_analytics_trends_get: {
+        parameters: {
+            query?: {
+                from?: string | null;
+                to?: string | null;
+                timezone?: string | null;
+                category?: string | null;
+                team_id?: string | null;
+                bucket?: "day" | "week";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_Trends_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    records_api_v1_analytics_records_get: {
+        parameters: {
+            query: {
+                limit?: number;
+                cursor?: string | null;
+                from?: string | null;
+                to?: string | null;
+                timezone?: string | null;
+                category?: string | null;
+                team_id?: string | null;
+                metric: "new_cases" | "backlog" | "unassigned" | "response_overdue" | "resolution_overdue" | "paused" | "first_response" | "resolution" | "reopen" | "csat" | "coverage" | "follow_up";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Envelope_list_MetricRecord__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_api_v1_analytics_export_get: {
+        parameters: {
+            query: {
+                from?: string | null;
+                to?: string | null;
+                timezone?: string | null;
+                category?: string | null;
+                team_id?: string | null;
+                report: "cases" | "tasks" | "feedback";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                    "text/csv": string;
                 };
             };
             /** @description Validation Error */

@@ -79,7 +79,8 @@ class CustomerView(BaseModel):
     created_at: datetime
     updated_at: datetime
     latest_health: None = None
-    last_meaningful_activity_at: None = None
+    last_meaningful_activity_at: datetime | None = None
+    last_event_received_at: datetime | None = None
 
 
 class ContactCreate(Input):

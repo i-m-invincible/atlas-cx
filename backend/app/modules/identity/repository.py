@@ -63,7 +63,9 @@ def access_scope(
     )
 
 
-def authenticate(session: Session, raw: str) -> tuple[WorkspaceScope, LoginSession]:
+def authenticate(
+    session: Session, raw: str, *, refresh: bool = True
+) -> tuple[WorkspaceScope, LoginSession]:
     if len(raw) > 128:
         raise Fault(401, "unauthenticated", "Your session expired. Sign in to continue.")
     stored = session.scalar(select(LoginSession).where(LoginSession.token_hash == digest(raw)))
@@ -77,15 +79,12 @@ def authenticate(session: Session, raw: str) -> tuple[WorkspaceScope, LoginSessi
         raise Fault(401, "unauthenticated", "Your session expired. Sign in to continue.")
     # Consistent lock order prevents access changes and password/session revocation
     # from deadlocking concurrent requests. NO KEY UPDATE permits FK checks.
-    user = session.get(User, stored.user_id, with_for_update={"key_share": True})
+    lock = {"key_share": True} if refresh else None
+    user = session.get(User, stored.user_id, with_for_update=lock)
     set_scope(session, stored.workspace_id)
-    workspace = session.get(Workspace, stored.workspace_id, with_for_update={"key_share": True})
-    stored = session.scalar(
-        select(LoginSession)
-        .where(LoginSession.id == stored.id)
-        .with_for_update()
-        .execution_options(populate_existing=True)
-    )
+    workspace = session.get(Workspace, stored.workspace_id, with_for_update=lock)
+    if refresh:
+        stored = session.get(LoginSession, stored.id, with_for_update=True, populate_existing=True)
     if (
         not stored
         or stored.revoked_at
@@ -100,8 +99,9 @@ def authenticate(session: Session, raw: str) -> tuple[WorkspaceScope, LoginSessi
     )
     if not scope:
         raise Fault(401, "unauthenticated", "Your session expired. Sign in to continue.")
-    stored.last_seen_at = instant
-    stored.expires_at = min(instant + timedelta(hours=12), stored.absolute_expires_at)
+    if refresh:
+        stored.last_seen_at = instant
+        stored.expires_at = min(instant + timedelta(hours=12), stored.absolute_expires_at)
     return scope, stored
 
 
@@ -137,6 +137,7 @@ def identity_view(session: Session, scope: WorkspaceScope) -> IdentityView:
             "customers": scope.audience == "staff",
             "cases": True,
             "feedback": True,
+            "activity": scope.audience == "staff",
             "rag": False,
             "demo": workspace.is_demo,
         },

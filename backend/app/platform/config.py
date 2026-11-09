@@ -3,7 +3,7 @@ from typing import Literal
 from urllib.parse import urlsplit
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from pydantic import SecretStr, field_validator, model_validator
+from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     )
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     default_timezone: str = "Asia/Kolkata"
+    event_batches_per_minute: int = Field(default=60, ge=1, le=10000)
     session_signing_key: SecretStr = SecretStr(
         "local-development-session-key-change-before-hosting"
     )

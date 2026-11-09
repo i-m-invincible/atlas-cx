@@ -53,6 +53,7 @@ services:
       DATABASE_URL: postgresql+psycopg://atlas_app:${APP_DB_PASSWORD:-local-app-only}@db:5432/${POSTGRES_DB:-atlas_cx}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       DEFAULT_TIMEZONE: ${DEFAULT_TIMEZONE:-Asia/Kolkata}
+        EVENT_BATCHES_PER_MINUTE: ${EVENT_BATCHES_PER_MINUTE:-60}
       SESSION_SIGNING_KEY: ${SESSION_SIGNING_KEY:-local-development-session-key-change-before-hosting}
       CURSOR_SIGNING_KEY: ${CURSOR_SIGNING_KEY:-local-development-cursor-key-change-before-hosting}
     ports:
