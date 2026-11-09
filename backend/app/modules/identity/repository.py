@@ -118,6 +118,9 @@ def identity_view(session: Session, scope: WorkspaceScope) -> IdentityView:
             permissions.extend(
                 ["customers:archive", "customers:import", "audit:read", "cases:close"]
             )
+            permissions.append("knowledge:manage")
+        if scope.role in {"admin", "manager", "agent"}:
+            permissions.append("assistant:ask")
         if scope.role == "admin":
             permissions.append("workspace:manage")
     return IdentityView(
@@ -138,7 +141,8 @@ def identity_view(session: Session, scope: WorkspaceScope) -> IdentityView:
             "cases": True,
             "feedback": True,
             "activity": scope.audience == "staff",
-            "rag": False,
+            "knowledge": scope.audience == "staff",
+            "rag": scope.audience == "staff" and scope.role in {"admin", "manager", "agent"},
             "demo": workspace.is_demo,
         },
     )

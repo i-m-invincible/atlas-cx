@@ -6,6 +6,21 @@ x-api-image: &api-image
     context: .
     dockerfile: infra/api.Dockerfile
 
+x-worker: &worker
+  depends_on:
+    migrate:
+      condition: service_completed_successfully
+  read_only: true
+  tmpfs: ['/tmp:size=64m']
+  security_opt: ['no-new-privileges:true']
+  cap_drop: ['ALL']
+  restart: unless-stopped
+
+x-worker-env: &worker-env
+  DATABASE_URL: postgresql+psycopg://atlas_app:${APP_DB_PASSWORD:-local-app-only}@db:5432/${POSTGRES_DB:-atlas_cx}
+  QUEUE_DATABASE_URL: postgresql+psycopg://atlas_queue:${QUEUE_DB_PASSWORD:-local-queue-only}@db:5432/${POSTGRES_DB:-atlas_cx}
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+
 services:
   db:
     image: pgvector/pgvector:0.8.2-pg17@sha256:feb68f4f15446397d8cac7f4fe48fe4586de83160d1fc48b46283312d1a33966
@@ -54,6 +69,9 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       DEFAULT_TIMEZONE: ${DEFAULT_TIMEZONE:-Asia/Kolkata}
       EVENT_BATCHES_PER_MINUTE: ${EVENT_BATCHES_PER_MINUTE:-60}
+      ASSISTANT_PER_MEMBER_PER_MINUTE: ${ASSISTANT_PER_MEMBER_PER_MINUTE:-10}
+      ASSISTANT_PER_WORKSPACE_PER_DAY: ${ASSISTANT_PER_WORKSPACE_PER_DAY:-200}
+      GENERATION_MODE: ${GENERATION_MODE:-disabled}
       SESSION_SIGNING_KEY: ${SESSION_SIGNING_KEY:-local-development-session-key-change-before-hosting}
       CURSOR_SIGNING_KEY: ${CURSOR_SIGNING_KEY:-local-development-cursor-key-change-before-hosting}
     ports:
@@ -78,6 +96,45 @@ services:
     cap_drop: ['ALL']
     mem_limit: 256m
     cpus: 0.5
+
+  core-worker:
+    <<: [*api-image, *worker]
+    command: ['.venv/bin/python', '-m', 'app.modules.knowledge.worker', 'core']
+    environment: *worker-env
+    mem_limit: 192m
+    cpus: 0.5
+
+  ai-worker:
+    <<: *worker
+    image: atlas-cx-ai:local
+    build:
+      context: .
+      dockerfile: infra/api.Dockerfile
+      target: ai
+    command: ['.venv/bin/python', '-m', 'app.modules.knowledge.worker', 'ai']
+    environment:
+      <<: *worker-env
+      MODEL_DIRECTORY: /models
+      EMBEDDING_MODEL_REVISION: ${EMBEDDING_MODEL_REVISION:-1110a243fdf4706b3f48f1d95db1a4f5529b4d41}
+      GENERATION_MODE: ${GENERATION_MODE:-disabled}
+      GENERATION_MODEL_DIGEST: ${GENERATION_MODEL_DIGEST:-sha256:65ec06548149b04c096a120e4a6da9d4017ea809c91734ea5631e89f96ddc57b}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+    volumes:
+      - '${ATLAS_MODEL_DIRECTORY:-./.runtime/models}:/models:ro'
+    mem_limit: 768m
+    cpus: 2
+
+  ollama:
+    profiles: ['generation']
+    image: ollama/ollama:0.40.15@sha256:0e59999e0e8f9fd4e704bd788a89b7e4cad399367fb1365f8c102ac662288761
+    environment:
+      OLLAMA_NO_CLOUD: '1'
+      OLLAMA_NUM_PARALLEL: '1'
+      OLLAMA_MAX_LOADED_MODELS: '1'
+    volumes:
+      - ollama-models:/root/.ollama
+    mem_limit: 4g
+    cpus: 3
 
   web:
     image: atlas-cx-web:local
@@ -111,3 +168,4 @@ services:
 
 volumes:
   postgres-data:
+  ollama-models:

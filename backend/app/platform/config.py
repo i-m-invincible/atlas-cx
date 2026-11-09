@@ -1,10 +1,13 @@
 from functools import lru_cache
+from pathlib import Path
 from typing import Literal
 from urllib.parse import urlsplit
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from app.modules.knowledge.model_manifest import EMBEDDING_REVISION, GENERATION_DIGEST
 
 
 class Settings(BaseSettings):
@@ -18,6 +21,16 @@ class Settings(BaseSettings):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     default_timezone: str = "Asia/Kolkata"
     event_batches_per_minute: int = Field(default=60, ge=1, le=10000)
+    assistant_per_member_per_minute: int = Field(default=10, ge=1, le=1000)
+    assistant_per_workspace_per_day: int = Field(default=200, ge=1, le=100000)
+    queue_database_url: SecretStr = SecretStr(
+        "postgresql+psycopg://atlas_queue:local-queue-only@localhost:5432/atlas_cx"
+    )
+    model_directory: Path = Path("../.runtime/models")
+    embedding_model_revision: str = EMBEDDING_REVISION
+    generation_mode: Literal["disabled", "ollama"] = "disabled"
+    generation_model_digest: str = GENERATION_DIGEST
+    ollama_base_url: str = "http://localhost:11434"
     session_signing_key: SecretStr = SecretStr(
         "local-development-session-key-change-before-hosting"
     )
@@ -35,7 +48,7 @@ class Settings(BaseSettings):
             raise ValueError("Production requires an HTTPS origin")
         return self
 
-    @field_validator("database_url")
+    @field_validator("database_url", "queue_database_url")
     @classmethod
     def postgres_only(cls, value: SecretStr) -> SecretStr:
         if not value.get_secret_value().startswith("postgresql+psycopg://"):

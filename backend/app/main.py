@@ -20,6 +20,7 @@ from app.modules.customers.import_router import router as imports_router
 from app.modules.customers.router import router as customers_router
 from app.modules.followups.router import router as followups_router
 from app.modules.identity.router import router as identity_router
+from app.modules.knowledge.router import router as knowledge_router
 from app.modules.workspace.case_config_router import router as case_config_router
 from app.modules.workspace.router import router as workspace_router
 from app.platform.config import get_settings
@@ -140,6 +141,7 @@ def create_app() -> FastAPI:
     application.include_router(ingestion_router, prefix="/api/v1")
     application.include_router(customer_activity_router, prefix="/api/v1")
     application.include_router(analytics_router, prefix="/api/v1")
+    application.include_router(knowledge_router, prefix="/api/v1")
     return application
 
 

@@ -20,12 +20,21 @@ from app.modules.identity.models import (
     SetupToken,
     User,
 )
+from app.modules.knowledge.models import (
+    AssistantFeedback,
+    AssistantRequest,
+    Chunk,
+    Citation,
+    Document,
+    Revision,
+)
 from app.modules.workspace.case_config_models import CaseConfig
 from app.modules.workspace.credential_models import ApiCredential
 from app.modules.workspace.models import Workspace
 from app.modules.workspace.team_models import Team, TeamMember
 from app.platform.audit import AuditEvent
 from app.platform.idempotency import IdempotencyRecord
+from app.platform.jobs import Job
 from app.platform.rate_limits import RateBucket
 
 __all__ = [
@@ -56,4 +65,11 @@ __all__ = [
     "CustomerEvent",
     "ApiCredential",
     "RateBucket",
+    "Document",
+    "Revision",
+    "Chunk",
+    "AssistantRequest",
+    "AssistantFeedback",
+    "Citation",
+    "Job",
 ]
