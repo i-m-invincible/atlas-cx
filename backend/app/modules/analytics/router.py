@@ -16,7 +16,7 @@ from app.platform.auth import UnitOfWork, require_role
 from app.platform.protocol import Envelope, result
 
 router = APIRouter(prefix="/analytics", tags=["operational analytics"])
-ReportUnit = Annotated[UnitOfWork, Depends(service.report_uow)]
+ReportUnit = Annotated[UnitOfWork, Depends(service.report_uow, scope="function")]
 
 
 @router.get("/overview")
