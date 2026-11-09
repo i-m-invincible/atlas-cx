@@ -26,6 +26,7 @@ from app.modules.cases.schemas import (
     State,
 )
 from app.modules.customers.models import Contact, Customer
+from app.modules.followups.models import Feedback
 from app.modules.identity.models import Membership, User
 from app.modules.workspace.case_config_models import CaseConfig
 from app.modules.workspace.case_configuration import public_config, published
@@ -294,6 +295,13 @@ def portal_detail(uow: UnitOfWork, row: Case) -> PortalCaseDetail:
             related_case_id=row.related_case_id,
             can_reply=row.state in {"new", "open", "pending_customer"},
             can_reopen=row.state == "resolved",
+            can_rate=row.state == "resolved"
+            and uow.session.scalar(
+                select(Feedback.id).where(
+                    Feedback.case_id == row.id, Feedback.cycle_number == row.current_cycle_number
+                )
+            )
+            is None,
         )
 
 

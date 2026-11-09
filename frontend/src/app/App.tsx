@@ -69,6 +69,26 @@ const Settings = lazy(() =>
     default: module.Settings,
   })),
 );
+const CaseConfiguration = lazy(() =>
+  import('../features/workspace/CaseConfiguration').then((module) => ({
+    default: module.CaseConfiguration,
+  })),
+);
+const FollowUps = lazy(() =>
+  import('../features/followups/FollowUps').then((module) => ({
+    default: module.FollowUps,
+  })),
+);
+const TaskDetail = lazy(() =>
+  import('../features/followups/TaskDetail').then((module) => ({
+    default: module.TaskDetail,
+  })),
+);
+const CustomerImport = lazy(() =>
+  import('../features/customers/CustomerImport').then((module) => ({
+    default: module.CustomerImport,
+  })),
+);
 
 export function App() {
   return (
@@ -80,6 +100,66 @@ export function App() {
       }
     >
       <Routes>
+        <Route
+          path="/app/settings/case-configuration/:id?"
+          element={
+            <RequireStaff>
+              <AppShell>
+                <CaseConfiguration />
+              </AppShell>
+            </RequireStaff>
+          }
+        />
+        <Route
+          path="/app/follow-ups/tasks"
+          element={
+            <RequireStaff>
+              <AppShell>
+                <FollowUps />
+              </AppShell>
+            </RequireStaff>
+          }
+        />
+        <Route
+          path="/app/follow-ups/feedback"
+          element={
+            <RequireStaff>
+              <AppShell>
+                <FollowUps />
+              </AppShell>
+            </RequireStaff>
+          }
+        />
+        <Route
+          path="/app/follow-ups/tasks/new"
+          element={
+            <RequireStaff>
+              <AppShell>
+                <TaskDetail />
+              </AppShell>
+            </RequireStaff>
+          }
+        />
+        <Route
+          path="/app/follow-ups/tasks/:id"
+          element={
+            <RequireStaff>
+              <AppShell>
+                <TaskDetail />
+              </AppShell>
+            </RequireStaff>
+          }
+        />
+        <Route
+          path="/app/customers/import/:id?"
+          element={
+            <RequireStaff>
+              <AppShell>
+                <CustomerImport />
+              </AppShell>
+            </RequireStaff>
+          }
+        />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/portal/sign-in" element={<SignIn portal />} />
         <Route path="/setup" element={<Setup />} />

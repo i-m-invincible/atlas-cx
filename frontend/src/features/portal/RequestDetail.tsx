@@ -19,6 +19,7 @@ import {
   useReplayKeys,
 } from '../support/data';
 import type { PortalCase, PortalMessage } from '../support/data';
+import { ResolutionFeedback } from './ResolutionFeedback';
 
 export function RequestDetail() {
   const { id } = useParams();
@@ -111,6 +112,12 @@ export function RequestDetail() {
           </button>
         )}
       </section>
+      {identity?.capabilities.feedback && (
+        <ResolutionFeedback
+          key={row.id + ':' + row.current_cycle_number}
+          row={row}
+        />
+      )}
       <PortalReply
         key={row.id}
         row={row}

@@ -1,5 +1,4 @@
-from datetime import date, datetime
-from decimal import Decimal, InvalidOperation
+from datetime import datetime
 from typing import cast
 from uuid import UUID
 
@@ -28,6 +27,7 @@ from app.modules.cases.schemas import (
     ReadInput,
     ReopenInput,
     TransitionInput,
+    valid_field_value,
 )
 from app.modules.customers.models import Contact, Customer
 from app.modules.identity.models import Membership
@@ -105,33 +105,7 @@ def values_for(
                     422, "required_case_field", f"Complete the required field: {field.label}."
                 )
             continue
-        valid = False
-        if field.type in {"string", "single_select"}:
-            valid = isinstance(value, str) and 1 <= len(value.strip()) <= 4000
-            if field.type == "single_select":
-                valid = valid and value in field.allowed_values
-        elif field.type == "boolean":
-            valid = isinstance(value, bool)
-        elif field.type in {"integer", "decimal"}:
-            valid = isinstance(value, (int, float)) and not isinstance(value, bool)
-            if field.type == "integer":
-                valid = valid and isinstance(value, int)
-            if valid:
-                try:
-                    number = Decimal(str(value))
-                    valid = (
-                        number.is_finite()
-                        and (field.minimum is None or number >= Decimal(str(field.minimum)))
-                        and (field.maximum is None or number <= Decimal(str(field.maximum)))
-                    )
-                except InvalidOperation:
-                    valid = False
-        elif field.type == "date" and isinstance(value, str):
-            try:
-                valid = date.fromisoformat(value).isoformat() == value
-            except ValueError:
-                valid = False
-        if not valid:
+        if not valid_field_value(field, value):
             raise Fault(422, "invalid_custom_values", f"Review the field: {field.label}.")
     return values
 

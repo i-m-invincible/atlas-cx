@@ -75,9 +75,16 @@ export function CustomerList() {
           Customers
         </h1>
         {canWrite && (
-          <Link className="button" to="/app/customers/new">
-            Add customer
-          </Link>
+          <div className="form-actions">
+            <Link className="button" to="/app/customers/new">
+              Add customer
+            </Link>
+            {identity?.permissions.includes('customers:import') && (
+              <Link className="button secondary" to="/app/customers/import">
+                Import CSV
+              </Link>
+            )}
+          </div>
         )}
       </div>
       <p className="small-reading">

@@ -7,10 +7,12 @@ from sqlalchemy import delete, func, select, update
 from app.modules.cases import assignments
 from app.modules.customers import repository as customers
 from app.modules.customers.models import Customer
+from app.modules.followups import service as followups
 from app.modules.identity.models import LoginSession, Membership, PortalBinding, SetupToken, User
 from app.modules.identity.repository import by_email
 from app.modules.identity.schemas import Role
 from app.modules.identity.service import issue_setup
+from app.modules.workspace.case_configuration import published
 from app.modules.workspace.models import Workspace
 from app.modules.workspace.schemas import (
     MemberCreate,
@@ -163,6 +165,7 @@ def update_member(
             raise Fault(409, "last_administrator", "At least one active administrator must remain.")
     losing_ownership = not active or role == "viewer"
     case_work = losing_ownership and assignments.has_work(uow, row.id)
+    task_work = losing_ownership and followups.has_incomplete_tasks(uow, member_id=row.id)
     customers_owned = (
         uow.session.scalar(
             select(func.count()).select_from(Customer).where(Customer.owner_member_id == row.id)
@@ -173,7 +176,7 @@ def update_member(
     fallback_changes = workspace.feedback_manager_member_id == row.id and (
         not active or role not in {"admin", "manager"}
     )
-    if customers_owned or fallback_changes or case_work:
+    if customers_owned or fallback_changes or case_work or task_work:
         if not payload.replacement_member_id or payload.replacement_member_id == row.id:
             raise Fault(
                 409,
@@ -182,7 +185,10 @@ def update_member(
                 "before changing this access.",
             )
         replacement = eligible_member(uow, payload.replacement_member_id, bool(fallback_changes))
-        assignments.transfer(uow, row.id, replacement.id, request)
+        if case_work:
+            assignments.transfer(uow, row.id, replacement.id, request)
+        if task_work:
+            followups.transfer(uow, row.id, replacement.id, request)
         transferred = uow.session.scalars(
             update(Customer)
             .where(Customer.owner_member_id == row.id)
@@ -372,6 +378,16 @@ def save_team(
         if not row:
             raise missing()
         match_version(request, row.version)
+        if isinstance(payload, TeamPatch) and payload.archived:
+            workspace = uow.session.get(Workspace, uow.scope.workspace_id)
+            if workspace and workspace.active_case_config_id:
+                _, definition = published(uow.session, workspace.active_case_config_id)
+                if any(item.default_team_id == row.id for item in definition.categories):
+                    raise Fault(
+                        409,
+                        "active_routing_team",
+                        "Publish replacement routing before archiving this team.",
+                    )
         row.version += 1
         row.updated_at = now()
     else:

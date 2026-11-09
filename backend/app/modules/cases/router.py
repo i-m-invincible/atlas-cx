@@ -15,7 +15,6 @@ from app.modules.cases.schemas import (
     CaseDetail,
     CasePatch,
     CaseSummary,
-    ConfigView,
     HistoryFilters,
     HistoryView,
     ListFilters,
@@ -33,12 +32,11 @@ from app.modules.cases.schemas import (
     TransitionInput,
     TransitionResult,
 )
-from app.modules.workspace.case_config_models import CaseConfig
 from app.modules.workspace.case_configuration import public_config, published
 from app.modules.workspace.models import Workspace
 from app.platform.audit import AuditEvent
 from app.platform.auth import UnitOfWork, authenticated_uow, staff_uow
-from app.platform.protocol import Envelope, Fault, Meta, missing, read_cursor, result, sign_cursor
+from app.platform.protocol import Envelope, Fault, Meta, read_cursor, result, sign_cursor
 
 router = APIRouter(tags=["cases"])
 Staff = Annotated[UnitOfWork, Depends(staff_uow, scope="function")]
@@ -60,47 +58,6 @@ def listing[T](request: Request, data: list[T], cursor: str | None) -> Envelope[
         meta=Meta(
             request_id=request.state.request_id, next_cursor=cursor, has_more=cursor is not None
         ),
-    )
-
-
-@router.get("/case-configs", response_model=Envelope[list[ConfigView]])
-def configs(request: Request, uow: Staff) -> Envelope[list[ConfigView]]:
-    rows = uow.session.scalars(
-        select(CaseConfig).where(CaseConfig.status == "published").order_by(CaseConfig.number)
-    )
-    data = [
-        ConfigView(
-            id=row.id,
-            version=row.version,
-            number=row.number,
-            status="published",
-            definition=published(uow.session, row.id)[1],
-            published_at=row.published_at,
-        )
-        for row in rows
-    ]
-    return result(request, data)
-
-
-@router.get("/case-configs/{identifier}", response_model=Envelope[ConfigView])
-def config_detail(
-    identifier: UUID, request: Request, response: Response, uow: Staff
-) -> Envelope[ConfigView]:
-    row = uow.session.get(CaseConfig, identifier)
-    if not row or row.status != "published":
-        raise missing()
-    assert row.published_at
-    return result(
-        request,
-        ConfigView(
-            id=row.id,
-            version=row.version,
-            number=row.number,
-            status="published",
-            definition=published(uow.session, row.id)[1],
-            published_at=row.published_at,
-        ),
-        response,
     )
 
 

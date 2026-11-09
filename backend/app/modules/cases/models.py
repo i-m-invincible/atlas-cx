@@ -34,6 +34,10 @@ class Case(Base):
     __table_args__ = (
         UniqueConstraint("workspace_id", "id"),
         UniqueConstraint("workspace_id", "number"),
+        UniqueConstraint("workspace_id", "customer_id", "id", name="uq_case_customer_reference"),
+        UniqueConstraint(
+            "workspace_id", "id", "requester_contact_id", name="uq_case_requester_reference"
+        ),
         ForeignKeyConstraint(
             ["workspace_id", "customer_id", "requester_contact_id"],
             ["contacts.workspace_id", "contacts.customer_id", "contacts.id"],

@@ -14,6 +14,7 @@ export type TransitionResult = components['schemas']['TransitionResult'];
 export type HistoryItem = components['schemas']['HistoryView'];
 export type CaseField = components['schemas']['PublicField'] & {
   required_on_resolve?: boolean;
+  default_value?: unknown;
 };
 
 export const reference = (number: number) =>
@@ -69,20 +70,27 @@ export function useReplayKeys() {
   };
 }
 
-export function customValues(form: HTMLFormElement, fields: CaseField[]) {
+export function customValues(
+  form: HTMLFormElement,
+  fields: CaseField[],
+  omitBlank = false,
+) {
   const data = new FormData(form);
   return Object.fromEntries(
-    fields.map((field) => {
+    fields.flatMap((field) => {
       const raw = data.get(`field-${field.key}`);
+      if ((raw === '' || raw === null) && omitBlank) return [];
       return [
-        field.key,
-        field.type === 'boolean'
-          ? raw === 'on'
-          : !raw
+        [
+          field.key,
+          !raw
             ? null
-            : ['integer', 'decimal'].includes(field.type)
-              ? Number(raw)
-              : raw,
+            : field.type === 'boolean'
+              ? raw === 'true'
+              : ['integer', 'decimal'].includes(field.type)
+                ? Number(raw)
+                : raw,
+        ],
       ];
     }),
   );

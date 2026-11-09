@@ -1,5 +1,6 @@
-from datetime import datetime
-from typing import Literal
+from datetime import date, datetime
+from decimal import Decimal, InvalidOperation
+from typing import Annotated, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, Field, JsonValue, model_validator
@@ -12,33 +13,35 @@ ResolutionCode = Literal["answered", "fixed", "fulfilled", "declined", "duplicat
 
 
 class Category(Input):
-    key: str = Field(pattern=r"^[a-z][a-z0-9_]{0,49}$")
+    key: str = Field(pattern=r"^[a-z0-9_]{1,50}$")
     label: str = Field(min_length=1, max_length=120)
     default_team_id: UUID | None = None
 
 
 class Targets(Input):
-    response_minutes: int = Field(gt=0)
-    resolution_minutes: int = Field(gt=0)
+    response_minutes: int = Field(gt=0, le=35_791_394, strict=True)
+    resolution_minutes: int = Field(gt=0, le=35_791_394, strict=True)
 
 
 class FieldDefinition(Input):
-    key: str = Field(pattern=r"^[a-z][a-z0-9_]{0,49}$")
+    key: str = Field(pattern=r"^[a-z0-9_]{1,50}$")
     label: str = Field(min_length=1, max_length=120)
     type: Literal["string", "integer", "decimal", "boolean", "date", "single_select"]
     required_on_create: bool = False
     required_on_resolve: bool = False
     portal_visible: bool = False
     portal_editable_on_create: bool = False
-    allowed_values: list[str] = Field(default_factory=list, max_length=50)
-    minimum: float | None = None
-    maximum: float | None = None
+    allowed_values: list[Annotated[str, Field(min_length=1, max_length=4000)]] = Field(
+        default_factory=list, max_length=50
+    )
+    minimum: float | None = Field(default=None, allow_inf_nan=False)
+    maximum: float | None = Field(default=None, allow_inf_nan=False)
     default: JsonValue = None
 
 
 class Definition(Input):
     categories: list[Category] = Field(min_length=1, max_length=50)
-    state_labels: dict[State, str]
+    state_labels: dict[State, Annotated[str, Field(min_length=1, max_length=120)]]
     priorities: dict[Priority, Targets]
     fields: list[FieldDefinition] = Field(default_factory=list, max_length=20)
     portal_default_priority: Literal["normal"] = "normal"
@@ -56,13 +59,44 @@ class Definition(Input):
         return self
 
 
+def valid_field_value(field: FieldDefinition, value: object) -> bool:
+    if field.type in {"string", "single_select"}:
+        return (
+            isinstance(value, str)
+            and 1 <= len(value.strip()) <= 4000
+            and (field.type == "string" or value in field.allowed_values)
+        )
+    if field.type == "boolean":
+        return isinstance(value, bool)
+    if field.type in {"integer", "decimal"}:
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            return False
+        if field.type == "integer" and not isinstance(value, int):
+            return False
+        try:
+            number = Decimal(str(value))
+            return (
+                number.is_finite()
+                and (field.minimum is None or number >= Decimal(str(field.minimum)))
+                and (field.maximum is None or number <= Decimal(str(field.maximum)))
+            )
+        except InvalidOperation:
+            return False
+    if field.type == "date" and isinstance(value, str):
+        try:
+            return date.fromisoformat(value).isoformat() == value
+        except ValueError:
+            return False
+    return False
+
+
 class ConfigView(BaseModel):
     id: UUID
     version: int
     number: int
-    status: Literal["published"]
+    status: Literal["draft", "published"]
     definition: Definition
-    published_at: datetime
+    published_at: datetime | None
 
 
 class PublicCategory(BaseModel):
@@ -254,7 +288,7 @@ class PortalCaseDetail(PortalCaseSummary):
     current_cycle_number: int
     can_reply: bool
     can_reopen: bool
-    can_rate: bool = False  # Ratings and their follow-up transaction belong to M3.
+    can_rate: bool = False
     related_case_id: UUID | None
 
 

@@ -8,7 +8,9 @@ from app.modules.cases.models import (
     ReadMarker,
     WorkspaceCounter,
 )
+from app.modules.customers.import_models import CustomerImport
 from app.modules.customers.models import Contact, Customer
+from app.modules.followups.models import Feedback, Task
 from app.modules.identity.models import (
     AuthRateLimit,
     LoginSession,
@@ -44,4 +46,7 @@ __all__ = [
     "ReadMarker",
     "WorkspaceCounter",
     "IdempotencyRecord",
+    "Feedback",
+    "Task",
+    "CustomerImport",
 ]

@@ -171,6 +171,22 @@ export function CustomerDetail() {
           </dl>
           <div className="ruled-section">
             <CustomerCases customerId={row.id} archived={!!row.archived_at} />
+            {identity?.permissions.includes('tasks:read') && (
+              <section className="ruled-section">
+                <h2>Follow-ups</h2>
+                <div className="form-actions">
+                  <Link to={'/app/follow-ups/tasks?customer_id=' + row.id}>
+                    View customer follow-ups
+                  </Link>
+                  {!row.archived_at &&
+                    identity.permissions.includes('tasks:write') && (
+                      <Link to={'/app/follow-ups/tasks/new?customer=' + row.id}>
+                        Create follow-up
+                      </Link>
+                    )}
+                </div>
+              </section>
+            )}
           </div>
           {canArchive && !row.archived_at && (
             <details className="ruled-section">

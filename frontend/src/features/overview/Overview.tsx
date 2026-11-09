@@ -34,7 +34,8 @@ export function Overview() {
           <h2 id="foundation-title">The workspace foundation is in place.</h2>
           <p>
             Customer records and contacts are available after sign-in. Support
-            requests are available in Support. Follow-ups are planned for M3.
+            requests are available in Support. Manage tasks and ratings in
+            Follow-ups.
           </p>
           <p>
             No customer data or operational metrics are shown in this preview.

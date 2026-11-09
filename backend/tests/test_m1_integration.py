@@ -21,7 +21,9 @@ from app.modules.cases.models import (
     ReadMarker,
     WorkspaceCounter,
 )
+from app.modules.customers.import_models import CustomerImport
 from app.modules.customers.models import Contact, Customer
+from app.modules.followups.models import Feedback, Task
 from app.modules.identity.models import (
     LoginSession,
     Membership,
@@ -154,6 +156,9 @@ def core() -> Iterator[Core]:
             session.execute(delete(SetupToken).where(SetupToken.workspace_id == workspace_id))
             session.execute(delete(LoginSession).where(LoginSession.workspace_id == workspace_id))
             for model in (
+                CustomerImport,
+                Task,
+                Feedback,
                 IdempotencyRecord,
                 ReadMarker,
                 CaseTransition,

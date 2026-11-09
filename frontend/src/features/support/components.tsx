@@ -11,18 +11,25 @@ export function ConflictReview<T extends { version: number; state?: string }>({
   error,
   path,
   accept,
+  record = 'case',
 }: {
   error: Error | null;
   path: string;
   accept: (latest: ApiEnvelope<T>) => void;
+  record?: 'case' | 'follow-up' | 'configuration';
 }) {
   const [latest, setLatest] = useState<ApiEnvelope<T> | null>(null);
   const [failure, setFailure] = useState<Error | null>(null);
   if (!(error instanceof ApiError) || error.problem.code !== 'version_conflict')
     return null;
   return (
-    <section className="conflict-review" aria-label="Review case conflict">
-      <p>This case changed while you were editing. Your draft is still here.</p>
+    <section
+      className="conflict-review"
+      aria-label={'Review ' + record + ' conflict'}
+    >
+      <p>
+        This {record} changed while you were editing. Your draft is still here.
+      </p>
       <button
         className="button secondary"
         type="button"
@@ -35,15 +42,20 @@ export function ConflictReview<T extends { version: number; state?: string }>({
           }
         }}
       >
-        Review latest case
+        Review latest {record}
       </button>
       <ErrorMessage error={failure} />
       {latest && (
         <>
           <p>
             Saved version {latest.data.version}
-            {latest.data.state ? ` · ${stateLabels[latest.data.state]}` : ''}.
-            Review the latest conversation and details before saving.
+            {latest.data.state
+              ? ` · ${stateLabels[latest.data.state] ?? latest.data.state.replaceAll('_', ' ')}`
+              : ''}
+            .
+            {record === 'case'
+              ? ' Review the latest conversation and details before saving.'
+              : ' Review the latest details before saving.'}
           </p>
           <button
             className="button secondary"
@@ -142,9 +154,11 @@ export function CustomerPicker({
 export function CustomFields({
   fields,
   resolving = false,
+  values,
 }: {
   fields: CaseField[];
   resolving?: boolean;
+  values?: Record<string, unknown>;
 }) {
   return (
     <>
@@ -153,26 +167,37 @@ export function CustomFields({
           ? field.required_on_resolve
           : field.required_on_create;
         const label = `${field.label}${required ? ' · Required' : ' · Optional'}`;
+        const raw = values ? values[field.key] : field.default_value;
+        const initial = raw == null ? '' : String(raw);
         return (
           <div key={field.key} className="custom-field">
             <label htmlFor={`field-${field.key}`}>{label}</label>
             {field.type === 'single_select' ? (
-              <select id={`field-${field.key}`} name={`field-${field.key}`}>
+              <select
+                id={`field-${field.key}`}
+                name={`field-${field.key}`}
+                defaultValue={initial}
+              >
                 <option value="">Choose a value</option>
                 {field.allowed_values.map((value) => (
                   <option key={value}>{value}</option>
                 ))}
               </select>
             ) : field.type === 'boolean' ? (
-              <input
+              <select
                 id={`field-${field.key}`}
                 name={`field-${field.key}`}
-                type="checkbox"
-              />
+                defaultValue={initial}
+              >
+                <option value="">Not specified</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+              </select>
             ) : (
               <input
                 id={`field-${field.key}`}
                 name={`field-${field.key}`}
+                defaultValue={initial}
                 type={
                   field.type === 'date'
                     ? 'date'

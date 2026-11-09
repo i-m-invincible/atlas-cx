@@ -81,6 +81,9 @@ jobs:
       - name: Preserve M1 identities and customers during M2 upgrade
         working-directory: backend
         run: uv run python -m scripts.verify_m1_upgrade
+      - name: Preserve M2 case history during M3 upgrade
+        working-directory: backend
+        run: uv run python -m scripts.verify_m2_upgrade
       - name: Empty-schema rollback and repeat upgrade
         run: |
           docker compose run --rm migrate .venv/bin/alembic downgrade base
@@ -109,10 +112,10 @@ jobs:
           uv run python -m scripts.seed_m2_browser
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - name: Real browser identity, customer and support workflows
+      - name: Real browser identity, support and follow-up workflows
         env:
           E2E_BASE_URL: http://localhost:8080
-        run: npm run test:e2e -- --grep 'M[12] full stack'
+        run: npm run test:e2e -- --grep 'M[123] full stack'
       - name: Failure diagnostics
         if: failure()
         run: docker compose logs --no-color

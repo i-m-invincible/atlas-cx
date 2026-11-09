@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { Link, Navigate, NavLink, useLocation } from 'react-router-dom';
 import { useSession } from '../features/identity/session';
 
-const plannedSections = ['Analytics', 'Knowledge', 'Follow-ups'];
+const plannedSections = ['Analytics', 'Knowledge'];
 
 function Navigation({ onNavigate }: { onNavigate?: () => void }) {
   const { identity } = useSession();
@@ -49,6 +49,21 @@ function Navigation({ onNavigate }: { onNavigate?: () => void }) {
             <span className="metadata">Planned</span>
           </li>
         ))}
+        {identity?.audience === 'staff' && (
+          <li>
+            <Link
+              to="/app/follow-ups/tasks"
+              onClick={onNavigate}
+              aria-current={
+                location.pathname.startsWith('/app/follow-ups')
+                  ? 'page'
+                  : undefined
+              }
+            >
+              Follow-ups
+            </Link>
+          </li>
+        )}
         {identity?.role === 'admin' && (
           <li>
             <NavLink to="/app/settings/workspace" onClick={onNavigate}>

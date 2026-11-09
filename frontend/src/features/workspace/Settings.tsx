@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { api, apiPages } from '../../api/client';
 import type { Member, Team, Workspace } from '../../api/client';
 import { ErrorMessage, Loading } from '../../components/Feedback';
@@ -57,6 +58,9 @@ export function Settings() {
         Workspace settings
       </h1>
       <p className="small-reading">Changes apply only to {row.name}.</p>
+      <nav className="local-navigation" aria-label="Settings sections">
+        <Link to="/app/settings/case-configuration">Case configuration</Link>
+      </nav>
       <p role="status">{notice}</p>
       <ErrorMessage error={error} />
       {link && (

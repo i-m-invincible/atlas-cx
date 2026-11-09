@@ -53,6 +53,7 @@ def save_customer(
                 "Review the existing customer.",
             )
     validate_owner(uow, changes.get("owner_member_id"))
+    row = None
     if identifier:
         row = repository.customer(uow.session, identifier, True)
         match_version(request, row.version)
@@ -64,6 +65,14 @@ def save_customer(
             and changes["external_id"] != row.external_id
         ):
             raise Fault(409, "identity_immutable", "An existing external ID cannot be changed.")
+    return repository.customer_view(uow.session, persist_customer(uow, changes, request, row))
+
+
+def persist_customer(
+    uow: UnitOfWork, changes: dict[str, object], request: Request, row: Customer | None = None
+) -> Customer:
+    updating = row is not None
+    if row:
         for key, value in changes.items():
             setattr(row, key, value)
         row.version += 1
@@ -76,13 +85,13 @@ def save_customer(
         uow.session,
         uow.scope.workspace_id,
         uow.scope.user_id,
-        "customer.updated" if identifier else "customer.created",
+        "customer.updated" if updating else "customer.created",
         "customer",
         row.id,
         list(changes),
         request.state.request_id,
     )
-    return repository.customer_view(uow.session, row)
+    return row
 
 
 def save_contact(
@@ -168,6 +177,11 @@ def archive(
     from app.modules.cases.assignments import check_archive
 
     check_archive(uow, identifier, is_contact)
+    if not is_contact:
+        from app.modules.followups.service import has_incomplete_tasks
+
+        if has_incomplete_tasks(uow, customer_id=identifier):
+            raise Fault(409, "active_tasks", "Complete or cancel this customer’s follow-ups first.")
     row.archived_at = now()
     row.updated_at = now()
     row.version += 1

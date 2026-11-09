@@ -1014,7 +1014,11 @@ function CaseWork({ row, origin }: { row: CaseDetail; origin: string }) {
                   disabled={pending}
                 />
                 {action === 'resolve' && (
-                  <CustomFields fields={resolutionFields} resolving />
+                  <CustomFields
+                    fields={resolutionFields}
+                    values={row.custom_values}
+                    resolving
+                  />
                 )}
                 {!actionStates[action].includes(row.state) && (
                   <p>
@@ -1044,6 +1048,18 @@ function CaseContext({ row }: { row: CaseDetail }) {
   return (
     <div className="case-context">
       <h3>Case details</h3>
+      {identity?.permissions.includes('tasks:read') && (
+        <div className="form-actions">
+          <Link to={'/app/follow-ups/tasks?case_id=' + row.id}>
+            Case follow-ups
+          </Link>
+          {identity.permissions.includes('tasks:write') && (
+            <Link to={'/app/follow-ups/tasks/new?case=' + row.id}>
+              Create follow-up
+            </Link>
+          )}
+        </div>
+      )}
       <dl className="record-details">
         <dt>Customer</dt>
         <dd>

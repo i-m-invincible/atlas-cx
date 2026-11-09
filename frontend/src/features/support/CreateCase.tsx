@@ -51,10 +51,12 @@ export function CreateCase({ portal = false }: { portal?: boolean }) {
     queryFn: ({ signal }) => api<Workspace>('/workspace', { signal }),
     enabled: !portal,
   });
+  const configId = workspace.data?.data.active_case_config_id;
   const configs = useQuery({
-    queryKey: [identity?.workspace_id, 'staff', 'case-configs'],
-    queryFn: ({ signal }) => api<CaseConfig[]>('/case-configs', { signal }),
-    enabled: !portal,
+    queryKey: [identity?.workspace_id, 'staff', 'case-config', configId],
+    queryFn: ({ signal }) =>
+      api<CaseConfig>(`/case-configs/${configId}`, { signal }),
+    enabled: !portal && !!configId,
   });
   const portalConfig = useQuery({
     queryKey: [identity?.workspace_id, 'portal', 'config'],
@@ -109,9 +111,7 @@ export function CreateCase({ portal = false }: { portal?: boolean }) {
       source: 'manual_other',
     },
   });
-  const configuration = configs.data?.data.find(
-    (row) => row.id === workspace.data?.data.active_case_config_id,
-  )?.definition;
+  const configuration = configs.data?.data.definition;
   const categories = portal
     ? portalConfig.data?.data.categories
     : configuration?.categories;
@@ -126,10 +126,11 @@ export function CreateCase({ portal = false }: { portal?: boolean }) {
         allowed_values: field.allowed_values ?? [],
         minimum: field.minimum ?? null,
         maximum: field.maximum ?? null,
+        default_value: field.default,
       }));
   const loading = portal
     ? portalConfig.isPending
-    : configs.isPending || workspace.isPending;
+    : workspace.isPending || (!!configId && configs.isPending);
   const failure =
     portalConfig.error ?? configs.error ?? workspace.error ?? related.error;
   useHeadingFocus(
@@ -225,7 +226,7 @@ export function CreateCase({ portal = false }: { portal?: boolean }) {
               category_key: values.category_key,
               subject: values.subject,
               description: values.description,
-              custom_values: customValues(formElement, fields),
+              custom_values: customValues(formElement, fields, true),
               ...(relatedId ? { related_case_id: relatedId } : {}),
               ...(!portal
                 ? {

@@ -12,8 +12,11 @@ from starlette.exceptions import HTTPException
 from starlette.responses import Response
 
 from app.modules.cases.router import router as cases_router
+from app.modules.customers.import_router import router as imports_router
 from app.modules.customers.router import router as customers_router
+from app.modules.followups.router import router as followups_router
 from app.modules.identity.router import router as identity_router
+from app.modules.workspace.case_config_router import router as case_config_router
 from app.modules.workspace.router import router as workspace_router
 from app.platform.config import get_settings
 from app.platform.database import build_engine
@@ -126,6 +129,9 @@ def create_app() -> FastAPI:
     application.include_router(customers_router, prefix="/api/v1")
     application.include_router(cases_router, prefix="/api/v1")
     application.include_router(workspace_router, prefix="/api/v1")
+    application.include_router(case_config_router, prefix="/api/v1")
+    application.include_router(followups_router, prefix="/api/v1")
+    application.include_router(imports_router, prefix="/api/v1")
     return application
 
 

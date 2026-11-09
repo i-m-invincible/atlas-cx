@@ -1,4 +1,4 @@
-"""Read-only published defaults for M2; configuration authoring is M3."""
+"""Bootstrap defaults and shared projections for published configurations."""
 
 from uuid import UUID
 

@@ -80,6 +80,25 @@ def main() -> None:
             )
             session.add(contact)
             session.flush()
+            portal_user = User(
+                normalized_email=contact.normalized_email,
+                display_name=contact.name,
+                password_hash=password_hash(fixture["password"]),
+            )
+            session.add(portal_user)
+            session.flush()
+            session.add(
+                PortalBinding(
+                    workspace_id=other.id,
+                    user_id=portal_user.id,
+                    contact_id=contact.id,
+                    active=True,
+                    setup_completed_at=now(),
+                )
+            )
+            fixture["other_workspace"] = other.slug
+            fixture["other_admin_email"] = operator.normalized_email
+            fixture["other_portal_email"] = contact.normalized_email
             request = Request(
                 {
                     "type": "http",

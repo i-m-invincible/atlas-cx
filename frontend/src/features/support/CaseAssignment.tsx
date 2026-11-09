@@ -9,9 +9,9 @@ import type { Member, Team } from '../../api/client';
 import { ErrorMessage, Loading } from '../../components/Feedback';
 import { UnsavedChanges, ValidationSummary } from '../../components/FormSafety';
 import { useSession } from '../identity/session';
-import { ConflictReview } from './components';
-import type { CaseConfig, CaseDetail } from './data';
-import { useHeadingFocus } from './data';
+import { ConflictReview, CustomFields } from './components';
+import type { CaseConfig, CaseDetail, CaseField } from './data';
+import { customValues, useHeadingFocus } from './data';
 
 const schema = z.object({
   category_key: z.string().min(1),
@@ -44,6 +44,7 @@ function AssignmentEditor({ row }: { row: CaseDetail }) {
   const navigate = useNavigate();
   const [error, setError] = useState<Error | null>(null);
   const [version, setVersion] = useState(row.version);
+  const [fieldsChanged, setFieldsChanged] = useState(false);
   const members = useQuery({
     queryKey: [identity?.workspace_id, 'staff', 'assignment-members'],
     queryFn: ({ signal }) => apiPages<Member>('/members?active=true', signal),
@@ -87,9 +88,19 @@ function AssignmentEditor({ row }: { row: CaseDetail }) {
     ) ?? [];
   const failed = members.error ?? teams.error ?? config.error;
   const loading = members.isPending || teams.isPending || config.isPending;
+  const fields: CaseField[] = row.field_definitions.map((field) => ({
+    key: field.key,
+    label: field.label,
+    type: field.type,
+    required_on_create: field.required_on_create,
+    portal_editable_on_create: field.portal_editable_on_create,
+    allowed_values: field.allowed_values ?? [],
+    minimum: field.minimum ?? null,
+    maximum: field.maximum ?? null,
+  }));
   return (
     <>
-      <UnsavedChanges dirty={isDirty && !isSubmitting} />
+      <UnsavedChanges dirty={(isDirty || fieldsChanged) && !isSubmitting} />
       <Link to={`/app/support/cases/${row.id}`}>Back to case</Link>
       <h1 id="page-heading" tabIndex={-1}>
         Edit case details
@@ -98,32 +109,45 @@ function AssignmentEditor({ row }: { row: CaseDetail }) {
       <form
         className="work-surface form-surface"
         noValidate
-        onSubmit={handleSubmit(async (values) => {
-          setError(null);
-          try {
-            const response = await api<CaseDetail>(`/cases/${row.id}`, {
-              method: 'PATCH',
-              version,
-              body: {
-                ...values,
-                team_id: values.team_id || null,
-                assignee_member_id: values.assignee_member_id || null,
-              },
-            });
-            client.setQueryData(
-              [identity?.workspace_id, 'staff', 'case', row.id],
-              response,
-            );
-            await client.invalidateQueries({
-              queryKey: [identity?.workspace_id, 'staff', 'cases'],
-            });
-            navigate(`/app/support/cases/${row.id}`, {
-              state: { notice: 'Case details updated.' },
-            });
-          } catch (cause) {
-            setError(cause as Error);
-          }
-        })}
+        onChange={(event) => {
+          if (
+            event.target instanceof HTMLElement &&
+            event.target.getAttribute('name')?.startsWith('field-')
+          )
+            setFieldsChanged(true);
+        }}
+        onSubmit={(event) => {
+          const form = event.currentTarget;
+          void handleSubmit(async (values) => {
+            setError(null);
+            try {
+              const response = await api<CaseDetail>(`/cases/${row.id}`, {
+                method: 'PATCH',
+                version,
+                body: {
+                  ...values,
+                  team_id: values.team_id || null,
+                  assignee_member_id: values.assignee_member_id || null,
+                  ...(fieldsChanged
+                    ? { custom_values: customValues(form, fields) }
+                    : {}),
+                },
+              });
+              client.setQueryData(
+                [identity?.workspace_id, 'staff', 'case', row.id],
+                response,
+              );
+              await client.invalidateQueries({
+                queryKey: [identity?.workspace_id, 'staff', 'cases'],
+              });
+              navigate(`/app/support/cases/${row.id}`, {
+                state: { notice: 'Case details updated.' },
+              });
+            } catch (cause) {
+              setError(cause as Error);
+            }
+          })(event);
+        }}
       >
         <ErrorMessage error={error ?? failed} />
         <ConflictReview<CaseDetail>
@@ -193,6 +217,7 @@ function AssignmentEditor({ row }: { row: CaseDetail }) {
           Priority changes the order of work. The original target stays the
           same.
         </p>
+        <CustomFields fields={fields} values={row.custom_values} />
         <button
           className="button"
           disabled={isSubmitting || loading || !!failed}

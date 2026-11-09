@@ -47,7 +47,9 @@ export async function api<T>(
       await csrf.json();
     headers['X-CSRF-Token'] = value.data.csrf_token;
   }
-  if (options.body !== undefined) headers['Content-Type'] = 'application/json';
+  const multipart = options.body instanceof FormData;
+  if (options.body !== undefined && !multipart)
+    headers['Content-Type'] = 'application/json';
   if (options.version !== undefined)
     headers['If-Match'] = `"${options.version}"`;
   if (options.idempotencyKey)
@@ -56,7 +58,11 @@ export async function api<T>(
     method,
     headers,
     credentials: 'same-origin',
-    body: options.body === undefined ? undefined : JSON.stringify(options.body),
+    body: multipart
+      ? (options.body as FormData)
+      : options.body === undefined
+        ? undefined
+        : JSON.stringify(options.body),
     signal: options.signal,
   });
   if (!response.ok) {
