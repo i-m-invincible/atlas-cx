@@ -2,21 +2,33 @@
 
 ## M4 activity and analytics
 
-The backend checkpoint `8a8efec75498ade84f18a90fb0b485009be9a088`
-passed 85 backend tests and 76 integration tests on PostgreSQL 17 with pgvector,
-using the non-owner `atlas_app` role. The integration fixture checked two
-workspaces, duplicate races, atomic conflicts, late events, credential revocation
-and rate limits, and reference report calculations. Compose built both images,
-verified health endpoints, and ran the three existing real-stack browser
-workflows. [Checkpoint CI](https://github.com/i-m-invincible/atlas-cx/actions/runs/42634502213)
+The M4 implementation commit `7e98cdcbdb290d388e02ce4cdcb5b804700a97b6`
+passed the branch quality and container jobs on 9 November 2026.
+[Implementation CI](https://github.com/i-m-invincible/atlas-cx/actions/runs/42636422463)
 
-The local M4 browser checks exercise Customer 360 filters, safe event property
-rendering, service filters and drilldowns, keyboard expansion, and chart tables
-at 1440, 1024, 700, and 390 px. The first run found a mismatch between visible
-drilldown text and accessible names. Both now use the same action phrase.
-Rendered screens were reviewed at all four widths. The M4 Compose scenario
-uses synthetic credentials and events to exercise persisted data. Its results
-are reported by the pull request checks. [Development pull request](https://github.com/i-m-invincible/atlas-cx/pull/1)
+- Ruff lint and format checks, strict mypy, and 85 backend tests passed.
+  Frontend formatting, ESLint, TypeScript, the production build, and 27 tests
+  passed. CI also checked generated contracts and authoritative source hashes.
+- 76 integration tests passed against PostgreSQL 17 with pgvector as the
+  non-owner `atlas_app` role. The fixtures checked two workspaces, concurrent
+  duplicates, atomic conflicts, time limits, credential revocation, rate
+  limits, CSV injection safety, and independently calculated report cohorts.
+- Compose passed upgrade preservation from M0 through M3, downgrade and
+  repeat upgrade, image builds, health smoke checks, and all four real-stack
+  browser scenarios. The M4 scenario created and revoked a synthetic credential,
+  ingested out-of-order events and a replay, opened recorded activity in
+  Customer 360 and Analytics, checked workspace isolation, and downloaded CSV.
+- 37 Chromium checks passed locally and in CI. The local run skipped the four
+  Compose scenarios. Rendered layouts were reviewed at 1440, 1024, 700, and
+  390 px. The M4 tests checked keyboard expansion, safe property rendering,
+  report controls and chart tables, and no page-wide horizontal overflow.
+  Axe found zero serious or critical violations on the tested screens.
+
+The first CI run caught a Compose indentation error. The first browser run
+found that the drilldown controls' accessible names differed from their visible
+labels. The Compose mapping and the labels were corrected and rechecked.
+The development pull request tracks checks on the current head.
+[Current checks](https://github.com/i-m-invincible/atlas-cx/pull/1/checks)
 
 Docker and PostgreSQL are unavailable on the local Windows host. Database and
 container results come from GitHub Actions. The synthetic fixtures measure

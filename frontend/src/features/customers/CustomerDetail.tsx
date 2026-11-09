@@ -93,10 +93,37 @@ export function CustomerDetail() {
         <h1 id="page-heading" tabIndex={-1}>
           {row.name}
         </h1>
-        {canWrite && !row.archived_at && (
-          <Link className="button secondary" to={`/app/customers/${id}/edit`}>
-            Edit customer
-          </Link>
+        {!row.archived_at && (
+          <div className="activity-actions customer-header-actions">
+            {identity?.capabilities.activity &&
+              view !== 'cases' &&
+              identity.permissions.includes('cases:write') && (
+                <Link
+                  className="button"
+                  to={'/app/support/cases/new?customer=' + row.id}
+                >
+                  Create case
+                </Link>
+              )}
+            {identity?.capabilities.activity &&
+              view !== 'follow-ups' &&
+              identity.permissions.includes('tasks:write') && (
+                <Link
+                  className="button secondary"
+                  to={'/app/follow-ups/tasks/new?customer=' + row.id}
+                >
+                  Create follow-up
+                </Link>
+              )}
+            {canWrite && (
+              <Link
+                className="button secondary"
+                to={`/app/customers/${id}/edit`}
+              >
+                Edit customer
+              </Link>
+            )}
+          </div>
         )}
       </div>
       <p>
