@@ -89,6 +89,16 @@ const CustomerImport = lazy(() =>
     default: module.CustomerImport,
   })),
 );
+const Analytics = lazy(() =>
+  import('../features/activity/Analytics').then((module) => ({
+    default: module.Analytics,
+  })),
+);
+const EventSettings = lazy(() =>
+  import('../features/activity/EventSettings').then((module) => ({
+    default: module.EventSettings,
+  })),
+);
 
 export function App() {
   return (
@@ -100,6 +110,33 @@ export function App() {
       }
     >
       <Routes>
+        {['activity', 'service'].map((view) => (
+          <Route
+            key={view}
+            path={'/app/analytics/' + view}
+            element={
+              <RequireStaff>
+                <AppShell>
+                  <Analytics service={view === 'service'} />
+                </AppShell>
+              </RequireStaff>
+            }
+          />
+        ))}
+        <Route
+          path="/app/analytics"
+          element={<Navigate to="/app/analytics/activity" replace />}
+        />
+        <Route
+          path="/app/settings/event-tracking"
+          element={
+            <RequireStaff>
+              <AppShell>
+                <EventSettings />
+              </AppShell>
+            </RequireStaff>
+          }
+        />
         <Route
           path="/app/settings/case-configuration/:id?"
           element={

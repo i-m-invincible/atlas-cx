@@ -1,5 +1,28 @@
 # Verification evidence
 
+## M4 activity and analytics
+
+The backend checkpoint `8a8efec75498ade84f18a90fb0b485009be9a088`
+passed 85 backend tests and 76 integration tests on PostgreSQL 17 with pgvector,
+using the non-owner `atlas_app` role. The integration fixture checked two
+workspaces, duplicate races, atomic conflicts, late events, credential revocation
+and rate limits, and reference report calculations. Compose built both images,
+verified health endpoints, and ran the three existing real-stack browser
+workflows. [Checkpoint CI](https://github.com/i-m-invincible/atlas-cx/actions/runs/42634502213)
+
+The local M4 browser checks exercise Customer 360 filters, safe event property
+rendering, service filters and drilldowns, keyboard expansion, and chart tables
+at 1440, 1024, 700, and 390 px. The first run found a mismatch between visible
+drilldown text and accessible names. Both now use the same action phrase.
+Rendered screens were reviewed at all four widths. The M4 Compose scenario
+uses synthetic credentials and events to exercise persisted data. Its results
+are reported by the pull request checks. [Development pull request](https://github.com/i-m-invincible/atlas-cx/pull/1)
+
+Docker and PostgreSQL are unavailable on the local Windows host. Database and
+container results come from GitHub Actions. The synthetic fixtures measure
+correctness. Throughput and manual screen-reader verification remain release
+work. Event retention runs through a scoped operator command.
+
 ## M3 configuration and follow-up
 
 Verified on 9 November 2026 against commit

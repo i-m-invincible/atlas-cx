@@ -1,8 +1,9 @@
 # Atlas CX
 
 Customer Operations & Service Intelligence Platform. The repository contains the
-M0 foundation, M1 identity and customer core, M2 support workflow, and M3
-configuration, follow-ups, ratings, and CSV imports. Atlas CX is standalone.
+M0 foundation, M1 identity and customer core, M2 support workflow, M3
+configuration and follow-up, and M4 customer activity and service analytics.
+Atlas CX is standalone.
 
 Staff can sign in, manage customers and contacts, search and filter records,
 archive records, and administer workspace membership and teams according to
@@ -14,8 +15,10 @@ role. Cases retain resolution cycles and response/resolution target snapshots.
 Administrators publish versioned case configuration from five starter presets.
 Staff manage follow-up tasks, and portal contacts can rate their latest resolved
 cycle. A low rating creates a single staff follow-up. Administrators and managers
-can validate and commit customer CSVs. Analytics, health computation, and RAG
-remain planned.
+can validate and commit customer CSVs, inspect report records, and export service
+data. Administrators define accepted events and issue workspace ingestion keys.
+Staff inspect recorded events and operational reports. Health and knowledge
+retrieval remain planned.
 
 Read the unchanged [product specification](docs/PRODUCT_SPEC.md),
 [design system](docs/DESIGN_SYSTEM.md), [wireframes](docs/Atlas_CX_Wireframe_Atlas.pdf),
@@ -125,7 +128,7 @@ python scripts/verify_sources.py
 
 Browser tests exercise customer, support, and portal interactions at 1440, 1024,
 700, and 390 pixels, plus the foundation's 320-pixel shell checks. Test-only API
-fixtures provide deterministic UI states. The separate M1, M2, and M3 real-stack tests
+fixtures provide deterministic UI states. The separate M1–M4 real-stack tests
 skip unless `E2E_BASE_URL` is set. CI runs them against Compose with synthetic
 identities and a random password prepared by `backend/scripts/seed_m1_browser.py`
 and `seed_m2_browser.py`. These scripts write private, ignored temporary
@@ -177,7 +180,40 @@ Previews expire after 24 hours. From the backend checkout, an operator can clear
 expired staging with `uv run python -m scripts.purge_customer_imports WORKSPACE_SLUG`
 using the migration database credential.
 
-Regenerate contracts after API schema changes:
+## Demonstrating recorded activity
+
+1. In **Customers**, create an active synthetic customer with an external ID
+   such as `synthetic-training-01`.
+2. In **Settings → Event tracking**, create the enabled key `feature_used`.
+   Set the display label to **Synthetic feature used**, enable **Counts as
+   meaningful activity**, and add a string property `feature` with a maximum
+   length of 120.
+3. Create an ingestion credential and copy it. Run the following local command
+   with a recent offset timestamp in place of the placeholder. Paste the key
+   when the terminal prompts for it.
+
+   ```sh
+   python scripts/send_synthetic_events.py --customer-external-id synthetic-training-01 --namespace first-run --occurred-at "<recent ISO timestamp with offset>"
+   ```
+
+4. Open the customer’s **Timeline** or **Activity** tab. Two synthetic records
+   appear in occurrence order, including the late event. The terminal reports
+   the replay as a duplicate. Reusing the namespace and timestamp safely
+   replays the same records.
+5. In **Analytics → Activity**, select the same customer and filter by
+   `feature_used`. **Analytics → Service** reports recorded cases, feedback,
+   and follow-ups. Administrators and managers can inspect records and export
+   a bounded CSV. Revoke the synthetic key in **Event tracking** when finished.
+
+The bearer API is `POST /api/v1/events/batch`. The workspace rate is configurable
+per key through `EVENT_BATCHES_PER_MINUTE`. Operators can purge raw events older
+than 180 days with the migration database credential. Run from `backend`.
+
+```sh
+uv run python -m app.modules.activities.maintenance --workspace WORKSPACE_UUID
+```
+
+Regenerate contracts after API schema changes.
 
 ```sh
 cd backend
@@ -187,11 +223,13 @@ npm run api:generate
 ```
 
 CI checks quality, contracts, dependencies, source hashes, PostgreSQL isolation,
-M0 through M2 data preservation during upgrade, rollback and repeat upgrades,
+M0 through M3 data preservation during upgrade, rollback and repeat upgrades,
 container builds, health smoke checks, and real browser workflows.
 It does not deploy. See [verification evidence](docs/VERIFICATION.md),
 [M3 changed files](docs/M3_FILE_MANIFEST.md),
 [identity/customer architecture](docs/architecture/0002-identity-customer-core.md),
 [case workflow decisions](docs/architecture/0003-case-workflow.md), and
 [M3 architecture decisions](docs/architecture/0004-configuration-followups-imports.md).
-The next milestone is **M4 Activity and analytics**.
+See also the [M4 changed files](docs/M4_FILE_MANIFEST.md) and
+[M4 architecture decisions](docs/architecture/0005-activity-analytics.md).
+The next milestone is **M5 Knowledge and RAG**.

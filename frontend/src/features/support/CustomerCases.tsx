@@ -76,10 +76,6 @@ export function CustomerCases({
           Load more customer cases
         </button>
       )}
-      <p className="small-reading">
-        Product events, health calculations, and follow-ups are planned for
-        later milestones.
-      </p>
     </section>
   );
 }

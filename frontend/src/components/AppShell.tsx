@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { Link, Navigate, NavLink, useLocation } from 'react-router-dom';
 import { useSession } from '../features/identity/session';
 
-const plannedSections = ['Analytics', 'Knowledge'];
+const plannedSections = ['Knowledge'];
 
 function Navigation({ onNavigate }: { onNavigate?: () => void }) {
   const { identity } = useSession();
@@ -69,6 +69,21 @@ function Navigation({ onNavigate }: { onNavigate?: () => void }) {
             <NavLink to="/app/settings/workspace" onClick={onNavigate}>
               Settings
             </NavLink>
+          </li>
+        )}
+        {identity?.audience === 'staff' && (
+          <li>
+            <Link
+              to="/app/analytics/activity"
+              onClick={onNavigate}
+              aria-current={
+                location.pathname.startsWith('/app/analytics/')
+                  ? 'page'
+                  : undefined
+              }
+            >
+              Analytics
+            </Link>
           </li>
         )}
       </ul>

@@ -23,10 +23,15 @@ for the latest resolved cycle. A qualifying rating creates one follow-up.
 Customer CSVs have a staged preview, row-level errors, and an atomic commit.
 See the [M3 verification record](VERIFICATION.md#m3-configuration-and-follow-up).
 
-The next milestone is **M4 Activity and analytics**. It adds event definitions
-and credentials, idempotent ingestion, a customer timeline, and independently
-checked activity and service reports.
+M4 Activity and analytics adds configurable event definitions, revocable
+ingestion credentials, atomic event batches, and the Customer 360 timeline.
+Analytics shows recorded activity by customer and operational service measures,
+with drilldowns and audited exports for administrators and managers.
+See the [M4 verification record](VERIFICATION.md#m4-activity-and-analytics).
 
-M5 adds knowledge and RAG. M6 adds rules-based health and product finishing.
+The next milestone is **M5 Knowledge and RAG**. Implement source management,
+authorized active-revision search and retrieval, citations, and evaluation
+against the synthetic corpus defined in the product specification.
+M6 adds rules-based health and product finishing.
 M7 validates the complete release, including restore, load, security, and
 accessibility evidence. No merge to main or deployment is authorized.

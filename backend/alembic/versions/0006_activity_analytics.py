@@ -86,6 +86,7 @@ INDEXES = (
     ("ix_cases_report_response", "cases", ["workspace_id", "first_response_at", "id"]),
     ("ix_feedback_report_created", "feedback", ["workspace_id", "created_at", "id"]),
     ("ix_tasks_report_due", "tasks", ["workspace_id", "due_at", "id"]),
+    ("ix_audit_timeline_task", "audit_events", ["workspace_id", "entity_type", "entity_id"]),
 )
 
 

@@ -60,6 +60,7 @@ export function Settings() {
       <p className="small-reading">Changes apply only to {row.name}.</p>
       <nav className="local-navigation" aria-label="Settings sections">
         <Link to="/app/settings/case-configuration">Case configuration</Link>
+        <Link to="/app/settings/event-tracking">Event tracking</Link>
       </nav>
       <p role="status">{notice}</p>
       <ErrorMessage error={error} />

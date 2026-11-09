@@ -152,6 +152,7 @@ def test_ingestion_and_customer_timeline(core: Core, clients, monkeypatch) -> No
     assert peer.get(timeline).status_code == 404
     assert portal.get(events).status_code == 403
     assert portal.get(timeline).status_code == 403
+    assert portal.get(f"{BASE}/customers/{core.records['customer1']}/timeline").status_code == 403
 
     engine = build_engine(core.app_url)
     try:
@@ -328,6 +329,23 @@ def test_reference_analytics(core: Core, clients) -> None:
                     "created": start - timedelta(days=3),
                 },
             )
+        db.execute(
+            text("""
+            INSERT INTO messages (id, workspace_id, case_id, author_kind, visibility,
+                message_kind, body, updated_case_version, created_at)
+            VALUES (:id, :workspace, :case, 'staff', 'internal', 'note',
+                repeat('Synthetic note. ', 30), 1, :instant)
+        """),
+            {"id": uuid4(), "workspace": workspace, "case": cases[0], "instant": early},
+        )
+        db.execute(
+            text("""
+            INSERT INTO case_transitions (id, workspace_id, case_id, cycle_number,
+                from_state, to_state, reason, occurred_at)
+            VALUES (:id, :workspace, :case, 1, 'open', 'resolved', 'Synthetic resolution', :instant)
+        """),
+            {"id": uuid4(), "workspace": workspace, "case": cases[0], "instant": resolved1},
+        )
 
     params = {"from": start.isoformat(), "to": stop.isoformat(), "timezone": "America/New_York"}
     result = admin.get(BASE + "/analytics/overview", params=params)
@@ -390,6 +408,21 @@ def test_reference_analytics(core: Core, clients) -> None:
     ).json()
     assert rows["meta"]["has_more"]
     assert len(rows["data"]) == 2 and rows["data"][0]["eligible"] is False
+    timeline = f"{BASE}/customers/{customer}/timeline"
+    page = admin.get(timeline, params={"kinds": "message,transition,feedback", "limit": 2})
+    assert page.status_code == 200, page.text
+    first = page.json()
+    next_page = admin.get(
+        timeline,
+        params={
+            "kinds": "message,transition,feedback",
+            "cursor": first["meta"]["next_cursor"],
+        },
+    ).json()
+    entries = first["data"] + next_page["data"]
+    assert {entry["kind"] for entry in entries} == {"message", "transition", "feedback"}
+    note = next(entry for entry in entries if entry["kind"] == "message")
+    assert len(note["preview"]) == 160 and note["reference_id"] == str(cases[0])
     weekly = admin.get(BASE + "/analytics/trends", params={**params, "bucket": "week"}).json()[
         "data"
     ]
