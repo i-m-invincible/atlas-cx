@@ -197,12 +197,14 @@ test('M3 full stack publishes a service preset, rates a case and commits a CSV',
     ).toBeVisible();
 
     await staff.goto('/app/customers/import');
+    const csv = Buffer.alloc(1024 * 1024, '\n');
+    csv.write(
+      'external_id,name,kind\nm3-browser-import,Synthetic imported customer,business\n',
+    );
     await staff.getByLabel('Customer CSV').setInputFiles({
       name: 'synthetic.csv',
       mimeType: 'text/csv',
-      buffer: Buffer.from(
-        'external_id,name,kind\nm3-browser-import,Synthetic imported customer,business\n',
-      ),
+      buffer: csv,
     });
     await staff.getByRole('button', { name: 'Validate CSV' }).click();
     await expect(

@@ -8,8 +8,9 @@ from uuid import UUID
 
 from fastapi import Request
 from pydantic import ValidationError
-from sqlalchemy import select, update
+from sqlalchemy import case, select, update
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 
 from app.modules.customers.import_models import CustomerImport
 from app.modules.customers.import_schemas import (
@@ -158,26 +159,26 @@ def plan_row(
     )
 
 
-def purge_expired(uow: UnitOfWork) -> None:
+def purge_expired(session: Session) -> int:
     instant = now()
-    uow.session.execute(
+    rows = session.scalars(
         update(CustomerImport)
         .where(
             CustomerImport.expires_at <= instant,
             (CustomerImport.status == "validated") | (CustomerImport.row_results_json != []),
         )
         .values(
+            status=case(
+                (CustomerImport.status == "validated", "expired"), else_=CustomerImport.status
+            ),
             normalized_rows_json=[],
             row_results_json=[],
             version=CustomerImport.version + 1,
             updated_at=instant,
         )
-    )
-    uow.session.execute(
-        update(CustomerImport)
-        .where(CustomerImport.expires_at <= instant, CustomerImport.status == "validated")
-        .values(status="expired", updated_at=instant)
-    )
+        .returning(CustomerImport.id)
+    ).all()
+    return len(rows)
 
 
 def audit(uow: UnitOfWork, row: CustomerImport, action: str, request: Request) -> None:
@@ -198,7 +199,7 @@ def stage(uow: UnitOfWork, contents: bytes, request: Request) -> CustomerImport:
     rows = parse_csv(contents)
     preview = plan(uow, rows)
     assert uow.scope.member_id
-    purge_expired(uow)
+    purge_expired(uow.session)
     row = CustomerImport(
         workspace_id=uow.scope.workspace_id,
         submitted_by_member_id=uow.scope.member_id,
@@ -248,13 +249,13 @@ def commit(
     uow: UnitOfWork, identifier: UUID, request: Request
 ) -> tuple[CustomerImport, Fault | None]:
     require_role(uow.scope, "admin", "manager")
-    purge_expired(uow)
+    purge_expired(uow.session)
     row = get(uow, identifier, True)
+    if row.status == "expired":
+        return row, Fault(409, "import_expired", "The preview expired. Validate the CSV again.")
     replay, exists = idempotency.prepare(uow, request, Input())
     if exists:
         return row, None
-    if row.status == "expired":
-        raise Fault(409, "import_expired", "The preview expired. Validate the CSV again.")
     if row.status != "validated":
         raise Fault(409, "import_not_pending", "This import can no longer be committed.")
     match_version(request, row.version)

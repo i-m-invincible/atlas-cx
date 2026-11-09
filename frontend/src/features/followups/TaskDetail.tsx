@@ -329,6 +329,7 @@ function TaskEditor({
           <select
             id="task-owner"
             name="assignee"
+            key={members.isPending ? 'loading-owners' : 'loaded-owners'}
             required
             defaultValue={row?.assignee.id ?? identity?.member_id ?? ''}
           >
@@ -342,7 +343,8 @@ function TaskEditor({
               ))}
             {row &&
               !members.data?.data.some(
-                (member) => member.id === row.assignee.id,
+                (member) =>
+                  member.id === row.assignee.id && member.role !== 'viewer',
               ) && <option value={row.assignee.id}>{row.assignee.name}</option>}
           </select>
           <label htmlFor="task-due">Due date and time · {timezone}</label>

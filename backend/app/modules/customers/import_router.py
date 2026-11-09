@@ -2,6 +2,7 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Request, Response
+from python_multipart.exceptions import MultipartParseError
 from starlette.datastructures import UploadFile
 from starlette.exceptions import HTTPException
 from starlette.types import Message
@@ -39,7 +40,7 @@ async def read_upload(request: Request) -> bytes:
             if not isinstance(file, UploadFile):
                 raise Fault(422, "file_required", "Choose a CSV file.")
             return await file.read(service.MAX_BYTES + 1)
-    except HTTPException:
+    except (HTTPException, MultipartParseError):
         raise Fault(422, "invalid_upload", "Upload one CSV file using the file field.") from None
 
 

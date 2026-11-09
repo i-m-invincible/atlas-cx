@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { api, apiPages } from '../../api/client';
 import type { Team, Workspace } from '../../api/client';
 import type { components } from '../../api/schema';
@@ -156,6 +156,8 @@ function ConfigurationEditor({
 }) {
   const { identity } = useSession();
   const client = useQueryClient();
+  const navigate = useNavigate();
+  const location = useLocation();
   const keys = useReplayKeys();
   const [saved, setSaved] = useState(newDraft ? null : source);
   const [definition, setDefinition] = useState(source.definition);
@@ -163,7 +165,9 @@ function ConfigurationEditor({
   const [review, setReview] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const [notice, setNotice] = useState('');
+  const [notice, setNotice] = useState(
+    (location.state as { notice?: string } | null)?.notice ?? '',
+  );
   const dirty =
     JSON.stringify(definition) !==
     JSON.stringify(saved?.definition ?? source.definition);
@@ -177,7 +181,7 @@ function ConfigurationEditor({
       ? '/case-configs/' + saved.id + (publishing ? '/publish' : '')
       : '/case-configs';
     try {
-      const { data } = await api<CaseConfig>(path, {
+      const response = await api<CaseConfig>(path, {
         method: !saved || publishing ? 'POST' : 'PATCH',
         version: saved?.version,
         body: publishing
@@ -194,11 +198,29 @@ function ConfigurationEditor({
             },
         idempotencyKey: publishing ? keys.keyFor(path, null) : undefined,
       });
+      const { data } = response;
+      client.setQueryData(
+        [identity?.workspace_id, 'staff', 'case-config', data.id],
+        response,
+      );
+      if (!saved) {
+        navigate(base + '/' + data.id, {
+          replace: true,
+          state: { notice: 'Draft saved.' },
+        });
+      }
       setSaved(data);
       setDefinition(data.definition);
       setReview(false);
       keys.completed(path, null);
-      await client.invalidateQueries({ queryKey: [identity?.workspace_id] });
+      await client.invalidateQueries({
+        queryKey: [identity?.workspace_id, 'staff', 'case-configs'],
+      });
+      if (publishing) {
+        await client.invalidateQueries({
+          queryKey: [identity?.workspace_id, 'staff', 'workspace'],
+        });
+      }
       setNotice(
         publishing ? 'Configuration published for new cases.' : 'Draft saved.',
       );

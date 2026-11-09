@@ -116,17 +116,33 @@ for (const width of [1440, 1024, 700, 390]) {
         ]),
       }),
     );
-    await page.route('**/api/v1/case-configs', async (route) =>
-      route.fulfill({
-        status: 201,
-        json: envelope({
-          ...config,
-          number: 2,
-          status: 'draft',
-          published_at: null,
-          definition: route.request().postDataJSON(),
-        }),
-      }),
+    const draftId = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+    let draft = {
+      ...config,
+      id: draftId,
+      number: 2,
+      status: 'draft' as 'draft' | 'published',
+      published_at: null as string | null,
+    };
+    await page.route('**/api/v1/case-configs', async (route) => {
+      draft = { ...draft, definition: route.request().postDataJSON() };
+      return route.fulfill({ status: 201, json: envelope(draft) });
+    });
+    await page.route('**/api/v1/case-configs/' + draftId, async (route) =>
+      route.fulfill({ json: envelope(draft) }),
+    );
+    await page.route(
+      '**/api/v1/case-configs/' + draftId + '/publish',
+      async (route) => {
+        expect(route.request().headers()['if-match']).toBe('"1"');
+        draft = {
+          ...draft,
+          status: 'published',
+          version: 2,
+          published_at: customer.updated_at,
+        };
+        return route.fulfill({ json: envelope(draft) });
+      },
     );
     await page.goto('/app/settings/case-configuration/new');
     await page.getByLabel('Starter preset').selectOption('service_business');
@@ -134,9 +150,18 @@ for (const width of [1440, 1024, 700, 390]) {
     await expect(page.getByLabel('Category label')).toHaveValue('Appointment');
     await page.getByRole('button', { name: 'Save draft' }).click();
     await expect(page.getByText('Draft saved.', { exact: true })).toBeVisible();
+    await expect(page).toHaveURL(
+      new RegExp('/case-configuration/' + draftId + '$'),
+    );
     await page.getByRole('button', { name: 'Review and publish' }).click();
     await expect(
       page.getByRole('heading', { name: 'Portal request preview' }),
+    ).toBeVisible();
+    await page
+      .getByRole('button', { name: 'Publish configuration', exact: true })
+      .click();
+    await expect(
+      page.getByText('Configuration published for new cases.'),
     ).toBeVisible();
     await noHorizontalOverflow(page);
 

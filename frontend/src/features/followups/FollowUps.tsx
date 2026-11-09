@@ -108,10 +108,9 @@ export function FollowUps() {
                   value={state ?? ''}
                   onChange={(event) => update('state', event.target.value)}
                 >
-                  <option value="">
+                  <option value={mine ? 'open,in_progress' : ''}>
                     {mine ? 'Open and in progress' : 'Any state'}
                   </option>
-                  {mine && <option value="open,in_progress">Open work</option>}
                   {taskStates.map((state) => (
                     <option value={state} key={state}>
                       {state.replaceAll('_', ' ')}

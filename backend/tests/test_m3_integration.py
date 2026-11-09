@@ -1,5 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -12,6 +12,7 @@ from test_m1_integration import clients as clients
 from test_m1_integration import core as core
 from test_m2_integration import action, command, create_case, resolve, triage
 
+from app.modules.customers.import_models import CustomerImport
 from app.modules.followups.models import Feedback, Task
 from app.modules.workspace.case_config_models import CaseConfig
 from app.platform.database import build_engine, workspace_session
@@ -369,3 +370,25 @@ def test_feedback_uses_customer_owner_then_manager_and_transfers_open_tasks(
                 ).status_code
                 == 200
             )
+
+
+def test_expired_import_is_unavailable_and_staging_is_cleared(core: Core, clients: Any) -> None:
+    admin = clients()
+    external = uuid4().hex
+    preview = stage(admin, f"external_id,name,kind\n{external},Expired,business\n").json()["data"]
+    identifier = UUID(preview["id"])
+    migration = build_engine(core.migration_url)
+    with workspace_session(migration, core.workspaces[0]) as session:
+        session.execute(
+            update(CustomerImport)
+            .where(CustomerImport.id == identifier)
+            .values(expires_at=datetime(2020, 1, 1, tzinfo=UTC))
+        )
+    path = f"/customer-imports/{identifier}"
+    response = command(admin, path + "/commit", None, 1)
+    assert response.status_code == 409 and response.json()["code"] == "import_expired"
+    with workspace_session(migration, core.workspaces[0]) as session:
+        row = session.get(CustomerImport, identifier)
+        assert row and row.status == "expired" and row.create_count == 1
+        assert row.normalized_rows_json == row.row_results_json == []
+    migration.dispose()

@@ -12,7 +12,8 @@ const base = '/app/customers/import';
 
 export function CustomerImport() {
   const { identity } = useSession();
-  return identity?.permissions.includes('customers:import') ? (
+  const { id } = useParams();
+  return id || identity?.permissions.includes('customers:import') ? (
     <ImportPage />
   ) : (
     <p>You don’t have permission to import customers.</p>
@@ -22,6 +23,7 @@ export function CustomerImport() {
 function ImportPage() {
   const { id } = useParams();
   const { identity } = useSession();
+  const canImport = identity?.permissions.includes('customers:import');
   const client = useQueryClient();
   const navigate = useNavigate();
   const keys = useReplayKeys();
@@ -119,7 +121,10 @@ function ImportPage() {
                     : 'Review import preview'}
             </h2>
             <p role="status">
-              {row.create_count} to create · {row.update_count} to update ·{' '}
+              {row.create_count}{' '}
+              {row.status === 'committed' ? 'created' : 'to create'} ·{' '}
+              {row.update_count}{' '}
+              {row.status === 'committed' ? 'updated' : 'to update'} ·{' '}
               {row.error_count} with errors
             </p>
             {row.status === 'validated' && (
@@ -176,62 +181,65 @@ function ImportPage() {
                 </table>
               </div>
             )}
-            {row.status === 'validated' && row.error_count === 0 && (
-              <div className="form-actions">
-                {!review ? (
-                  <button className="button" onClick={() => setReview(true)}>
-                    Review and confirm
-                  </button>
-                ) : (
-                  <>
-                    <p>
-                      Apply these {row.create_count + row.update_count} rows to
-                      the current workspace?
-                    </p>
-                    <button
-                      className="button"
-                      disabled={pending}
-                      onClick={async () => {
-                        const path = '/customer-imports/' + row.id + '/commit';
-                        setError(null);
-                        setPending(true);
-                        try {
-                          const response = await api<ImportView>(path, {
-                            method: 'POST',
-                            version: row.version,
-                            idempotencyKey: keys.keyFor(path, null),
-                          });
-                          client.setQueryData(key, response);
-                          keys.completed(path, null);
-                          await client.invalidateQueries({
-                            queryKey: [
-                              identity?.workspace_id,
-                              'staff',
-                              'customers',
-                            ],
-                          });
-                        } catch (failure) {
-                          setError(failure as Error);
-                          await query.refetch();
-                        } finally {
-                          setPending(false);
-                        }
-                      }}
-                    >
-                      {pending ? 'Importing customers…' : 'Confirm import'}
+            {canImport &&
+              row.status === 'validated' &&
+              row.error_count === 0 && (
+                <div className="form-actions">
+                  {!review ? (
+                    <button className="button" onClick={() => setReview(true)}>
+                      Review and confirm
                     </button>
-                    <button
-                      className="button secondary"
-                      disabled={pending}
-                      onClick={() => setReview(false)}
-                    >
-                      Keep reviewing
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
-            <Link to={base}>Choose another CSV</Link>
+                  ) : (
+                    <>
+                      <p>
+                        Apply these {row.create_count + row.update_count} rows
+                        to the current workspace?
+                      </p>
+                      <button
+                        className="button"
+                        disabled={pending}
+                        onClick={async () => {
+                          const path =
+                            '/customer-imports/' + row.id + '/commit';
+                          setError(null);
+                          setPending(true);
+                          try {
+                            const response = await api<ImportView>(path, {
+                              method: 'POST',
+                              version: row.version,
+                              idempotencyKey: keys.keyFor(path, null),
+                            });
+                            client.setQueryData(key, response);
+                            keys.completed(path, null);
+                            await client.invalidateQueries({
+                              queryKey: [
+                                identity?.workspace_id,
+                                'staff',
+                                'customers',
+                              ],
+                            });
+                          } catch (failure) {
+                            setError(failure as Error);
+                            await query.refetch();
+                          } finally {
+                            setPending(false);
+                          }
+                        }}
+                      >
+                        {pending ? 'Importing customers…' : 'Confirm import'}
+                      </button>
+                      <button
+                        className="button secondary"
+                        disabled={pending}
+                        onClick={() => setReview(false)}
+                      >
+                        Keep reviewing
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            {canImport && <Link to={base}>Choose another CSV</Link>}
           </section>
         )
       )}
