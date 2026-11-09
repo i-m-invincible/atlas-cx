@@ -1,7 +1,7 @@
 """Queue-only claims and heartbeats. Business completion uses a scoped app session."""
 
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import datetime, timedelta
 from uuid import UUID, uuid4
 
 from sqlalchemy import Engine, case, select, update
@@ -25,6 +25,7 @@ class Attempt:
     owner: str
     token: UUID
     number: int
+    created_at: datetime
 
 
 def claim(engine: Engine, owner: str, prefer_index: bool = False) -> Attempt | None:
@@ -60,6 +61,7 @@ def claim(engine: Engine, owner: str, prefer_index: bool = False) -> Attempt | N
             owner,
             token,
             job.attempts,
+            job.created_at,
         )
 
 

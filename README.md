@@ -20,7 +20,7 @@ can validate and commit customer CSVs, inspect report records, and export servic
 data. Administrators define accepted events and issue workspace ingestion keys.
 Staff inspect recorded events and operational reports. Staff can search
 published knowledge, and eligible roles can ask the copilot for evidence
-from their workspace library. Local generation is disabled by default.
+from their workspace library. The generation release gate is closed.
 Health computation remains planned.
 
 Read the unchanged [product specification](docs/PRODUCT_SPEC.md),

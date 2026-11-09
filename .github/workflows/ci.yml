@@ -126,6 +126,8 @@ jobs:
         env:
           E2E_BASE_URL: http://localhost:8080
         run: npm run test:e2e -- --grep 'M[12345] full stack'
+      - name: Record content-free M5 worker timings
+        run: docker compose logs --no-color ai-worker
       - name: Failure diagnostics
         if: failure()
         run: docker compose logs --no-color

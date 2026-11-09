@@ -5,6 +5,65 @@ import { useSession } from '../identity/session';
 import { base } from './data';
 import type { AssistantSource, Source } from './data';
 
+export function ArticleText({
+  text,
+  markdown,
+}: {
+  text: string;
+  markdown: boolean;
+}) {
+  if (!markdown) return <pre className="knowledge-text">{text}</pre>;
+  const blocks: ReactNode[] = [];
+  let buffer: string[] = [];
+  let fence: string | null = null;
+
+  function flush(code = false) {
+    if (!buffer.length) return;
+    const content = buffer.join('\n');
+    blocks.push(
+      code ? (
+        <pre className="knowledge-text" key={blocks.length}>
+          {content}
+        </pre>
+      ) : (
+        <p className="knowledge-text" key={blocks.length}>
+          {content}
+        </p>
+      ),
+    );
+    buffer = [];
+  }
+
+  for (const line of text.split('\n')) {
+    const marker = /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1];
+    if (fence) {
+      if (marker?.startsWith(fence) && line.trim() === marker) {
+        flush(true);
+        fence = null;
+      } else buffer.push(line);
+    } else if (marker) {
+      flush();
+      fence = marker;
+    } else {
+      const heading = /^ {0,3}(#{1,6})[ \t]+(.+)$/.exec(line);
+      const depth = heading?.[1]?.length;
+      if (depth && heading?.[2]) {
+        flush();
+        const Tag =
+          depth === 1 ? 'h3' : depth === 2 ? 'h4' : depth === 3 ? 'h5' : 'h6';
+        blocks.push(
+          <Tag key={blocks.length}>
+            {heading[2].replace(/[ \t]+#+[ \t]*$/, '')}
+          </Tag>,
+        );
+      } else if (line.trim()) buffer.push(line);
+      else flush();
+    }
+  }
+  flush(!!fence);
+  return <div className="knowledge-article-text">{blocks}</div>;
+}
+
 export function KnowledgeHeader() {
   const { identity } = useSession();
   const path = useLocation().pathname;

@@ -63,7 +63,8 @@ Use draft rechecks the answer and the case, then transfers text through
 current-tab memory to the public composer. The case service still requires
 an explicit Send reply action and its usual authorization and version checks.
 Source passages and answer text render as text, with internal links limited
-to known citations.
+to known citations. Markdown articles render headings, paragraphs, and fenced
+code as React elements. Inline markup remains text.
 
 Generation is disabled by default. The pinned model can run in an isolated
 evaluation environment. See the evaluation record for the release decision.

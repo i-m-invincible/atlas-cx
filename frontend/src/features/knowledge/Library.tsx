@@ -20,7 +20,12 @@ import type {
   RevisionView,
   Source,
 } from './data';
-import { KnowledgeHeader, QueryState, SourceReference } from './shared';
+import {
+  ArticleText,
+  KnowledgeHeader,
+  QueryState,
+  SourceReference,
+} from './shared';
 
 function stateLabel(state: string) {
   return state.charAt(0).toUpperCase() + state.slice(1);
@@ -546,9 +551,13 @@ export function Article() {
                             The current article stays available until the new
                             version is ready.
                           </p>
-                          <pre className="knowledge-text">
-                            {row.content_text}
-                          </pre>
+                          <p className="small-reading">
+                            This preview shows the saved revision.
+                          </p>
+                          <ArticleText
+                            text={row.content_text}
+                            markdown={row.source_kind === 'markdown'}
+                          />
                           <button
                             type="button"
                             className="button"
@@ -571,7 +580,10 @@ export function Article() {
                         </details>
                       </>
                     ) : (
-                      <pre className="knowledge-text">{row.content_text}</pre>
+                      <ArticleText
+                        text={row.content_text}
+                        markdown={row.source_kind === 'markdown'}
+                      />
                     )}
                     {manager &&
                       !doc.archived_at &&

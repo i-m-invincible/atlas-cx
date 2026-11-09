@@ -39,7 +39,7 @@ const version: RevisionView = {
   title,
   revision_number: 1,
   version: 1,
-  source_kind: 'pasted',
+  source_kind: 'markdown',
   source_name: null,
   content_sha256: 'a'.repeat(64),
   status: 'ready',

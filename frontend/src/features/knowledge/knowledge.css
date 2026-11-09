@@ -27,6 +27,14 @@
   text-underline-offset: 3px;
 }
 
+.knowledge-article-text > * {
+  margin-top: 12px;
+}
+
+.knowledge-submit {
+  justify-self: start;
+}
+
 .knowledge-filter {
   display: flex;
   align-items: end;

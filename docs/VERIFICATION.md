@@ -1,5 +1,44 @@
 # Verification evidence
 
+## M5 knowledge and support copilot
+
+The implementation commit `7f3a6873a93b5f661b286bfe1c1f0979fec1c8dc`
+passed both the branch and pull request workflows. Local checks after the
+final Markdown and worker timing updates also passed. The pull request
+checks track the final handoff head. [Implementation CI](https://github.com/i-m-invincible/atlas-cx/actions/runs/42670594728) ·
+[Current checks](https://github.com/i-m-invincible/atlas-cx/pull/1/checks)
+
+- Ruff, formatting, mypy, and 94 backend tests passed locally. The frontend
+  formatting, ESLint, TypeScript, production build, and 29 component tests
+  passed locally. CI checked generated OpenAPI and TypeScript contracts.
+- The implementation CI ran 79 PostgreSQL integration tests as the non-owner
+  `atlas_app` role. Tests cover replacement failure and retry, competing
+  publications, stale leases, expiry, actual MiniLM indexing, archived
+  citations, requester-only feedback, revoked access, and cross-workspace
+  reads. The dispatcher was checked separately as `atlas_queue`. Upgrade
+  fixtures preserved M0–M4 data. Rollback and repeat upgrade passed.
+- Local Chromium passed 41 deterministic checks, including all four M5
+  viewport tests. The five Compose scenarios were skipped locally and passed
+  in CI. The M5 Compose test used an actual manager and agent, a Markdown
+  upload, real worker indexing, approved source excerpts, citation inspection,
+  explicit reply submission, and archive invalidation. The generated-draft
+  path used a labelled test double in the deterministic browser tests.
+- Knowledge and Copilot were rendered and inspected at 1440, 1024, 700, and
+  390 px. Tests checked keyboard citation inspection, no page-wide overflow,
+  reduced motion, and zero serious or critical axe findings on the tested
+  views. An earlier axe run found an inline link that relied on color.
+  Underlining fixed it and the four viewport checks passed again.
+
+The separate synthetic model workflow completed with real Qwen and MiniLM.
+Hybrid retrieval hit 13/13 held-out answerable questions. The manual review
+found 17/36 supported claims or directives, and Qwen abstained on 3/10
+unanswerable questions. Generation did not meet its release gates and is
+disabled in the application. See the detailed [RAG evaluation](RAG_EVALUATION.md)
+and [model manifest](AI_MODELS.md).
+
+Docker and PostgreSQL verification ran in CI. Full manual screen-reader and
+load verification remain release work.
+
 ## M4 activity and analytics
 
 The M4 implementation commit `7e98cdcbdb290d388e02ce4cdcb5b804700a97b6`

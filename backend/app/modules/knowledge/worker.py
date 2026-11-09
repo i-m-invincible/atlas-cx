@@ -203,6 +203,8 @@ def index(engine: Engine, attempt: Attempt, runtime: Runtime, deadline: float) -
         if not current:
             return
         job, row, doc = current
+        if monotonic() > deadline:
+            raise ModelFailure("index_timeout")
         active_others = select(Document.active_version_id).where(
             Document.id != doc.id,
             Document.archived_at.is_(None),
@@ -252,6 +254,8 @@ def index(engine: Engine, attempt: Attempt, runtime: Runtime, deadline: float) -
         stored = db.scalar(select(func.count(Chunk.id)).where(Chunk.version_id == row.id))
         if stored != len(passages):
             raise ModelFailure("incomplete_index")
+        if monotonic() > deadline:
+            raise ModelFailure("index_timeout")
         row.status, row.indexed_at, row.embedding_model_revision = (
             "ready",
             now(),
@@ -429,6 +433,7 @@ def store_citations(
 
 def process(app: Engine, queue: Engine, attempt: Attempt, runtime: Runtime) -> None:
     started = monotonic()
+    queue_wait_ms = max(0, round((now() - attempt.created_at).total_seconds() * 1000))
     stop = Event()
 
     def renew() -> None:
@@ -443,9 +448,10 @@ def process(app: Engine, queue: Engine, attempt: Attempt, runtime: Runtime) -> N
     try:
         operation = index if attempt.kind == "knowledge_index" else ask
         operation(app, attempt, runtime, started + PROCESSING_SECONDS)
-    except Exception:
+    except Exception as failure:
         if attempt.kind == "knowledge_index":
-            fail_index(app, attempt, "indexing_failed", transient=True)
+            code = failure.code if isinstance(failure, ModelFailure) else "indexing_failed"
+            fail_index(app, attempt, code, transient=True)
         else:
             with workspace_session(app, attempt.workspace_id, "worker") as db:
                 current = assistant_rows(db, attempt)
@@ -455,10 +461,11 @@ def process(app: Engine, queue: Engine, attempt: Attempt, runtime: Runtime) -> N
         stop.set()
         thread.join()
         logger.info(
-            "job_finished job=%s kind=%s attempt=%s duration_ms=%s",
+            "job_finished job=%s kind=%s attempt=%s queue_wait_ms=%s duration_ms=%s",
             attempt.id,
             attempt.kind,
             attempt.number,
+            queue_wait_ms,
             round((monotonic() - started) * 1000),
         )
 

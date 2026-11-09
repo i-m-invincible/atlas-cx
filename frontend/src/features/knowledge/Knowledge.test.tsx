@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { expect, test } from 'vitest';
-import { SourceReference } from './shared';
+import { ArticleText, SourceReference } from './shared';
 
 test('renders untrusted excerpt content as text and links only to the internal source view', () => {
   const excerpt =
@@ -35,4 +35,21 @@ test('renders untrusted excerpt content as text and links only to the internal s
   expect(
     screen.getByRole('link', { name: 'S1 · Synthetic source' }),
   ).toHaveAttribute('href', '/app/knowledge/sources/chunk');
+});
+
+test('renders Markdown headings and fenced blocks without interpreting untrusted inline markup', () => {
+  const { container } = render(
+    <ArticleText
+      markdown
+      text={
+        '# Desk hours\n\nUse the portal. <img src="remote">\n\n~~~\n# literal heading\n~~~'
+      }
+    />,
+  );
+  expect(
+    screen.getByRole('heading', { level: 3, name: 'Desk hours' }),
+  ).toBeVisible();
+  expect(screen.getByText('# literal heading')).toBeVisible();
+  expect(container.querySelector('img')).toBeNull();
+  expect(screen.queryByRole('heading', { name: 'literal heading' })).toBeNull();
 });
