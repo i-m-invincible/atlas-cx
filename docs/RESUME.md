@@ -1,8 +1,8 @@
 # Atlas CX saved checkpoint
 
-Paused at the user's request on 9 November 2026 (India time). Do not restart the
-foundation or M1, discard changes, merge main, deploy, or start M3 before closing
-the M2 handoff.
+This record captures the M2 pause and handoff on 9 November 2026 (India time).
+The development branch is `feature/atlas-cx-development` and the review is
+[PR #1](https://github.com/i-m-invincible/atlas-cx/pull/1).
 
 ## Completed
 
@@ -36,28 +36,16 @@ customer functionality remain in place. Authoritative sources are unchanged.
   resolution → reopen → closure, and cross-contact/workspace denial.
 - Source hash verification passed. Representative screenshots were inspected.
 
-Both jobs passed on the tested code commit in
-[PR CI](https://github.com/i-m-invincible/atlas-cx/actions/runs/42512924979).
-No observed failure remains on that commit. Local Docker/PostgreSQL is unavailable;
-database/container evidence comes from CI. The checkpoint documentation push
-triggers another run; it has not been observed at the pause.
+Both CI jobs also passed on the saved checkpoint
+`739f1887feb4c09dbb7bd0656c8edeca01e08553`. Local Docker and PostgreSQL were
+unavailable, so the database and container evidence comes from GitHub Actions.
+[Checkpoint PR CI](https://github.com/i-m-invincible/atlas-cx/actions/runs/42513324350)
 
-## Resume tomorrow
+## Handoff
 
-1. Open this repository at
-   `C:\Users\aryan\OneDrive\Desktop\atlas cx\atlas-cx`. Run `git status --short --branch`
-   and `git log -3 --oneline`. Stay on `feature/atlas-cx-development`; preserve any
-   newer user changes. Fetch origin and compare HEAD before pulling or editing.
-2. Read `AGENTS.md`, both specifications, `docs/ROADMAP.md`, the wireframe PDF,
-   and architecture records 0002/0003. Read this record and VERIFICATION.md.
-3. Inspect the latest checks on [PR #1](https://github.com/i-m-invincible/atlas-cx/pull/1).
-   Confirm the documentation checkpoint's exact HEAD passed. If any new failure
-   appears, inspect its logs and fix only the observed issue before expanding scope.
-4. Review the M2 diff/file manifest, update the verification record if needed, and
-   finish the seven-part M2 report. The PR remains open against main; do not merge.
-5. After the M2 handoff, the next implementation milestone is M3 Configuration
-   and follow-up: published versions, five presets, bounded fields, tasks, ratings
-   with exactly-one low-feedback task, and CSV imports. Begin it only when requested.
+The handoff records the passing checkpoint, the M2 file manifest, and the
+verification limits. Start M3 when requested, using the scope in the roadmap.
+[Verification](VERIFICATION.md) · [Changed files](M2_FILE_MANIFEST.md) · [Roadmap](ROADMAP.md)
 
 Full manual screen-reader review, load/capacity measurements, and restore/release
 validation remain later release work. No RAG, analytics, health computation,

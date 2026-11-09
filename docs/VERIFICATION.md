@@ -52,11 +52,13 @@ throughput has not been measured. Nothing was merged to main or deployed.
 The M0/M1 sections below are historical milestone records; their statements about
 case functionality being absent describe those earlier increments.
 
-Code commit `f58ddd69f6834d1d3d6067a274c11e60f81be0cc` passed both jobs in
-[pull-request CI](https://github.com/i-m-invincible/atlas-cx/actions/runs/42512924979).
-Work was paused at the user's request after saving the documentation checkpoint.
-No observed failure remains on that tested code commit. The documentation-only
-checkpoint's automatic CI run has not been observed; see [resume instructions](RESUME.md).
+Both CI jobs passed on checkpoint `739f1887feb4c09dbb7bd0656c8edeca01e08553`.
+The logs confirm 52 backend tests, 64 PostgreSQL integration tests, 27 frontend
+tests, 29 deterministic Chromium checks, and two Compose browser workflows.
+[Pull request CI](https://github.com/i-m-invincible/atlas-cx/actions/runs/42513324350)
+and [branch CI](https://github.com/i-m-invincible/atlas-cx/actions/runs/42513319337)
+record the results. The handoff review removed trailing spaces from the M2
+migration SQL and verified that the migration diff contains only whitespace.
 
 ## M1 identity and customer core
 
