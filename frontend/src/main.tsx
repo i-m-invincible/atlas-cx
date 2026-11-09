@@ -7,6 +7,7 @@ import './features/customers/customers.css';
 import './features/support/support.css';
 import './features/followups/operations.css';
 import './features/activity/activity.css';
+import './features/knowledge/knowledge.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SessionProvider } from './features/identity/SessionProvider';
 

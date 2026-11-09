@@ -3,8 +3,6 @@ import type { ReactNode } from 'react';
 import { Link, Navigate, NavLink, useLocation } from 'react-router-dom';
 import { useSession } from '../features/identity/session';
 
-const plannedSections = ['Knowledge'];
-
 function Navigation({ onNavigate }: { onNavigate?: () => void }) {
   const { identity } = useSession();
   const location = useLocation();
@@ -43,12 +41,18 @@ function Navigation({ onNavigate }: { onNavigate?: () => void }) {
             <span className="metadata">Sign in</span>
           </li>
         )}
-        {plannedSections.map((section) => (
-          <li className="planned-link" key={section}>
-            <span>{section}</span>
+        {identity?.audience === 'staff' && identity.capabilities.knowledge ? (
+          <li>
+            <NavLink to="/app/knowledge" onClick={onNavigate}>
+              Knowledge
+            </NavLink>
+          </li>
+        ) : (
+          <li className="planned-link">
+            <span>Knowledge</span>
             <span className="metadata">Planned</span>
           </li>
-        ))}
+        )}
         {identity?.audience === 'staff' && (
           <li>
             <Link

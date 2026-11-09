@@ -1,24 +1,27 @@
 import os
 from dataclasses import replace
+from datetime import timedelta
 from pathlib import Path
 from time import monotonic
 from uuid import UUID, uuid4
 
 import pytest
-from sqlalchemy import select, text
+from sqlalchemy import select, text, update
 from sqlalchemy.exc import DBAPIError
+from sqlalchemy.orm import Session
 from test_m1_integration import Core, csrf, mutate
 from test_m1_integration import clients as clients
 from test_m1_integration import core as core
 
 from app.modules.knowledge.model_manifest import EMBEDDING_REVISION, QWEN_TOKENIZER
-from app.modules.knowledge.models import Chunk, Document, Revision
+from app.modules.knowledge.models import AssistantRequest, Chunk, Document, Revision
 from app.modules.knowledge.providers import FastTokenizer, Generation, MiniLM, ModelFailure
 from app.modules.knowledge.schemas import AssistantSource
-from app.modules.knowledge.worker import Runtime, ask, byte_budget, process
+from app.modules.knowledge.worker import Runtime, ask, byte_budget, maintenance, process
 from app.platform.database import build_engine, workspace_session
 from app.platform.dispatch import claim
 from app.platform.jobs import Job
+from app.platform.protocol import now
 
 pytestmark = pytest.mark.integration
 BASE = "/api/v1"
@@ -299,3 +302,43 @@ def test_latest_intent_wins_and_assistant_citations_recheck(core, clients, engin
     with workspace_session(app, core.workspaces[0], "worker") as db:
         assert db.get(Job, revoked.id).last_error_code == "requester_unavailable"
     run(engines, models)
+
+
+def test_expired_attempt_cannot_publish_and_core_expires_questions(
+    core, clients, engines, models
+) -> None:
+    manager = clients("manager1")
+    app, queue = engines
+    draft = article(
+        manager, "Synthetic leased publication", "# Office\n\nPick up cards at reception."
+    )
+    queued = publish(manager, draft)
+    old = claim(queue, "lost-synthetic-worker")
+    assert old and str(old.id) == queued["job_id"]
+    with Session(queue) as db, db.begin():
+        db.execute(
+            update(Job).where(Job.id == old.id).values(lease_until=now() - timedelta(seconds=1))
+        )
+    current = claim(queue, "replacement-synthetic-worker")
+    assert current and current.id == old.id and current.token != old.token and current.number == 2
+    process(app, queue, old, models)
+    detail = BASE + "/knowledge/versions/" + draft["id"]
+    assert ok(manager.get(detail))["status"] == "queued"
+    process(app, queue, current, models)
+    assert ok(manager.get(detail))["status"] == "ready"
+
+    submitted = question(manager, "Where are synthetic cards?")
+    identifier = UUID(submitted["id"])
+    with workspace_session(app, core.workspaces[0], "worker") as db:
+        job = db.scalar(select(Job).where(Job.dedupe_key == "assistant:" + str(identifier)))
+        row = db.get(AssistantRequest, identifier)
+        assert job and row
+        job.created_at = row.created_at = now() - timedelta(minutes=6)
+        row.expires_at = now() - timedelta(seconds=1)
+    assert claim(queue, "late-synthetic-worker") is None
+    maintenance(app, queue)
+    with workspace_session(app, core.workspaces[0], "worker") as db:
+        row = db.get(AssistantRequest, identifier)
+        assert row and row.state == "failed" and row.error_code == "request_expired"
+        assert row.question is None and row.answer_text is None
+    assert manager.get(BASE + "/assistant/requests/" + submitted["id"]).status_code == 404

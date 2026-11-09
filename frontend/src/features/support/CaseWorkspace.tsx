@@ -16,6 +16,7 @@ import type { ApiEnvelope } from '../../api/client';
 import { ErrorMessage, Loading } from '../../components/Feedback';
 import { ValidationSummary } from '../../components/FormSafety';
 import { useSession } from '../identity/session';
+import { replyDraftKey } from '../knowledge/data';
 import { ConflictReview, CustomFields } from './components';
 import {
   customValues,
@@ -90,7 +91,17 @@ function CaseWork({ row, origin }: { row: CaseDetail; origin: string }) {
   const panel = params.get('panel') ?? 'conversation';
   const poll = usePolling();
   const [mode, setMode] = useState<Mode>('public');
-  const [drafts, setDrafts] = useState({ public: '', internal: '' });
+  const draftKey = replyDraftKey(identity?.workspace_id, row.id);
+  const [drafts, setDrafts] = useState(() => ({
+    public: client.getQueryData<string>(draftKey) ?? '',
+    internal: '',
+  }));
+  useEffect(() => {
+    client.removeQueries({
+      queryKey: replyDraftKey(identity?.workspace_id, row.id),
+      exact: true,
+    });
+  }, [client, identity?.workspace_id, row.id]);
   const [versions, setVersions] = useState({
     public: row.version,
     internal: row.version,
@@ -326,6 +337,16 @@ function CaseWork({ row, origin }: { row: CaseDetail; origin: string }) {
           ))}
         </nav>
         <div className="case-actions">
+          {canWrite &&
+            identity?.permissions.includes('assistant:ask') &&
+            ['new', 'open', 'pending_customer'].includes(row.state) && (
+              <Link
+                className="button secondary"
+                to={'/app/knowledge/assistant?case=' + row.id}
+              >
+                Use knowledge
+              </Link>
+            )}
           {canWrite && row.state === 'new' && (
             <button
               className="button secondary"

@@ -13,6 +13,7 @@ from app.modules.cases.router import Staff, listing
 from app.modules.identity.security import check_origin
 from app.modules.knowledge import assistant, library, operations, retrieval
 from app.modules.knowledge.content import MAX_UPLOAD, decode_upload
+from app.modules.knowledge.model_manifest import GENERATION_RELEASE_APPROVED
 from app.modules.knowledge.schemas import (
     Answer,
     Archive,
@@ -182,6 +183,7 @@ def accepted(
     request: Request, response: Response, publication: Publication
 ) -> Envelope[Publication]:
     response.headers["Location"] = publication.poll_url
+    response.headers["ETag"] = f'"{publication.revision.version}"'
     return result(request, publication)
 
 
@@ -234,7 +236,8 @@ def availability(request: Request, uow: Staff) -> Envelope[Availability]:
         Availability(
             source_search=True,
             indexing_worker_seen_at=heartbeat,
-            generation_configured=get_settings().generation_mode == "ollama",
+            generation_configured=GENERATION_RELEASE_APPROVED
+            and get_settings().generation_mode == "ollama",
         ),
     )
 

@@ -29,9 +29,13 @@ Analytics shows recorded activity by customer and operational service measures,
 with drilldowns and audited exports for administrators and managers.
 See the [M4 verification record](VERIFICATION.md#m4-activity-and-analytics).
 
-The next milestone is **M5 Knowledge and RAG**. Implement source management,
-authorized active-revision search and retrieval, citations, and evaluation
-against the synthetic corpus defined in the product specification.
-M6 adds rules-based health and product finishing.
+M5 Knowledge and RAG implements document drafts, published revisions, durable
+indexing, authorized lexical and vector retrieval, and the support copilot.
+Generation availability depends on the pinned local model's evaluation gates.
+See the [synthetic evaluation record](RAG_EVALUATION.md).
+
+The next milestone is **M6 Health and product finish** after the M5 handoff.
+It adds versioned health profiles, daily snapshots, and explanations for
+coverage, missing inputs, and stale scores.
 M7 validates the complete release, including restore, load, security, and
 accessibility evidence. No merge to main or deployment is authorized.

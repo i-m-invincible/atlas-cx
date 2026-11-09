@@ -23,6 +23,7 @@ from app.modules.knowledge.content import checksum, split
 from app.modules.knowledge.model_manifest import (
     EMBEDDING_REVISION,
     GENERATION_DIGEST,
+    GENERATION_RELEASE_APPROVED,
     QWEN_TOKENIZER,
 )
 from app.modules.knowledge.models import (
@@ -90,7 +91,8 @@ def load_models(settings: Settings) -> Runtime:
     except Exception:
         logger.info("generation_tokenizer_unavailable")
     if (
-        tokenizer
+        GENERATION_RELEASE_APPROVED
+        and tokenizer
         and settings.generation_mode == "ollama"
         and settings.generation_model_digest == GENERATION_DIGEST
     ):

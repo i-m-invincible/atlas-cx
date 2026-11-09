@@ -196,6 +196,7 @@ def evaluate(args: argparse.Namespace) -> dict[str, object]:
         hit: Counter[tuple[str, str]] = Counter()
         eligible: Counter[str] = Counter()
         complete: Counter[tuple[str, str]] = Counter()
+        sensitivity = {threshold: Counter() for threshold in (0.40, 0.45, 0.50)}
         retrieval_times: list[float] = []
         generation_times: list[float] = []
         total_times: list[float] = []
@@ -225,6 +226,19 @@ def evaluate(args: argparse.Namespace) -> dict[str, object]:
             assert all(
                 ref.split(":c")[0] in active for matches in found.values() for ref in matches
             )
+            if question.partition == "development":
+                for cutoff, counts in sensitivity.items():
+                    trial = retrieval.evidence(
+                        retrieval.rank(lexical, vectors, "hybrid", threshold=cutoff),
+                        tokenizer.count,
+                    )
+                    trial_refs = {f"{refs[item.version_id]}:c{item.ordinal}" for item in trial}
+                    if question.category in {"direct", "multi"}:
+                        counts["answerable_hits"] += bool(set(question.support) & trial_refs)
+                        counts["answerable_total"] += 1
+                    elif question.category == "unanswerable":
+                        counts["unanswerable_with_evidence"] += bool(trial)
+                        counts["unanswerable_total"] += 1
             if question.category in {"direct", "multi"}:
                 eligible[question.partition] += 1
                 for method, matches in found.items():
@@ -291,6 +305,7 @@ def evaluate(args: argparse.Namespace) -> dict[str, object]:
             "machine": platform.platform(),
             "cpu_threads": os.cpu_count(),
             "generation_requested": args.generate,
+            "development_threshold_sensitivity": sensitivity,
             "hit_at_6": {
                 method: {
                     partition: proportion(hit[method, partition], eligible[partition])

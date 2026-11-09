@@ -2,7 +2,8 @@
 
 Customer Operations & Service Intelligence Platform. The repository contains the
 M0 foundation, M1 identity and customer core, M2 support workflow, M3
-configuration and follow-up, and M4 customer activity and service analytics.
+configuration and follow-up, M4 customer activity and service analytics, and M5
+knowledge publication and the support copilot.
 Atlas CX is standalone.
 
 Staff can sign in, manage customers and contacts, search and filter records,
@@ -17,8 +18,10 @@ Staff manage follow-up tasks, and portal contacts can rate their latest resolved
 cycle. A low rating creates a single staff follow-up. Administrators and managers
 can validate and commit customer CSVs, inspect report records, and export service
 data. Administrators define accepted events and issue workspace ingestion keys.
-Staff inspect recorded events and operational reports. Health and knowledge
-retrieval remain planned.
+Staff inspect recorded events and operational reports. Staff can search
+published knowledge, and eligible roles can ask the copilot for evidence
+from their workspace library. Local generation is disabled by default.
+Health computation remains planned.
 
 Read the unchanged [product specification](docs/PRODUCT_SPEC.md),
 [design system](docs/DESIGN_SYSTEM.md), [wireframes](docs/Atlas_CX_Wireframe_Atlas.pdf),
@@ -128,7 +131,7 @@ python scripts/verify_sources.py
 
 Browser tests exercise customer, support, and portal interactions at 1440, 1024,
 700, and 390 pixels, plus the foundation's 320-pixel shell checks. Test-only API
-fixtures provide deterministic UI states. The separate M1–M4 real-stack tests
+fixtures provide deterministic UI states. The separate M1–M5 real-stack tests
 skip unless `E2E_BASE_URL` is set. CI runs them against Compose with synthetic
 identities and a random password prepared by `backend/scripts/seed_m1_browser.py`
 and `seed_m2_browser.py`. These scripts write private, ignored temporary
@@ -213,6 +216,39 @@ than 180 days with the migration database credential. Run from `backend`.
 uv run python -m app.modules.activities.maintenance --workspace WORKSPACE_UUID
 ```
 
+## Knowledge and support copilot
+
+Prepare the pinned CPU model and tokenizers once. The API and workers do not
+download model files on startup.
+
+```sh
+cd backend
+uv run python -m app.modules.knowledge.prepare_models ../.runtime/models
+cd ..
+docker compose up -d --build --wait
+```
+
+In **Knowledge → Add article**, a manager can paste text or upload UTF-8 TXT
+or Markdown. Save the draft, review it, and publish the revision. The status
+shows when indexing is queued, running, or failed. The prior active revision
+stays searchable until its replacement is ready. The browser uses the
+server's current publication state.
+
+In an active staff case, choose **Use knowledge** and ask a policy question.
+The case link supplies a return route. The model only receives the question
+and selected approved excerpts. Inspect the numbered sources before writing
+a public reply. The application returns source excerpts or reports insufficient
+evidence. The generated-draft path is implemented and covered with test
+fixtures. **Use draft** fills the unsent public composer and **Send reply**
+remains a separate agent action.
+
+The reference stack runs a core maintenance worker and a separate AI worker.
+The optional `generation` Compose profile runs the pinned Ollama image on the
+private Compose network for evaluation. The current generation gate keeps
+it disabled in the application even when the optional runtime is available.
+See the model manifest and synthetic evaluation record for reproduction steps.
+[Model manifest](docs/AI_MODELS.md) · [RAG evaluation](docs/RAG_EVALUATION.md)
+
 Regenerate contracts after API schema changes.
 
 ```sh
@@ -223,7 +259,7 @@ npm run api:generate
 ```
 
 CI checks quality, contracts, dependencies, source hashes, PostgreSQL isolation,
-M0 through M3 data preservation during upgrade, rollback and repeat upgrades,
+M0 through M4 data preservation during upgrade, rollback and repeat upgrades,
 container builds, health smoke checks, and real browser workflows.
 It does not deploy. See [verification evidence](docs/VERIFICATION.md),
 [M3 changed files](docs/M3_FILE_MANIFEST.md),
@@ -232,4 +268,6 @@ It does not deploy. See [verification evidence](docs/VERIFICATION.md),
 [M3 architecture decisions](docs/architecture/0004-configuration-followups-imports.md).
 See also the [M4 changed files](docs/M4_FILE_MANIFEST.md) and
 [M4 architecture decisions](docs/architecture/0005-activity-analytics.md).
-The next milestone is **M5 Knowledge and RAG**.
+See the [M5 changed files](docs/M5_FILE_MANIFEST.md) and
+[knowledge architecture](docs/architecture/0006-knowledge-and-copilot.md).
+The next product milestone is **M6 Health and product finish**.

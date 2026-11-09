@@ -99,6 +99,36 @@ const EventSettings = lazy(() =>
     default: module.EventSettings,
   })),
 );
+const Library = lazy(() =>
+  import('../features/knowledge/Library').then((module) => ({
+    default: module.Library,
+  })),
+);
+const NewArticle = lazy(() =>
+  import('../features/knowledge/Library').then((module) => ({
+    default: module.NewArticle,
+  })),
+);
+const Article = lazy(() =>
+  import('../features/knowledge/Library').then((module) => ({
+    default: module.Article,
+  })),
+);
+const SourcePage = lazy(() =>
+  import('../features/knowledge/Library').then((module) => ({
+    default: module.SourcePage,
+  })),
+);
+const IndexingJobs = lazy(() =>
+  import('../features/knowledge/Library').then((module) => ({
+    default: module.IndexingJobs,
+  })),
+);
+const Copilot = lazy(() =>
+  import('../features/knowledge/Copilot').then((module) => ({
+    default: module.Copilot,
+  })),
+);
 
 export function App() {
   return (
@@ -110,6 +140,28 @@ export function App() {
       }
     >
       <Routes>
+        {(
+          [
+            ['/app/knowledge', Library],
+            ['/app/knowledge/new', NewArticle],
+            ['/app/knowledge/:documentId', Article],
+            ['/app/knowledge/sources/:sourceId', SourcePage],
+            ['/app/knowledge/assistant', Copilot],
+            ['/app/settings/jobs', IndexingJobs],
+          ] as const
+        ).map(([path, Page]) => (
+          <Route
+            key={path}
+            path={path}
+            element={
+              <RequireStaff>
+                <AppShell>
+                  <Page />
+                </AppShell>
+              </RequireStaff>
+            }
+          />
+        ))}
         {['activity', 'service'].map((view) => (
           <Route
             key={view}

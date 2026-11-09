@@ -240,6 +240,7 @@ def upgrade() -> None:
     operator = "current_user = 'atlas_migrator'"
     user = "NULLIF(current_setting('app.user_id', true), '')::uuid"
     active = f"EXISTS (SELECT 1 FROM memberships m WHERE m.user_id = {user} AND m.active"
+    readers = f"({staff} AND {active}))"
     managers = f"({staff} AND {active} AND m.role IN ('admin','manager')))"
     questioners = f"({staff} AND {active} AND m.role IN ('admin','manager','agent')))"
     own_member = f"m.user_id = {user} AND m.active AND m.role IN ('admin','manager','agent')"
@@ -254,10 +255,20 @@ def upgrade() -> None:
             WHERE a.id = {table}.request_id))"""
 
     writers = f"({worker} OR {managers})"
-    documents = f"{writers} OR ({staff} AND archived_at IS NULL AND active_version_id IS NOT NULL)"
-    revisions = f"{writers} OR ({staff} AND {approved('knowledge_versions.id')})"
-    chunks = f"{worker} OR ({staff} AND {approved('knowledge_chunks.version_id')})"
-    citations = f"{worker} OR ({owns_request('assistant_citations')} AND {approved('assistant_citations.version_id')})"
+    documents = (
+        f"{writers} OR ({readers} AND archived_at IS NULL AND active_version_id IS NOT NULL)"
+    )
+    revisions = (
+        f"{writers} OR ({readers} AND status = 'ready' AND {approved('knowledge_versions.id')})"
+    )
+
+    def ready(version_column: str) -> str:
+        return f"""({approved(version_column)} AND EXISTS (
+            SELECT 1 FROM knowledge_versions v WHERE v.id = {version_column} AND v.status = 'ready'
+        ))"""
+
+    chunks = f"{worker} OR ({readers} AND {ready('knowledge_chunks.version_id')})"
+    citations = f"{worker} OR ({owns_request('assistant_citations')} AND {ready('assistant_citations.version_id')})"
     feedback = f"{worker} OR {owns_request('assistant_feedback')}"
     job_read = f"{worker} OR {managers} OR ({questioners} AND kind = 'assistant_request' AND EXISTS (SELECT 1 FROM assistant_requests a WHERE CAST(a.id AS text) = payload_json->>'id'))"
     policies = {

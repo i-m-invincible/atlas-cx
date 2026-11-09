@@ -15,6 +15,7 @@ from app.platform.protocol import Fault
 
 RETRIEVAL_VERSION = "rrf-english-1"
 EVIDENCE_TOKENS = 1400
+SIMILARITY_THRESHOLD = 0.45
 Strategy = Literal["lexical", "vector", "hybrid"]
 
 ACTIVE = """
@@ -119,6 +120,8 @@ def rank(
     lexical_hits: list[Source],
     vector_hits: list[VectorCandidate],
     strategy: Strategy,
+    *,
+    threshold: float = SIMILARITY_THRESHOLD,
 ) -> list[Source]:
     scores: dict[UUID, float] = {}
     candidates: dict[UUID, Source] = {}
@@ -129,7 +132,10 @@ def rank(
     if strategy != "lexical":
         lists.append(
             [
-                (hit.source, hit.similarity >= 0.45 or (strategy == "hybrid" and hit.lexical_match))
+                (
+                    hit.source,
+                    hit.similarity >= threshold or (strategy == "hybrid" and hit.lexical_match),
+                )
                 for hit in vector_hits
             ]
         )

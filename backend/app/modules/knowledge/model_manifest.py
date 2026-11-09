@@ -9,7 +9,9 @@ GENERATION_MODEL = "qwen2.5:1.5b"
 GENERATION_DIGEST = "sha256:65ec06548149b04c096a120e4a6da9d4017ea809c91734ea5631e89f96ddc57b"
 GENERATION_TOKENIZER = "Qwen/Qwen2.5-1.5B-Instruct"
 GENERATION_TOKENIZER_REVISION = "989aa7980e4cf806f80c7fef2b1adb7bc71aa306"
-PROMPT_VERSION = "policy-claims-1"
+PROMPT_VERSION = "policy-claims-2"
+# A measured release decision. Evaluation may invoke the pinned adapter directly.
+GENERATION_RELEASE_APPROVED = False
 
 
 @dataclass(frozen=True)
