@@ -1,0 +1,108 @@
+name: Atlas CX synthetic model evaluation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [feature/atlas-cx-development]
+    paths:
+      - '.github/workflows/m5-evaluation.yml'
+      - 'backend/evaluation/**'
+      - 'backend/scripts/evaluate_knowledge.py'
+      - 'backend/app/modules/knowledge/model_manifest.py'
+      - 'backend/app/modules/knowledge/providers.py'
+      - 'backend/app/modules/knowledge/retrieval.py'
+      - 'backend/scripts/m5_baseline.py'
+      - 'backend/scripts/m51_models.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: synthetic-knowledge-evaluation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  evaluate:
+    # Explicit opt-in prevents documentation/checkpoint pushes from spending
+    # inference time. Ordinary CI still runs on every development push.
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[rag-eval]')
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [candidate, baseline]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      MIGRATION_DATABASE_URL: postgresql+psycopg://atlas_migrator:local-migration-only@localhost:5432/atlas_cx
+      TEST_DATABASE_URL: postgresql+psycopg://atlas_app:local-app-only@localhost:5432/atlas_cx
+      QUEUE_DATABASE_URL: postgresql+psycopg://atlas_queue:local-queue-only@localhost:5432/atlas_cx
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version-file: .python-version
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
+        with:
+          version: '0.11.2'
+      - run: docker compose up -d --wait db
+      - name: Prepare pinned embeddings and disposable data store
+        working-directory: backend
+        run: |
+          uv sync --locked --group ai
+          uv run --group ai alembic upgrade head
+          uv run --group ai python -m app.modules.knowledge.prepare_models ../.runtime/models
+      - name: Verify frozen candidate and untouched original corpus
+        working-directory: backend
+        run: |
+          lscpu | grep -E '^(Model name|CPU\(s\))'
+          uv run python -m scripts.verify_m51_freeze
+      - name: Reviewable generation against pinned local Ollama
+        working-directory: backend
+        run: |
+          export OLLAMA_MODELS="$RUNNER_TEMP/atlas-ollama-models"
+          export OLLAMA_HOST=127.0.0.1:11434
+          export OLLAMA_NO_CLOUD=1
+          export OLLAMA_NUM_PARALLEL=1
+          export OLLAMA_MAX_LOADED_MODELS=1
+          runtime="$RUNNER_TEMP/atlas-ollama-runtime"
+          archive="$RUNNER_TEMP/atlas-ollama.tar.zst"
+          mkdir -p "$runtime"
+          curl --fail --location --silent --show-error --retry 3 \
+            https://github.com/ollama/ollama/releases/download/v0.40.15/ollama-linux-amd64.tar.zst \
+            --output "$archive"
+          echo "628c018404a4206493efd38e46251c154ede5141b8b8dc85c659b3b027c47379  $archive" | sha256sum --check
+          tar --zstd -xf "$archive" -C "$runtime"
+          sudo systemd-run --unit=atlas-rag-evaluation --uid="$(id -u)" \
+            --property=MemoryMax=4G --property=CPUQuota=300% \
+            --setenv="OLLAMA_MODELS=$OLLAMA_MODELS" --setenv="OLLAMA_HOST=$OLLAMA_HOST" \
+            --setenv=OLLAMA_NO_CLOUD=1 --setenv=OLLAMA_NUM_PARALLEL=1 \
+            --setenv=OLLAMA_MAX_LOADED_MODELS=1 "$runtime/bin/ollama" serve
+          trap 'sudo systemctl stop atlas-rag-evaluation' EXIT
+          curl --fail --silent --show-error --retry 20 --retry-connrefused "$OLLAMA_HOST/api/tags" >/dev/null
+          "$runtime/bin/ollama" pull qwen2.5:1.5b
+          extra=()
+          if [ '${{ matrix.profile }}' = baseline ]; then
+            extra=(--baseline)
+          else
+            uv run --group ai python -m scripts.evaluate_knowledge --generate --log-claims \
+              --partition held_out \
+              --models ../.runtime/models --output ../.runtime/held-out-evaluation.json
+          fi
+          uv run --group ai python -m scripts.evaluate_knowledge --generate --log-claims \
+            "${extra[@]}" --partition confirmation \
+            --corpus evaluation/knowledge-confirmation-v1.json \
+            --models ../.runtime/models --output ../.runtime/confirmation-evaluation.json
+          systemctl show atlas-rag-evaluation -p MemoryPeak -p CPUUsageNSec -p MemoryMax -p CPUQuotaPerSecUSec \
+            | tee ../.runtime/model-resources.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: atlas-m51-${{ matrix.profile }}-confirmation
+          path: |
+            .runtime/*-evaluation.json
+            .runtime/model-resources.txt
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 14
+      - if: always()
+        run: docker compose down --volumes

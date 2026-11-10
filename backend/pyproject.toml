@@ -1,0 +1,54 @@
+[project]
+name = "atlas-cx-backend"
+version = "0.1.0"
+description = "Atlas CX modular API foundation"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "fastapi>=0.115,<1",
+  "uvicorn>=0.34,<1",
+  "pydantic>=2.10,<3",
+  "pydantic-settings>=2.7,<3",
+  "sqlalchemy>=2.0,<2.1",
+  "psycopg[binary]>=3.2,<4",
+  "alembic>=1.14,<2",
+  "pgvector>=0.3,<1",
+  "tzdata>=2025.1; sys_platform == 'win32'",
+  "argon2-cffi>=25.1,<26",
+  "email-validator>=2.2,<3",
+  "python-multipart>=0.0.26,<1",
+]
+
+[dependency-groups]
+ai = [
+    "numpy>=2,<3",
+    "onnxruntime>=1.22,<2",
+    "tokenizers>=0.22,<1",
+]
+dev = [
+  "pytest>=8.3,<10",
+  "httpx>=0.28,<1",
+  "httpx2>=2,<3",
+  "ruff>=0.9,<1",
+  "mypy>=1.14,<2",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra --strict-markers -m 'not integration'"
+markers = ["integration: requires a migrated PostgreSQL/pgvector test database"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]

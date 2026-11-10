@@ -1,0 +1,136 @@
+name: Atlas CX CI
+
+on:
+  push:
+    branches: [main, feature/atlas-cx-development]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: foundation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version-file: .python-version
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
+        with:
+          version: '0.11.2'
+      - run: npm ci
+      - run: uv sync --locked
+        working-directory: backend
+      - name: Backend lint, formatting, types, and unit tests
+        working-directory: backend
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+          uv run mypy app
+          uv run pytest
+      - name: Generated contract drift
+        run: |
+          cd backend
+          uv run python -m scripts.export_openapi
+          cd ..
+          npm run api:generate
+          git diff --exit-code -- docs/contracts/openapi.json frontend/src/api/schema.d.ts
+      - run: npm run check
+      - name: Dependency audit
+        run: npm audit --audit-level=high
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - name: Verify preserved authoritative sources
+        run: python scripts/verify_sources.py
+
+  containers:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      MIGRATION_DATABASE_URL: postgresql+psycopg://atlas_migrator:local-migration-only@localhost:5432/atlas_cx
+      TEST_DATABASE_URL: postgresql+psycopg://atlas_app:local-app-only@localhost:5432/atlas_cx
+      QUEUE_DATABASE_URL: postgresql+psycopg://atlas_queue:local-queue-only@localhost:5432/atlas_cx
+      M5_MODEL_DIRECTORY: ${{ github.workspace }}/.runtime/models
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version-file: .python-version
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
+        with:
+          version: '0.11.2'
+      - run: cp .env.example .env
+      - name: Validate Compose and initialize database
+        run: |
+          docker compose config --quiet
+          docker compose up -d --wait db
+      - name: Preserve M0 data during M1 upgrade
+        working-directory: backend
+        run: |
+          uv sync --locked
+          uv run python -m scripts.verify_m0_upgrade
+      - name: Preserve M1 identities and customers during M2 upgrade
+        working-directory: backend
+        run: uv run python -m scripts.verify_m1_upgrade
+      - name: Preserve M2 case history during M3 upgrade
+        working-directory: backend
+        run: uv run python -m scripts.verify_m2_upgrade
+      - name: Preserve M3 follow-ups and imports during M4 upgrade
+        working-directory: backend
+        run: uv run python -m scripts.verify_m3_upgrade
+      - name: Preserve M4 recorded events during M5 upgrade
+        working-directory: backend
+        run: uv run python -m scripts.verify_m4_upgrade
+      - name: Empty-schema rollback and repeat upgrade
+        run: |
+          docker compose run --rm migrate .venv/bin/alembic downgrade base
+          docker compose run --rm migrate
+          docker compose run --rm migrate
+      - name: Real PostgreSQL tenant isolation and pgvector tests
+        working-directory: backend
+        env:
+          MIGRATION_DATABASE_URL: postgresql+psycopg://atlas_migrator:local-migration-only@localhost:5432/atlas_cx
+          TEST_DATABASE_URL: postgresql+psycopg://atlas_app:local-app-only@localhost:5432/atlas_cx
+        run: |
+          uv sync --locked --group ai
+          uv run --group ai python -m app.modules.knowledge.prepare_models "$M5_MODEL_DIRECTORY"
+          uv run --group ai pytest -m integration
+      - name: Build and start same-origin stack
+        run: docker compose up -d --build --wait
+      - name: HTTP smoke checks
+        run: python scripts/smoke.py
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - name: Prepare synthetic browser identities
+        working-directory: backend
+        run: |
+          uv run python -m scripts.seed_m1_browser
+          uv run python -m scripts.seed_m2_browser
+          uv run python -m scripts.seed_m5_browser
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Real browser identity, support, follow-up, activity, and knowledge workflows
+        env:
+          E2E_BASE_URL: http://localhost:8080
+        run: npm run test:e2e -- --grep 'M[12345] full stack'
+      - name: Record content-free M5 worker timings
+        run: docker compose logs --no-color ai-worker
+      - name: Failure diagnostics
+        if: failure()
+        run: docker compose logs --no-color
+      - name: Stop ephemeral stack
+        if: always()
+        run: docker compose down --volumes

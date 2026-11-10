@@ -1,0 +1,21 @@
+{
+  "version": "m51-frozen-v1",
+  "candidate_commit": "3e755750ad12b68477920497f72c6cea322138dd",
+  "prompt": "evidence-claims-5",
+  "model": "qwen2.5:1.5b",
+  "digest": "sha256:65ec06548149b04c096a120e4a6da9d4017ea809c91734ea5631e89f96ddc57b",
+  "generation_release_approved": false,
+  "original_corpus_sha256": "b9bfffce6fb5c70715ba87f7dafe4339bd6a4ca72ffc92792d6ddac8b175f0bb",
+  "source_sha256": {
+    "backend/app/modules/knowledge/providers.py": "5e99d3c4539545d116e363d60537310bd611e2f00fa10761e006bbccef20c7c8",
+    "backend/app/modules/knowledge/model_manifest.py": "e8833455e53bbd3e6ddcc8d0c48e203d85e03b2080a575eeb3a2fe521f77322e",
+    "backend/app/modules/knowledge/retrieval.py": "be0cc0548ee621a211b9cd6e74548d630ce2d5943b6bbfff5577ff2ba788dc34",
+    "backend/scripts/evaluate_knowledge.py": "40020c6855e646d6138e219337e8ed6278ad4bf37dc13f353f94672e6946c710",
+    "backend/scripts/review_knowledge.py": "aba96634f18b9c921a9cbfb455c6d94ff53482c5a51c9a4c0f9af29beaec7f8b",
+    "backend/scripts/m5_baseline.py": "79924817c96e1820de0ff5b5f90e119599d24a4d0cd39bd8161734d466fbd9f4"
+  },
+  "hash_normalization": "Git LF text; CRLF normalized to LF only",
+  "selection": "v5 1.5B improves supported claims and complete answerable coverage over v4; neither passes abstention. 3B fails usefulness. No release approval.",
+  "confirmation_plan": "After this freeze commit, create new synthetic corpus. Run frozen candidate on original held_out and confirmation; run frozen M5 baseline on confirmation with identical resources. Keep development results already recorded; do not repeat or tune on confirmation.",
+  "review_limit": "Assistant-authored corpus and assistant assessment are not independent human verification."
+}

@@ -1,0 +1,93 @@
+.configuration-layout {
+  display: grid;
+  grid-template-columns: 208px minmax(0, 800px);
+  align-items: start;
+  gap: 24px;
+}
+
+.settings-sections,
+.m3-fields {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.settings-sections a {
+  padding: 8px 12px;
+}
+
+.m3-surface {
+  min-width: 0;
+  margin-block: 16px;
+  padding: 24px;
+  overflow-wrap: anywhere;
+}
+
+.m3-fields > legend {
+  padding-inline: 4px;
+  font-weight: 600;
+}
+
+.m3-fields > .button {
+  justify-self: start;
+}
+
+.m3-fields .checkbox-label input {
+  width: auto;
+  min-height: 0;
+}
+
+.m3-table-region {
+  overflow-x: auto;
+}
+
+.m3-table-region .case-table {
+  min-width: 640px;
+}
+
+.m3-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+  gap: 12px;
+  align-items: start;
+  margin-top: 12px;
+}
+
+.m3-filter-grid label {
+  display: block;
+}
+
+.task-records {
+  display: none;
+}
+
+@media (max-width: 1100px) {
+  .configuration-layout {
+    grid-template-columns: 184px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .configuration-layout {
+    display: block;
+  }
+
+  .settings-sections,
+  .task-table {
+    display: none;
+  }
+
+  .task-records {
+    display: block;
+  }
+
+  .m3-surface {
+    padding: 16px;
+  }
+
+  .m3-surface .button,
+  .m3-surface select,
+  .m3-surface input:not([type='checkbox'], [type='radio']) {
+    min-height: 44px;
+  }
+}

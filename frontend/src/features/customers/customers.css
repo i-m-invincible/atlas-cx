@@ -1,0 +1,400 @@
+/* M1 work surfaces share the existing Organic tokens and form alignment. */
+.unsaved-dialog {
+  width: min(480px, calc(100% - 32px));
+  padding: 24px;
+  border: 1px solid var(--dp-color-ink-muted);
+  border-radius: 12px;
+  background: var(--dp-color-surface);
+  color: var(--dp-color-ink);
+}
+.unsaved-dialog::backdrop {
+  background: rgb(41 37 29 / 35%);
+}
+.unsaved-dialog p {
+  margin-top: 16px;
+}
+a {
+  color: var(--dp-color-primary);
+  text-underline-offset: 3px;
+}
+a.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+input,
+select,
+textarea {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--dp-color-ink-muted);
+  border-radius: 8px;
+  padding: 9px 12px;
+  background: var(--dp-color-surface);
+  color: var(--dp-color-ink);
+  font: inherit;
+  font-size: 14px;
+}
+input::placeholder {
+  color: var(--dp-color-ink-muted);
+}
+input[readonly],
+select:disabled {
+  background: var(--dp-color-surface-muted);
+}
+input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  min-height: 20px;
+  flex: 0 0 20px;
+  accent-color: var(--dp-color-primary);
+}
+textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+label,
+legend {
+  font-size: 14px;
+  font-weight: 500;
+}
+fieldset {
+  min-width: 0;
+  margin: 12px 0;
+  border: 1px solid var(--dp-color-surface-muted);
+  border-radius: 8px;
+  padding: 16px;
+}
+legend {
+  padding-inline: 4px;
+}
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+}
+.form-surface,
+.surface-padding {
+  padding: 24px;
+}
+.form-surface {
+  max-width: 800px;
+  margin-block: 24px;
+}
+.form-surface > label,
+.compact-form > label,
+.form-surface > fieldset label {
+  display: block;
+  margin-top: 16px;
+  margin-bottom: 6px;
+}
+.form-surface > .checkbox-label,
+.compact-form > .checkbox-label,
+.form-surface > fieldset .checkbox-label {
+  display: flex;
+}
+.compact-form {
+  display: grid;
+  gap: 8px;
+}
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+.field-error,
+.error-message {
+  color: var(--dp-color-field);
+}
+.field-error {
+  font-size: 14px;
+  margin-top: 4px;
+}
+.error-message {
+  border: 1px solid var(--dp-color-field);
+  border-radius: 8px;
+  padding: 16px;
+  margin-block: 16px;
+  overflow-wrap: anywhere;
+}
+.text-button {
+  color: var(--dp-color-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 8px 4px;
+  min-height: 40px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: none;
+  font-size: 14px;
+}
+.button + .text-button {
+  margin-left: 8px;
+}
+button:disabled {
+  cursor: default;
+}
+.page-heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.page-heading-row h1 {
+  overflow-wrap: anywhere;
+}
+.customer-workspace {
+  margin-top: 24px;
+}
+.filter-region {
+  padding: 24px;
+  border-bottom: 1px solid var(--dp-color-surface-muted);
+}
+.filter-region > input {
+  max-width: 480px;
+  display: block;
+  margin-top: 8px;
+}
+.filter-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+}
+.filter-form > div {
+  flex: 1 1 140px;
+}
+.filter-form > div > label {
+  display: block;
+  margin-bottom: 6px;
+}
+.customer-table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+  font-size: 14px;
+  text-align: left;
+}
+.customer-table th,
+.customer-table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--dp-color-surface-muted);
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.customer-table th {
+  font-weight: 600;
+}
+.customer-table thead th:first-child {
+  width: 28%;
+}
+.customer-table thead th:nth-child(3) {
+  width: 16%;
+}
+.row-detail {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--dp-color-ink-muted);
+}
+.customer-records {
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.customer-records li {
+  padding: 20px;
+  border-bottom: 1px solid var(--dp-color-surface-muted);
+}
+.customer-records a {
+  display: inline-block;
+  padding-block: 8px;
+  font-weight: 600;
+}
+.customer-records p {
+  margin-top: 4px;
+  font-size: 14px;
+}
+.sentence-label {
+  text-transform: capitalize;
+}
+.empty-state {
+  padding: 32px 24px;
+}
+.empty-state p {
+  margin-top: 12px;
+}
+.customer-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
+  gap: 24px;
+  align-items: start;
+  margin-top: 24px;
+}
+.record-details {
+  display: grid;
+  grid-template-columns: minmax(100px, 1fr) minmax(0, 2fr);
+  gap: 12px 16px;
+  margin: 24px 0;
+}
+.record-details dt {
+  font-size: 14px;
+  color: var(--dp-color-ink-muted);
+}
+.record-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 15px;
+}
+.ruled-section {
+  border-top: 1px solid var(--dp-color-surface-muted);
+  margin-top: 24px;
+  padding-top: 24px;
+}
+.ruled-section p {
+  margin-top: 12px;
+}
+.contact-list {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+}
+.contact-list li {
+  padding-block: 20px;
+  border-bottom: 1px solid var(--dp-color-surface-muted);
+  overflow-wrap: anywhere;
+}
+.contact-list p {
+  margin-block: 6px;
+}
+.contact-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+}
+.contact-actions > a {
+  min-height: 40px;
+  padding-block: 8px;
+}
+summary {
+  cursor: pointer;
+  min-height: 40px;
+  padding-block: 8px;
+  font-size: 14px;
+}
+.secret-surface {
+  padding: 24px;
+  margin-block: 24px;
+}
+.secret-surface p {
+  margin-block: 12px;
+  max-width: 65ch;
+}
+.secret-value {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+.auth-page {
+  width: min(640px, 100%);
+  margin: 48px auto;
+  padding-inline: 24px;
+}
+.auth-page > h1 {
+  margin-block: 24px 12px;
+}
+.auth-page > a {
+  display: inline-block;
+  min-height: 40px;
+  margin-right: 16px;
+  padding-block: 8px;
+}
+.auth-page > p {
+  margin-block: 12px;
+}
+.header-account {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  font-size: 14px;
+}
+.header-account a {
+  min-height: 40px;
+  padding: 10px 0;
+}
+.workspace-name {
+  max-width: 220px;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+.notice:not(:empty) {
+  margin-block: 16px;
+}
+.surface-introduction > .button {
+  margin-top: 24px;
+}
+@media (max-width: 1199px) {
+  .customer-table .wide-column {
+    display: none;
+  }
+}
+@media (max-width: 900px) {
+  .customer-detail-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 700px) {
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+    font-size: 16px;
+  }
+  .customer-table {
+    display: none;
+  }
+  .customer-records {
+    display: block;
+  }
+  .filter-region,
+  .form-surface,
+  .surface-padding {
+    padding: 20px;
+  }
+  .auth-page {
+    margin-top: 24px;
+    padding-inline: 20px;
+  }
+  .workspace-name {
+    display: none;
+  }
+  .record-details {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+  .record-details dd {
+    margin-bottom: 12px;
+  }
+  .form-actions > .button {
+    width: 100%;
+  }
+}
+@media (forced-colors: active) {
+  input,
+  select,
+  textarea,
+  .error-message {
+    border-color: ButtonText;
+  }
+}
