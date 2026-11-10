@@ -1,0 +1,65 @@
+{
+  "note": "Service cgroup includes model download/cache and both runs when indicated; not model-only RSS. Hosted runner costs are not claimed free.",
+  "runs": [
+    {
+      "trial": "v4-qwen15b",
+      "run": 42798667504,
+      "job": 129770269140,
+      "host_cpu": "AMD EPYC 7763 64-Core Processor",
+      "memory_peak_bytes": 2376679424,
+      "cpu_usage_nanoseconds": 1595512870000,
+      "memory_limit_bytes": 4294967296,
+      "cpu_quota_cores": 3
+    },
+    {
+      "trial": "v4-qwen3b",
+      "run": 42798667504,
+      "job": 129770268906,
+      "host_cpu": "AMD EPYC 7763 64-Core Processor",
+      "memory_peak_bytes": 4291489792,
+      "cpu_usage_nanoseconds": 1033072513000,
+      "memory_limit_bytes": 4294967296,
+      "cpu_quota_cores": 3
+    },
+    {
+      "trial": "v5-qwen15b",
+      "run": 42801532465,
+      "job": 129779994690,
+      "host_cpu": "AMD EPYC 9V45 96-Core Processor",
+      "memory_peak_bytes": 2361217024,
+      "cpu_usage_nanoseconds": 750333345000,
+      "memory_limit_bytes": 4294967296,
+      "cpu_quota_cores": 3
+    },
+    {
+      "trial": "v5-qwen3b",
+      "run": 42801532465,
+      "job": 129779994440,
+      "host_cpu": "AMD EPYC 7763 64-Core Processor",
+      "memory_peak_bytes": 4290621440,
+      "cpu_usage_nanoseconds": 1056043326000,
+      "memory_limit_bytes": 4294967296,
+      "cpu_quota_cores": 3
+    },
+    {
+      "trial": "confirmation-baseline",
+      "run": 42866139153,
+      "job": 130004852298,
+      "host_cpu": "AMD EPYC 7763 64-Core Processor",
+      "memory_peak_bytes": 2728386560,
+      "cpu_usage_nanoseconds": 924482946000,
+      "memory_limit_bytes": 4294967296,
+      "cpu_quota_cores": 3
+    },
+    {
+      "trial": "held-out-and-confirmation-v5",
+      "run": 42866139153,
+      "job": 130004851945,
+      "host_cpu": "AMD EPYC 7763 64-Core Processor",
+      "memory_peak_bytes": 2408308736,
+      "cpu_usage_nanoseconds": 2808349787000,
+      "memory_limit_bytes": 4294967296,
+      "cpu_quota_cores": 3
+    }
+  ]
+}

@@ -9,8 +9,10 @@ claims. The first M5.1 candidate attached quotes and added a same-model critique
 but the critic returned five false booleans on every reviewed development draft.
 Its zero generated answers were a utility failure, not a quality success.
 
-`evidence-claims-4` makes an insufficient answer structurally incompatible with
-nonempty claims during constrained decoding. An answered claim contains source
+The selected `evidence-claims-5` uses a simple decoding schema and rejects
+inconsistent status/claim combinations during validation. The v4 conditional
+schema did not improve the 3B model's excessive abstention; v5 improved 1.5B
+completeness and supported claims on development data. An answered claim contains source
 labels and supporting complete sentences before its answer text. Quotes match
 whole tokens after whitespace normalization and map back to the original source
 offsets. This tolerates newline formatting without accepting changed words,

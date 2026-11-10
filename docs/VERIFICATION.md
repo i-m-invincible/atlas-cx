@@ -1,19 +1,46 @@
 # Verification evidence
 
-## M5.1 incomplete checkpoint
+## M5.1 generation-quality verification
 
-Paused at the user's request on 10 November 2026. The first candidate passed
-CI at `b5bbdec933758e085b3b1273ac0ae91a33b5451b`, but its completed development-only
-model run returned zero generated answers, 38/40 source-only fallbacks and
-2/6 unanswerable abstentions. This does not pass generation quality or utility.
-The raw responses and sources are saved in the repository. Groundedness and
-completeness review are pending. Generation remains disabled.
+Implementation and confirmation runner commit `0851beee269299d2343ebf300d12564a70ed59ad`
+passed both branch and PR CI. This is regression evidence, not a generation
+release approval. The first resume commit also resolved the three PostgreSQL
+tests pending at the pause. Generation remains disabled.
+[Branch CI](https://github.com/i-m-invincible/atlas-cx/actions/runs/42866139182) ·
+[PR CI](https://github.com/i-m-invincible/atlas-cx/actions/runs/42866148290)
 
-The first resume commit `70d3ac44e58fb260f1960c069359741a64a57e43` passed
-114 backend unit/HTTP tests, all 82 PostgreSQL integration tests (including the
-three pending fallback tests), and five Compose browser workflows in CI.
-The revised candidate `7639374` passed 116 unit/HTTP tests locally. Its model
-comparison is pending. See [exact results and resume instructions](M5_1_RESUME.md).
+- Ruff lint/format and mypy passed. All 116 backend unit/HTTP tests passed locally
+  and in CI. The sandboxed TestClient attempt stalled and was stopped; a rerun
+  with local loopback access passed. No skipped integration test is counted here.
+- All 82 PostgreSQL/pgvector integration tests passed in CI using non-owner
+  application and queue roles. The three added tests verify rejection fallbacks,
+  no automatic retry or draft, requester/tenant isolation, content-free logging
+  and source invalidation after archive. Migration/upgrade checks passed.
+- `npm run check` passed: formatting, ESLint, TypeScript, 29 frontend tests and
+  production build. CI also verified generated OpenAPI/TypeScript contracts.
+- Local Chromium initially passed 39 tests, skipped five unavailable Compose
+  scenarios and timed out in two unchanged M2/M3 tests under eight workers.
+  Both failures passed with `npm run test:e2e -- --last-failed --workers=2`,
+  without changing assertions or timeout limits. CI independently passed all
+  41 deterministic browser checks and all five real-stack Compose workflows.
+- Existing responsive checks cover 1440, 1024, 700 and 390 px, keyboard actions,
+  citation inspection, explicit draft approval, reduced motion and tested axe
+  rules. No new UI or accessibility certification is claimed.
+- Original specification hash checks passed; the original 60-question corpus
+  and its partition are unchanged. The candidate freeze verifier passed before
+  confirmation. The new 40-question corpus has unique IDs and valid active
+  passage references checked with the actual tokenizer/chunker.
+
+The local host lacks usable Docker/PostgreSQL/Ollama. Real database, container
+and model runs used disposable GitHub Actions infrastructure. The model workflow
+finishing successfully means inference completed, not that quality gates passed.
+See [RAG evidence and release decision](RAG_EVALUATION.md) and the labelled
+assistant review artifacts. Independent human verification remains outstanding. The frozen confirmation
+run 42866139153 completed: held-out support was 33/33 and new-corpus support
+79/81, but abstention was only 1/4 and 0/10 respectively. No generation release
+was approved. The final documentation/evidence head is checked by
+[current PR checks](https://github.com/i-m-invincible/atlas-cx/pull/1/checks).
+No merge, deployment, paid resource or M6 work occurred.
 
 ## M5 knowledge and support copilot
 

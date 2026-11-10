@@ -34,12 +34,14 @@ indexing, authorized lexical and vector retrieval, and the support copilot.
 Generation availability depends on the pinned local model's evaluation gates.
 See the [synthetic evaluation record](RAG_EVALUATION.md).
 
-**M5.1 generation quality is in progress and paused at an incomplete checkpoint.**
-The first development candidate fell back on every attempted generation.
-Generation stays disabled. Follow [M5.1 resume instructions](M5_1_RESUME.md)
-before further experiments. The original evaluation corpus and gates remain unchanged.
+**M5.1 experimental handoff is complete; generation release remains blocked.**
+The frozen 1.5B candidate improves supported claims and complete answers, but
+new-corpus unanswerable abstention is 0/10 and two live facts are fabricated.
+Generation remains disabled. All original questions/partitions and quality gates
+are preserved. See [evaluation evidence](RAG_EVALUATION.md) and
+[remaining M5.1 work](M5_1_RESUME.md). Independent human review is outstanding.
 
-**M6 Health and product finish** remains deferred until the M5.1 handoff.
+**M6 Health and product finish** remains deferred; it has not been authorized or started.
 It adds versioned health profiles, daily snapshots, and explanations for
 coverage, missing inputs, and stale scores.
 M7 validates the complete release, including restore, load, security, and

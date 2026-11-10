@@ -1,9 +1,11 @@
 # M5 model and tokenizer manifest
 
-M5.1 has an incomplete experimental prompt/validation candidate,
-`evidence-claims-4`, using the same pinned 1.5B model below. Its predecessor
-`evidence-claims-3` did not establish useful generated answers. The application
-release gate remains closed. The M5 manifest below is the historical baseline.
+M5.1 selected and froze `evidence-claims-5` on the same pinned 1.5B model below.
+The freeze record is `backend/evaluation/m51-frozen-candidate.json`. It improves
+development usefulness but fails unanswerable abstention. The application
+release gate remains closed. `policy-claims-2` is the historical M5 baseline;
+`evidence-claims-3` generated no usable development answers. See RAG_EVALUATION.md
+for the development comparison and prospective confirmation evidence.
 
 The evaluation-only 3B comparison is Ollama `qwen2.5:3b` Q4_K_M, manifest
 `sha256:357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b`.
@@ -34,7 +36,7 @@ into the model directory. The worker verifies the local files again when loading
 | `minilm-tokenizer.json` | `be50c3628f2bf5bb5e3a7f17b1f74611b2561a3a27eeab05e5aa30f411572037` |
 | `qwen-tokenizer.json`   | `c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539` |
 
-Runtime labels are `policy-claims-2` for the generation prompt and
+Historical M5 labels are `policy-claims-2` for the generation prompt and
 `rrf-english-1` for retrieval. The worker checks the Ollama manifest before
 sending the prompt and again before accepting an answer. The adapter sets the
 context to 4,096 tokens and the output cap to 600. The MiniLM runtime is CPU
@@ -46,6 +48,45 @@ conditions and latency are recorded separately.
 The application generation gate is closed. The evaluation harness can invoke
 the adapter directly with the fictional corpus. A runtime flag alone cannot
 enable generated answers in the application.
+
+M5.1 keeps the 600-token output cap, split into 450 draft and 150 critique
+tokens, under one 60-second deadline. Actual tokens include rejected calls.
+All development comparisons use the same dataset, temperature zero, seed 42,
+three inference threads and pinned Ollama 0.40.15. The native Linux archive
+SHA-256 is `628c018404a4206493efd38e46251c154ede5141b8b8dc85c659b3b027c47379`.
+
+| Development trial | Calls | Input / output tokens | Generation p50 / p95 | Service peak bytes |
+| ----------------- | ----: | --------------------: | -------------------: | -----------------: |
+| v4 1.5B           |    71 |        49,882 / 5,326 |      14.11 / 20.31 s |      2,376,679,424 |
+| v4 3B             |    39 |          30,295 / 626 |       7.99 / 29.01 s |      4,291,489,792 |
+| v5 1.5B           |    71 |        48,260 / 5,118 |       6.55 / 10.81 s |      2,361,217,024 |
+| v5 3B             |    39 |          29,120 / 647 |       8.12 / 28.43 s |      4,290,621,440 |
+
+These are single-run observations, not controlled speed benchmarks. v5 1.5B
+ran on an AMD EPYC 9V45 host; the other trials used EPYC 7763 hosts. CPU quota
+was identical, but hardware differs. Service MemoryPeak includes download/cache
+activity and is not model-only resident memory. The 3B model approached its
+4 GiB limit and generated only one incomplete answer in each run. It is not
+selected for either application use or final confirmation. No provider fees
+were incurred; local CPU usage and hosted runner costs are not asserted free.
+
+Final frozen confirmation used the same EPYC 7763 host class and service caps
+for both profiles. Historical M5 and candidate share the exact 1.5B artifact;
+only the prompt/validation pipeline differs. No additional model was introduced.
+
+| Final evaluation         | Calls | Input / output tokens | Generation p50 / p95 |
+| ------------------------ | ----: | --------------------: | -------------------: |
+| M5 baseline, new 40      |    40 |        14,443 / 3,595 |       7.79 / 10.14 s |
+| v5, original held-out 20 |    36 |        25,064 / 3,357 |      15.26 / 31.18 s |
+| v5, new 40               |    72 |        54,368 / 6,077 |      15.34 / 23.32 s |
+
+The baseline service peaked at 2,728,386,560 bytes and used 924.48 CPU seconds.
+The candidate service, including both held-out and confirmation runs, peaked
+at 2,408,308,736 bytes and used 2,808.35 CPU seconds. These cgroup measurements
+include setup/cache activity; they are not per-request costs. Both stayed within
+the configured 4 GiB service limit. The second critique roughly doubles observed
+confirmation latency without fixing answerability. Full counters and provenance
+are in `backend/evaluation/results/m51-inference-resources.json`.
 
 Upstream references include the embedding model card, the exact generation
 artifact and license listing, the tokenizer repository, and the Ollama runtime
