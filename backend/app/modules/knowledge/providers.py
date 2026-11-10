@@ -159,32 +159,12 @@ class Review(BaseModel):
 
 
 def answer_schema() -> dict[str, Any]:
-    """Make abstention and claims mutually exclusive in constrained decoding."""
-    schema = StructuredAnswer.model_json_schema()
-    claims = schema["properties"]["claims"]
-    return {
-        "$defs": schema.get("$defs", {}),
-        "oneOf": [
-            {
-                "type": "object",
-                "additionalProperties": False,
-                "properties": {
-                    "status": {"const": "insufficient"},
-                    "claims": {"type": "array", "maxItems": 0},
-                },
-                "required": ["status", "claims"],
-            },
-            {
-                "type": "object",
-                "additionalProperties": False,
-                "properties": {
-                    "status": {"enum": ["answered", "conflicting"]},
-                    "claims": {**claims, "minItems": 1},
-                },
-                "required": ["status", "claims"],
-            },
-        ],
-    }
+    """Simple decoding shape; validate_answer enforces status/claim consistency.
+
+    The conditional schema trial coincided with excessive abstention in the 3B
+    development run. This ablation tests decoding without changing semantic gates.
+    """
+    return StructuredAnswer.model_json_schema()
 
 
 def quote_span(excerpt: str, quote: str) -> tuple[int, int] | None:

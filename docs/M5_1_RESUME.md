@@ -1,5 +1,14 @@
 # Resume the incomplete M5.1 checkpoint
 
+Latest development evidence: v4 on pinned 1.5B generated 25/27 answerable cases,
+with 60/66 supported reviewed claims and 16/27 complete answers. Unanswerable
+abstention was only 3/6. The 3B model generated only 1/27 answerable cases,
+with two supported claims but no complete answer. Neither is release-ready.
+The checked-in review records explicitly identify the reviewer as the assistant,
+not an independent human. A v5 development-only ablation removes conditional
+decoding while retaining status consistency validation and the same safety gates.
+Do not evaluate held-out or independent questions until the candidate is frozen.
+
 Resumed at the user's request on 10 November 2026 (Asia/Kolkata). **M5.1 is
 incomplete. Generation remains disabled. Do not start M6.**
 
@@ -13,6 +22,16 @@ in a triggering push's commit message, or an explicit workflow dispatch.
 Use `git log -1 --format='%H %s'` for the checkpoint's exact SHA.
 
 ## Preserved work and evidence
+
+Resume progress: `70d3ac44e58fb260f1960c069359741a64a57e43` passed all 82
+PostgreSQL integration tests, including the three pending M5.1 cases, and five
+real-stack browser workflows in CI run 42797900573. Candidate `7639374` changes
+only development-driven validation/prompt behavior and the evaluation framework.
+Its 116 backend unit/HTTP tests passed locally. The `evidence-claims-4` development
+comparison of pinned Qwen 1.5B and research-only Qwen 3B is running. The first
+candidate's rejection diagnosis is recorded in M5_1_FAILURE_ANALYSIS.md.
+Review those new results before changing the pipeline. The original held-out
+questions have not been evaluated or used for tuning during this resume.
 
 - M0–M5 application, migrations, frontend, Compose configuration and source
   specifications are unchanged. Source hash verification passed.
@@ -76,10 +95,9 @@ dataset has been created. No stronger model has been run.
   containers, contracts and five real-stack browser scenarios.
   [Branch CI](https://github.com/i-m-invincible/atlas-cx/actions/runs/42687390561) ·
   [PR CI](https://github.com/i-m-invincible/atlas-cx/actions/runs/42687399647)
-- After that commit, the two new review-aggregation tests passed. Ruff lint,
-  formatting and mypy passed for the updated tree. Three new PostgreSQL fallback
-  tests were collected successfully but **have not run**. The final checkpoint
-  has not run the complete 114-unit/82-integration suite or CI.
+- After that commit, the two new review-aggregation tests passed. The first
+  resume commit passed the complete 114-unit/82-integration CI suite. The next
+  candidate adds two unit checks (116 unit/HTTP tests passed locally).
 - Local Docker/PostgreSQL/Ollama remain unavailable. Real database/model runs
   used disposable GitHub Actions infrastructure. No paid service or deployment
   was created. Nothing was merged to main.

@@ -191,10 +191,8 @@ def test_quote_whitespace_recovers_canonical_span_without_changing_words():
             validate_answer(payload(quote=changed), sources(original))
 
 
-def test_schema_encodes_empty_claims_for_abstention():
-    from app.modules.knowledge.providers import answer_schema
-
-    branches = answer_schema()["oneOf"]
-    assert branches[0]["properties"]["status"] == {"const": "insufficient"}
-    assert branches[0]["properties"]["claims"]["maxItems"] == 0
-    assert branches[1]["properties"]["claims"]["minItems"] == 1
+def test_inconsistent_abstention_cannot_become_a_generated_answer():
+    model = SyntheticOllama([reply(payload(status="insufficient"))])
+    with pytest.raises(ModelFailure, match="invalid_citations"):
+        model.generate("Who approves loans?", sources())
+    assert len(model.calls) == 1

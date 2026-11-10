@@ -9,10 +9,11 @@ model run returned zero generated answers, 38/40 source-only fallbacks and
 The raw responses and sources are saved in the repository. Groundedness and
 completeness review are pending. Generation remains disabled.
 
-Later checkpoint additions have passed lint/types and two review-tool tests;
-three new PostgreSQL tests are collected but unexecuted. Checkpoint CI is
-not yet run. Work has resumed and the saved tests will run in the first resume
-CI. See [exact results and resume instructions](M5_1_RESUME.md).
+The first resume commit `70d3ac44e58fb260f1960c069359741a64a57e43` passed
+114 backend unit/HTTP tests, all 82 PostgreSQL integration tests (including the
+three pending fallback tests), and five Compose browser workflows in CI.
+The revised candidate `7639374` passed 116 unit/HTTP tests locally. Its model
+comparison is pending. See [exact results and resume instructions](M5_1_RESUME.md).
 
 ## M5 knowledge and support copilot
 
