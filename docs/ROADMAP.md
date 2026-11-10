@@ -34,7 +34,12 @@ indexing, authorized lexical and vector retrieval, and the support copilot.
 Generation availability depends on the pinned local model's evaluation gates.
 See the [synthetic evaluation record](RAG_EVALUATION.md).
 
-The next milestone is **M6 Health and product finish** after the M5 handoff.
+**M5.1 generation quality is in progress and paused at an incomplete checkpoint.**
+The first development candidate fell back on every attempted generation.
+Generation stays disabled. Follow [M5.1 resume instructions](M5_1_RESUME.md)
+before further experiments. The original evaluation corpus and gates remain unchanged.
+
+**M6 Health and product finish** remains deferred until the M5.1 handoff.
 It adds versioned health profiles, daily snapshots, and explanations for
 coverage, missing inputs, and stale scores.
 M7 validates the complete release, including restore, load, security, and

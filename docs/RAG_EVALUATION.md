@@ -1,5 +1,11 @@
 # Synthetic knowledge evaluation
 
+M5.1 is paused at an **incomplete checkpoint**. Its first development-only
+candidate served zero generated answers, with 38/40 source-only fallbacks and
+2/6 unanswerable abstentions. Raw outputs are preserved, but claim-level review
+is pending. Generation remains disabled. See [M5.1 resume record](M5_1_RESUME.md).
+The M5 results and original evaluation partition below are unchanged.
+
 The project-owned corpus is `backend/evaluation/knowledge-corpus-v1.json`.
 Its six policy guides and one field memo are fictional. Three guides include
 an earlier revision. Each expected answer identifies exact supporting chunks

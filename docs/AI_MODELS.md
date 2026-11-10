@@ -1,5 +1,12 @@
 # M5 model and tokenizer manifest
 
+M5.1 has an incomplete experimental prompt/validation candidate,
+`evidence-claims-3`, using the same pinned 1.5B model below. Its development-only
+run did not establish useful generated answers. The application release gate
+remains closed. A 3B alternative was investigated but has not been configured
+or run. See [checkpoint details](M5_1_RESUME.md). The M5 manifest below is the
+historical baseline.
+
 | Component            | Pinned artifact                                                                                                         | License                           |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
 | MiniLM embeddings    | `sentence-transformers/all-MiniLM-L6-v2` at `1110a243fdf4706b3f48f1d95db1a4f5529b4d41`, upstream FP32 `onnx/model.onnx` | Apache-2.0                        |

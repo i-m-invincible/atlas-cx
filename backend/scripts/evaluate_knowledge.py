@@ -184,7 +184,33 @@ def evaluate(args: argparse.Namespace) -> dict[str, object]:
     embedder = MiniLM(directory)
     tokenizer = FastTokenizer(directory, QWEN_TOKENIZER)
     traces: list[dict[str, object]] = []
-    generator = Ollama(args.ollama_url, tokenizer, observe=traces.append) if args.generate else None
+
+    def observe(record):
+        # Context token IDs add no review evidence. Preserve actual outputs and
+        # token/timing counters, including rejected drafts, only for this corpus.
+        traces.append(
+            {
+                "stage": record["stage"],
+                "result": {
+                    key: value
+                    for key, value in record["result"].items()
+                    if key
+                    in {
+                        "response",
+                        "done",
+                        "done_reason",
+                        "prompt_eval_count",
+                        "eval_count",
+                        "total_duration",
+                        "load_duration",
+                        "prompt_eval_duration",
+                        "eval_duration",
+                    }
+                },
+            }
+        )
+
+    generator = Ollama(args.ollama_url, tokenizer, observe=observe) if args.generate else None
     if args.baseline and args.generate:
         from scripts.m5_baseline import ModelFailure as BaselineFailure
         from scripts.m5_baseline import Ollama as Baseline
@@ -195,7 +221,7 @@ def evaluate(args: argparse.Namespace) -> dict[str, object]:
                     payload["options"]["num_thread"] = 3
                 result = super().request(path, timeout, payload)
                 if payload is not None:
-                    traces.append({"stage": "draft", "result": result})
+                    observe({"stage": "draft", "result": result})
                 return result
 
             def generate(self, question, sources):
@@ -359,6 +385,7 @@ def evaluate(args: argparse.Namespace) -> dict[str, object]:
             "generation_model": GENERATION_MODEL + "@" + GENERATION_DIGEST,
             "inference_threads": 3,
             "partition": args.partition,
+            "commit": os.environ.get("GITHUB_SHA", "local-unrecorded"),
             "machine": platform.platform(),
             "cpu_threads": os.cpu_count(),
             "generation_requested": args.generate,
@@ -388,6 +415,34 @@ def evaluate(args: argparse.Namespace) -> dict[str, object]:
                 for category in sorted({row.category for row in questions})
             },
             "fallback": proportion(fallbacks, len(results)),
+            "unanswerable_by_partition": {
+                partition: proportion(
+                    sum(
+                        row["mode"] == "abstained"
+                        for row in results
+                        if row["partition"] == partition and row["category"] == "unanswerable"
+                    ),
+                    sum(
+                        row.partition == partition and row.category == "unanswerable"
+                        for row in questions
+                    ),
+                )
+                for partition in sorted({row.partition for row in questions})
+            },
+            "inference_cost": {
+                "calls": sum(len(row["trace"]) for row in results),
+                "input_tokens": sum(
+                    trace["result"].get("prompt_eval_count", 0)
+                    for row in results
+                    for trace in row["trace"]
+                ),
+                "output_tokens": sum(
+                    trace["result"].get("eval_count", 0)
+                    for row in results
+                    for trace in row["trace"]
+                ),
+                "provider_fee": "No paid provider; local CPU inference. Hardware costs excluded.",
+            },
             "isolation_disclosures": leaks,
             "latency": {
                 "retrieval_with_query_embedding": latency(retrieval_times),

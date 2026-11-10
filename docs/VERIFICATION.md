@@ -1,5 +1,19 @@
 # Verification evidence
 
+## M5.1 incomplete checkpoint
+
+Paused at the user's request on 10 November 2026. The first candidate passed
+CI at `b5bbdec933758e085b3b1273ac0ae91a33b5451b`, but its completed development-only
+model run returned zero generated answers, 38/40 source-only fallbacks and
+2/6 unanswerable abstentions. This does not pass generation quality or utility.
+The raw responses and sources are saved in the repository. Groundedness and
+completeness review are pending. Generation remains disabled.
+
+Later checkpoint additions have passed lint/types and two review-tool tests;
+three new PostgreSQL tests are collected but unexecuted. Checkpoint CI is
+not yet run. Work has resumed and the saved tests will run in the first resume
+CI. See [exact results and resume instructions](M5_1_RESUME.md).
+
 ## M5 knowledge and support copilot
 
 The implementation commit `7f3a6873a93b5f661b286bfe1c1f0979fec1c8dc`

@@ -22,6 +22,9 @@ concurrency:
 
 jobs:
   evaluate:
+    # Explicit opt-in prevents documentation/checkpoint pushes from spending
+    # inference time. Ordinary CI still runs on every development push.
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[rag-eval]')
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     env:
