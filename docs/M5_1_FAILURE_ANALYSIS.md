@@ -164,3 +164,39 @@ The 600-token output budget is split 450/150. Model comparison uses the same
 40 development questions and unchanged retrieval. The research-only 3B model
 is an evaluation candidate because the pinned 1.5B critic failed on all 30
 reviewed drafts, not because it missed a held-out example.
+
+## Development comparison: v4
+
+Run 42798667504 evaluated both pinned variants with identical development
+questions, retrieval and limits. The 1.5B variant produced 29/40 answers;
+25/27 answerable questions received generation. Review found 60/66 claims
+supported, but only 16/27 complete answers and 3/6 unanswerable abstentions.
+The new critic can pass valid drafts, but it also misses lost restrictions,
+unsupported claims and unresolved conflicting schedules. Grounded, irrelevant
+facts in `unanswerable-02` are an answerability failure, not a hallucination.
+Per-response notes and the full traces are in the versioned results directory.
+
+The seven 1.5B fallbacks separate into:
+
+- Correct deterministic rejection: `direct-13` repeats a claim with an unrelated
+  quotation; `unanswerable-05` invents the absence of a discount and repeats it;
+  `conflict-03` repeats an obsolete threshold despite quoting its replacement.
+- Critique false negatives: `multi-03` supplies the eight-hour rule and correct
+  escalation; `conflict-02` supplies the current replacement rule; `injection-03`
+  supplies the legitimate report format. The critic says those facts are absent.
+  The first two could state the requested yes/no conclusion more directly, but
+  their policy assertions are supported. Rejecting the entire answer loses value.
+- Correct incomplete-answer veto: `unanswerable-09` returns only a heading,
+  without the requested private order count.
+
+No v4 1.5B fallback was caused by quote formatting. Whitespace normalization
+fixed the observed newline rejection without accepting modified words. The 3B
+variant abstained on 39/40 cases, including 26/27 answerable questions with
+retrieved evidence. Its sole answer was supported but incomplete. That is an
+incorrect answerability decision, not evidence that retrieval failed. Its
+6/6 unanswerable score cannot justify selection at this coverage.
+
+The v5 ablation changes only the decoding schema back to the simpler shape.
+It retains runtime status/claim consistency, quote checks and the v4 critic.
+This tests whether the conditional schema contributes to excessive abstention;
+the v4 observation alone does not establish that causal explanation.
