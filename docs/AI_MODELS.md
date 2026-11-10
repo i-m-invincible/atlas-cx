@@ -1,11 +1,21 @@
 # M5 model and tokenizer manifest
 
 M5.1 has an incomplete experimental prompt/validation candidate,
-`evidence-claims-3`, using the same pinned 1.5B model below. Its development-only
-run did not establish useful generated answers. The application release gate
-remains closed. A 3B alternative was investigated but has not been configured
-or run. See [checkpoint details](M5_1_RESUME.md). The M5 manifest below is the
-historical baseline.
+`evidence-claims-4`, using the same pinned 1.5B model below. Its predecessor
+`evidence-claims-3` did not establish useful generated answers. The application
+release gate remains closed. The M5 manifest below is the historical baseline.
+
+The evaluation-only 3B comparison is Ollama `qwen2.5:3b` Q4_K_M, manifest
+`sha256:357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b`.
+The model layer is 1,929,903,008 bytes. Its tokenizer at
+`Qwen/Qwen2.5-3B-Instruct` revision `aa8e72537993ba99e69dfaafa59ed015b17504d1`
+was verified byte-identical to the existing Qwen tokenizer checksum below.
+It uses the Qwen research license, restricted to research/evaluation. It is
+not selected by the application. Comparison runs impose a 4 GiB memory limit
+and three-core CPU quota on the private Ollama service, with one loaded model.
+No paid provider is used. Actual costs are token counts and measured runtime,
+not a claim of free hosted infrastructure. [Official artifact](https://ollama.com/library/qwen2.5:3b) ·
+[Exact model repository](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct/tree/aa8e72537993ba99e69dfaafa59ed015b17504d1)
 
 | Component            | Pinned artifact                                                                                                         | License                           |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------- |

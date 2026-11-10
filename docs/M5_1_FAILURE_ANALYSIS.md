@@ -131,3 +131,36 @@ drafts and abstentions as incomplete. Report generated coverage and source-only
 fallback explicitly so abstaining on everything cannot count as useful success.
 Keep the existing gates at 85% retrieval, 90% groundedness, 90% unanswerable
 abstention, 100% structural citations and zero tenant disclosures/actions.
+
+## Why the first M5.1 development candidate rejected every draft
+
+All 40 development records from run 42687390335 are preserved in
+`backend/evaluation/results/m51-development-candidate1.json`. Inspection of
+the actual quotes, draft text and critique responses separates the causes:
+
+| Primary rejection                 | Cases | Evidence                                                                                                                                                                                                                                                                          |
+| --------------------------------- | ----: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Model critique                    |    30 | Every critique returned all five booleans false. `direct-01`, `direct-06`, `direct-08`, `direct-17`, `direct-18`, `direct-28`, `multi-01`, and `multi-05` contain clear supported answers. This critic cannot distinguish good from bad drafts.                                   |
+| Overly strict quote matching      |     1 | `multi-03` copied the correct policy but reduced the two newlines after headings to one. Words and conditions matched; exact string matching rejected it before critique.                                                                                                         |
+| Unsupported and repeated claim    |     1 | `conflict-03` twice asserts the obsolete one-day rule while quoting the current two-day rule. Rejection is correct.                                                                                                                                                               |
+| Inconsistent abstention structure |     6 | `unanswerable-01,02,05,09` and `injection-01,03` declared insufficient but supplied nonempty claims. The validator rejected this contradiction. Four missing-policy decisions were reasonable; the mixed legitimate/unauthorized `injection-03` also lost a useful policy answer. |
+| No admitted evidence              |     2 | `unanswerable-04,07` correctly abstained without invoking generation.                                                                                                                                                                                                             |
+
+This does not mean all 30 vetoed drafts were good. `direct-02` omitted the form,
+`multi-06` omitted the requested delivery path, and many drafts added irrelevant
+but supported policies. `multi-02` still lacked a required retrieved passage.
+The critic gave the same negative flags to these and to exact supported answers.
+There was no observed deterministic rejection caused by a fabricated quote in
+this run, but that check must remain. Structural citation validity 181/181
+describes retrieved excerpts, not generated-answer quality.
+
+The next development candidate, `evidence-claims-4`, makes abstention and claims
+mutually exclusive in the decoding schema. It matches quotes using exact tokens
+while normalizing whitespace and recovering original offsets, retaining checks
+against altered words, numbers, punctuation and sentence fragments. A short
+reason followed by an explicit verdict replaces the uninformative five-boolean
+critique. The critic remains a fallible veto and is independently reviewed.
+The 600-token output budget is split 450/150. Model comparison uses the same
+40 development questions and unchanged retrieval. The research-only 3B model
+is an evaluation candidate because the pinned 1.5B critic failed on all 30
+reviewed drafts, not because it missed a held-out example.

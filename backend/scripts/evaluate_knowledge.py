@@ -211,6 +211,10 @@ def evaluate(args: argparse.Namespace) -> dict[str, object]:
         )
 
     generator = Ollama(args.ollama_url, tokenizer, observe=observe) if args.generate else None
+    if args.candidate == "qwen3b" and args.generate:
+        from scripts.m51_models import ResearchQwen3B
+
+        generator = ResearchQwen3B(args.ollama_url, tokenizer, observe=observe)
     if args.baseline and args.generate:
         from scripts.m5_baseline import ModelFailure as BaselineFailure
         from scripts.m5_baseline import Ollama as Baseline
@@ -382,7 +386,9 @@ def evaluate(args: argparse.Namespace) -> dict[str, object]:
             "embedding_revision": EMBEDDING_REVISION,
             "retrieval_version": retrieval.RETRIEVAL_VERSION,
             "prompt_version": "policy-claims-2" if args.baseline else PROMPT_VERSION,
-            "generation_model": GENERATION_MODEL + "@" + GENERATION_DIGEST,
+            "generation_model": (generator.model + "@" + generator.digest)
+            if generator and not args.baseline
+            else GENERATION_MODEL + "@" + GENERATION_DIGEST,
             "inference_threads": 3,
             "partition": args.partition,
             "commit": os.environ.get("GITHUB_SHA", "local-unrecorded"),
@@ -464,6 +470,7 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--generate", action="store_true")
     parser.add_argument("--baseline", action="store_true", help="Frozen M5 adapter comparison")
+    parser.add_argument("--candidate", choices=["qwen15b", "qwen3b"], default="qwen15b")
     parser.add_argument("--corpus", type=Path, default=CORPUS_PATH)
     parser.add_argument(
         "--partition", choices=["all", "development", "held_out", "confirmation"], default="all"
@@ -475,6 +482,8 @@ def main() -> None:
         help="Print generated claims from this synthetic corpus for manual review",
     )
     args = parser.parse_args()
+    if args.baseline and args.candidate != "qwen15b":
+        parser.error("The frozen baseline uses Qwen 1.5B only")
     result = evaluate(args)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(

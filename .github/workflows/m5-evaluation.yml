@@ -12,6 +12,7 @@ on:
       - 'backend/app/modules/knowledge/providers.py'
       - 'backend/app/modules/knowledge/retrieval.py'
       - 'backend/scripts/m5_baseline.py'
+      - 'backend/scripts/m51_models.py'
 
 permissions:
   contents: read
@@ -25,6 +26,10 @@ jobs:
     # Explicit opt-in prevents documentation/checkpoint pushes from spending
     # inference time. Ordinary CI still runs on every development push.
     if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[rag-eval]')
+    strategy:
+      fail-fast: false
+      matrix:
+        candidate: [qwen15b, qwen3b]
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     env:
@@ -69,19 +74,29 @@ jobs:
             --output "$archive"
           echo "628c018404a4206493efd38e46251c154ede5141b8b8dc85c659b3b027c47379  $archive" | sha256sum --check
           tar --zstd -xf "$archive" -C "$runtime"
-          "$runtime/bin/ollama" serve >"$RUNNER_TEMP/atlas-ollama.log" 2>&1 &
-          server_pid=$!
-          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          sudo systemd-run --unit=atlas-rag-evaluation --uid="$(id -u)" \
+            --property=MemoryMax=4G --property=CPUQuota=300% \
+            --setenv="OLLAMA_MODELS=$OLLAMA_MODELS" --setenv="OLLAMA_HOST=$OLLAMA_HOST" \
+            --setenv=OLLAMA_NO_CLOUD=1 --setenv=OLLAMA_NUM_PARALLEL=1 \
+            --setenv=OLLAMA_MAX_LOADED_MODELS=1 "$runtime/bin/ollama" serve
+          trap 'sudo systemctl stop atlas-rag-evaluation' EXIT
           curl --fail --silent --show-error --retry 20 --retry-connrefused "$OLLAMA_HOST/api/tags" >/dev/null
-          "$runtime/bin/ollama" pull qwen2.5:1.5b
+          model=qwen2.5:1.5b
+          if [ '${{ matrix.candidate }}' = qwen3b ]; then model=qwen2.5:3b; fi
+          "$runtime/bin/ollama" pull "$model"
           uv run --group ai python -m scripts.evaluate_knowledge --generate --log-claims \
             --partition development \
+            --candidate '${{ matrix.candidate }}' \
             --models ../.runtime/models --output ../.runtime/generation-evaluation.json
+          systemctl show atlas-rag-evaluation -p MemoryPeak -p CPUUsageNSec -p MemoryMax -p CPUQuotaPerSecUSec \
+            | tee ../.runtime/model-resources.txt
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
-          name: atlas-m5-synthetic-evaluation
-          path: .runtime/*-evaluation.json
+          name: atlas-m51-${{ matrix.candidate }}-evaluation
+          path: |
+            .runtime/*-evaluation.json
+            .runtime/model-resources.txt
           if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 14
