@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        candidate: [qwen15b, qwen3b]
+        profile: [candidate, baseline]
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     env:
@@ -51,13 +51,11 @@ jobs:
           uv sync --locked --group ai
           uv run --group ai alembic upgrade head
           uv run --group ai python -m app.modules.knowledge.prepare_models ../.runtime/models
-      - name: Compare PostgreSQL lexical, vector, and hybrid retrieval
+      - name: Verify frozen candidate and untouched original corpus
         working-directory: backend
         run: |
           lscpu | grep -E '^(Model name|CPU\(s\))'
-          uv run --group ai python -m scripts.evaluate_knowledge \
-            --partition development \
-            --models ../.runtime/models --output ../.runtime/retrieval-evaluation.json
+          uv run python -m scripts.verify_m51_freeze
       - name: Reviewable generation against pinned local Ollama
         working-directory: backend
         run: |
@@ -81,19 +79,25 @@ jobs:
             --setenv=OLLAMA_MAX_LOADED_MODELS=1 "$runtime/bin/ollama" serve
           trap 'sudo systemctl stop atlas-rag-evaluation' EXIT
           curl --fail --silent --show-error --retry 20 --retry-connrefused "$OLLAMA_HOST/api/tags" >/dev/null
-          model=qwen2.5:1.5b
-          if [ '${{ matrix.candidate }}' = qwen3b ]; then model=qwen2.5:3b; fi
-          "$runtime/bin/ollama" pull "$model"
+          "$runtime/bin/ollama" pull qwen2.5:1.5b
+          extra=()
+          if [ '${{ matrix.profile }}' = baseline ]; then
+            extra=(--baseline)
+          else
+            uv run --group ai python -m scripts.evaluate_knowledge --generate --log-claims \
+              --partition held_out \
+              --models ../.runtime/models --output ../.runtime/held-out-evaluation.json
+          fi
           uv run --group ai python -m scripts.evaluate_knowledge --generate --log-claims \
-            --partition development \
-            --candidate '${{ matrix.candidate }}' \
-            --models ../.runtime/models --output ../.runtime/generation-evaluation.json
+            "${extra[@]}" --partition confirmation \
+            --corpus evaluation/knowledge-confirmation-v1.json \
+            --models ../.runtime/models --output ../.runtime/confirmation-evaluation.json
           systemctl show atlas-rag-evaluation -p MemoryPeak -p CPUUsageNSec -p MemoryMax -p CPUQuotaPerSecUSec \
             | tee ../.runtime/model-resources.txt
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
-          name: atlas-m51-${{ matrix.candidate }}-evaluation
+          name: atlas-m51-${{ matrix.profile }}-confirmation
           path: |
             .runtime/*-evaluation.json
             .runtime/model-resources.txt
